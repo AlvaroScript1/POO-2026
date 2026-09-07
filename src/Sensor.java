@@ -15,4 +15,20 @@ public abstract class Sensor {
         this.mediciones = new ArrayList<>();
     }
 
+    public String getCodigo(){
+        return this.codigo;
+    }
+    public String getMarca(){
+        return this.marca;
+    }
+    public String getModelo(){
+        return this.modelo;
+    }
+    public Estado getEstado(){
+        return this.estado;
+    }
+    public void setEstado(Estado estado){
+        this.estado = estado;
+    }
+
 }
