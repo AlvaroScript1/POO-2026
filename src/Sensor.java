@@ -33,8 +33,14 @@ public abstract class Sensor {
     }
 
     public boolean addMedicion(LocalDateTime fechaHora, float valor){
-        if(estado.equals(Estado.ACTIVO)){
-
+        if(estado.equals(Estado.ACTIVO) && (this.esValorAdmisible(valor))){
+            for(Medicion m: mediciones){
+                if(m.equals(fechaHora)){
+                    return false;
+                }else{
+                    mediciones.add(m);
+                }
+            }
         }
         return false;
     }
