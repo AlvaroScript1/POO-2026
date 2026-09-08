@@ -34,7 +34,7 @@ public abstract class Sensor {
 
     public boolean addMedicion(LocalDateTime fechaHora, float valor){
         if(estado.equals(Estado.ACTIVO)){
-            return true;
+
         }
         return false;
     }
@@ -46,5 +46,7 @@ public abstract class Sensor {
         Medicion lastMedicion = mediciones.getLast();
         return lastMedicion; // Si tiene objetos entonces retornamos simplemente la ultima medicion
     }
+    public abstract String getUnidad(); //NO SE VEN BIEN EN EL UML SI ES ABSTRACT O NOOOO
+    public abstract boolean esValorAdmisible(float valor); // metodo abstract
 
 }
