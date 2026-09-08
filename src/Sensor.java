@@ -40,7 +40,10 @@ public abstract class Sensor {
     }
 
     public Medicion getLastMedicion(){ // En este caso queremos el ultimo objeto medicion de nuestra lista mediciones
-        Medicion lastMedicion = mediciones.getLast(); // Pero si esta vacia deberia retornar null
+        if(mediciones.isEmpty() == true){
+            return null;// Pero si esta vacia deberia retornar null
+        }
+        Medicion lastMedicion = mediciones.getLast();
         return lastMedicion; // Si tiene objetos entonces retornamos simplemente la ultima medicion
     }
 
