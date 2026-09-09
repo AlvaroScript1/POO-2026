@@ -49,7 +49,7 @@ public class EstacionMeteorologica {
                 codigo, nombre, latitud, longitud, altitud, estado, sensores.size());
     }
     public String[][] getResumenSensores(){
-        String[][]resumenSensores = new String[sensores.size][6];
+        String[][]resumenSensores = new String[sensores.size][5];
         for(int i = 0; i < sensores.size; i++){
             resumenSensores[i][0] = sensores.get(i).getCodigo();
             resumenSensores[i][1] = sensores.get(i).getMarca();
