@@ -3,7 +3,7 @@ public class InstitutoMeteorologia {
     //creo los ArrayList de lo que contiene el instituto, que son las estaciones y regiones.
     private ArrayList<EstacionMeteorologica> estacionesMeteorologicas = new ArrayList<>();
     private ArrayList<Region> regiones = new ArrayList<>();
-
+    //estoy en proceso de terminar los metodos que faltan... coming soon
     public boolean creaRegion(int codigo, String nombre){
         return false;
     }
@@ -19,7 +19,7 @@ public class InstitutoMeteorologia {
     public String[][] listaRegiones(){
         String[][] listaRegiones = new String[regiones.size()][1];
         for(int i = 0; i < regiones.size(); i++){
-            listaRegiones[i][1] = Region.get(i).getNombre;
+            listaRegiones[i][0] = regiones.get(i).getNombre();
         }
         return listaRegiones;
     }

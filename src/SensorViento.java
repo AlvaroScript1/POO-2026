@@ -1,5 +1,5 @@
 public class SensorViento extends Sensor{
-    public SensorViento(String codigo, String marca, String modelo, EstacionMetereologica estacion){
+    public SensorViento(String codigo, String marca, String modelo, EstacionMeteorologica estacion){
         super(codigo, marca, modelo, estacion);
     }
     public String getUnidad(){

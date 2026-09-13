@@ -1,6 +1,6 @@
 public class SensorHumedad extends Sensor{
 
-    public SensorHumedad(String codigo, String marca, String modelo, EstacionMetereologica estacion){
+    public SensorHumedad(String codigo, String marca, String modelo, EstacionMeteorologica estacion){
         super(codigo, marca, modelo, estacion);
     }
 

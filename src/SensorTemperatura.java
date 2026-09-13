@@ -1,5 +1,5 @@
 public class SensorTemperatura extends Sensor{
-    public SensorTemperatura(String codigo, String marca, String modelo, EstacionMetereologica estacion){
+    public SensorTemperatura(String codigo, String marca, String modelo, EstacionMeteorologica estacion){
         super(codigo, marca, modelo, estacion);
     }
 
