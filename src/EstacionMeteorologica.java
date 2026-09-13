@@ -10,11 +10,11 @@ public class EstacionMeteorologica {
     private List<Sensor> sensores;
     //constructor de EstacionMeteorologica (Falta las comunas)
     public EstacionMeteorologica(String cod, String nombre, float lon, float lat, float alt){
-        cod = codigo;
+        this.codigo = cod;
         this.nombre = nombre;
-        lon = longitud;
-        lat = latitud;
-        alt = altitud;
+        this.longitud = lon;
+        this.latitud = lat;
+        this.altitud = alt;
         this.estado = Estado.ACTIVO; //lo activamos por defecto
         //declaramos el array list de sensor
         this.sensores = new ArrayList<>();
@@ -57,6 +57,6 @@ public class EstacionMeteorologica {
             resumenSensores[i][3] = sensores.get(i).getEstado();
             resumenSensores[i][4] = sensores.get(i).getLastMedicion();
         }
-
+        return resumenSensores;
     }
 }
