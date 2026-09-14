@@ -10,6 +10,7 @@ public abstract class Sensor {
 
     protected Sensor(String codigo, String marca, String modelo, EstacionMeteorologica estacion) {
         this.codigo = codigo;
+        this.marca = marca;
         this.modelo = modelo;
         this.estacion = estacion;
         this.estado = Estado.ACTIVO;
@@ -35,18 +36,19 @@ public abstract class Sensor {
     public boolean addMedicion(LocalDateTime fechaHora, float valor){
         if(estado.equals(Estado.ACTIVO) && (this.esValorAdmisible(valor))){
             for(Medicion m: mediciones){
-                if(m.equals(fechaHora)){
+                if(m.getFechaHora().equals(fechaHora)){ // Usamos metodo getFechaHora() de la clase medicion
                     return false;
-                }else{
-                    mediciones.add(m);
                 }
             }
+            Medicion medicionNueva = new Medicion(fechaHora, valor); // creamos un nuevo objeto Medicion
+            mediciones.add(medicionNueva); // Añadimos el nuevo objeto creado con anterioridad al arrayList mediciones
+            return true;
         }
         return false;
     }
 
     public Medicion getLastMedicion(){ // En este caso queremos el ultimo objeto medicion de nuestra lista mediciones
-        if(mediciones.isEmpty() == true){
+        if(mediciones.isEmpty()){
             return null;// Pero si esta vacia deberia retornar null
         }
         Medicion lastMedicion = mediciones.getLast();

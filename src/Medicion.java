@@ -15,7 +15,7 @@ public final class Medicion { // Hacemos inmutable la clase
     public float getValor(){
         return this.valor; // retornamos el valor para su respectivo uso
     }
-    @Override
+    @Override // Sobreescribimos ya que esta clase ocupara en si este equals
     public boolean equals(Object o){
         if(o instanceof Medicion medicion){ //Nos aseguramos que o pertenezca a Medicion
             return this.fechaHora.equals(medicion.getFechaHora());
@@ -23,7 +23,7 @@ public final class Medicion { // Hacemos inmutable la clase
         return false;//Si no es asi retornamos falso
     }
 
-    @Override
+    @Override // Sobreescribimos ya que la clase hara uso de este toString
     public String toString(){
         DateTimeFormatter formatoRequerido = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // Damos formato requerido por el uml y guia
         String formatoNuevo = this.fechaHora.format(formatoRequerido);
