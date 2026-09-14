@@ -29,5 +29,4 @@ public final class Medicion { // Hacemos inmutable la clase
         String formatoNuevo = this.fechaHora.format(formatoRequerido);
         return formatoNuevo + "; "+this.valor; // Sobreescribimos el toString a la fecha hora y al valor
     }
-
 }
