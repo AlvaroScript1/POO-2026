@@ -6,9 +6,9 @@ public abstract class Sensor {
     private String modelo;
     private Estado estado;
     private ArrayList<Medicion> mediciones;
-    private EstacionMetereologica estacion;
+    private EstacionMeteorologica estacion;
 
-    protected Sensor(String codigo, String marca, String modelo, EstacionMetereologica estacion) {
+    protected Sensor(String codigo, String marca, String modelo, EstacionMeteorologica estacion) {
         this.codigo = codigo;
         this.modelo = modelo;
         this.estacion = estacion;

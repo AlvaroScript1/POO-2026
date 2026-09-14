@@ -1,41 +1,55 @@
 import java.util.*;
-private Scanner sc = new Scanner(System.in);
+public class InterfazUsuario {
+    private Scanner sc = new Scanner(System.in);
 
-void main() {
-}
-private void menuPrincipal(){
+    void main() {
+    }
 
-}
-private void crearRegion(){
+    private void menuPrincipal() {
 
-}
-private void crearComuna(){
+    }
 
-}
-private void crearEstacionMeteorologica(){
+    private void crearRegion() {
 
-}
-private void instalarSensor(){
+    }
 
-}
-private void registrarMedicion(){
+    private void crearComuna() {
 
-}
-private void menuListados(){
+    }
 
-}
-private void listarRegiones(){
+    private void crearEstacionMeteorologica() {
 
-}
-private void listarComunas(){
+    }
 
-}
-private void listarEstaciones(){
+    private void instalarSensor() {
 
-}
-private void listarSensores(){
+    }
 
-}
-private void listarMediciones(){
+    private void registrarMedicion() {
 
+    }
+
+    private void menuListados() {
+
+    }
+
+    private void listarRegiones() {
+
+    }
+
+    private void listarComunas() {
+
+    }
+
+    private void listarEstaciones() {
+
+    }
+
+    private void listarSensores() {
+
+    }
+
+    private void listarMediciones() {
+
+    }
 }
