@@ -4,10 +4,10 @@ public class SensorTemperatura extends Sensor{
     }
 
     public static float convertirCelsiusAFahrenheit(float valor){
-        return 90;
+        return (valor*9/5) + 32;
     }
     public String getUnidad(){
-        return "Ola";
+        return "°C";
     }
     public boolean esValorAdmisible(float valor){
         if(valor>=-80 && valor<=60){
