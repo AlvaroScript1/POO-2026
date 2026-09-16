@@ -17,8 +17,8 @@ public final class Medicion { // Hacemos inmutable la clase
     }
     @Override // Sobreescribimos ya que esta clase ocupara en si este equals
     public boolean equals(Object o){
-        if(o instanceof Medicion medicion){ //Nos aseguramos que o pertenezca a Medicion
-            return this.fechaHora.equals(medicion.getFechaHora());
+        if(o instanceof Medicion obj){ //Nos aseguramos que o pertenezca a Medicion
+            return this.fechaHora.equals(obj.getFechaHora());
         }
         return false;//Si no es asi retornamos falso
     }
