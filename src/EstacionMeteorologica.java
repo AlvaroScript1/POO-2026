@@ -9,9 +9,9 @@ public class EstacionMeteorologica {
     ;
     public ArrayList<Sensor> sensores = new ArrayList();
     //constructor de EstacionMeteorologica (Falta las comunas)
-    public EstacionMeteorologica(String cod, String nombre, float lon, float lat, float alt){
+    public EstacionMeteorologica(String cod, String nombre, float lon, float lat, float alt, int codRegion, int codComuna){
         this.codigo = cod;
-        this.nombre = nombre;
+        this.nombre = this.nombre;
         this.longitud = lon;
         this.latitud = lat;
         this.altitud = alt;
@@ -59,4 +59,8 @@ public class EstacionMeteorologica {
         }
         return resumenSensores;
     }
+
+    //metodos auxiliares:
+    public String getCodigo(){return codigo;}
+    public Estado getEstado(){return estado;}
 }

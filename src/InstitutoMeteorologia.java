@@ -1,17 +1,41 @@
 import java.util.*;
 public class InstitutoMeteorologia {
-    //creo los ArrayList de lo que contiene el instituto, que son las estaciones y regiones.
+
+    //ArrayList auxiliares
     private ArrayList<EstacionMeteorologica> estacionesMeteorologicas = new ArrayList<>();
     private ArrayList<Region> regiones = new ArrayList<>();
-    //estoy en proceso de terminar los metodos que faltan... coming soon
+
     public boolean creaRegion(int codigo, String nombre){
-        return false;
+        for(Region r : regiones){
+            if(r.getCodigo()==codigo){
+                return false;
+            }
+        }
+        Region nuevaRegion = new Region(codigo, nombre);
+        return regiones.add(nuevaRegion);
     }
     public boolean creaComuna(int codigo, String nombre, int codigoRegion){
+        for(Region r : regiones){
+            if(codigoRegion == r.getCodigo()){
+                return r.addComuna(codigo, nombre);
+            }
+        }
         return false;
     }
     public boolean creaEstacion(String cod, String nombre, float lon, float lat, float alt, int codRegion, int codComuna){
-        return false;
+        for(Region r : regiones){
+            if(codRegion == r.getCodigo()){
+                Comuna c = r.findComunaByid(codComuna);
+                if(c == null){
+                    return false;
+                }
+                if(c.findEstacionesById(cod) != null){
+                    return false;
+                }
+            }
+        }
+        EstacionMeteorologica nuevaEstacion = new EstacionMeteorologica(cod, nombre, lon, lat, alt, codRegion, codComuna);
+        return estacionesMeteorologicas.add(nuevaEstacion);
     }
     public boolean instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion){
         return false;
