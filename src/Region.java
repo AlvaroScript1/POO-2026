@@ -48,4 +48,13 @@ public class Region {
         }
         return cont;
     }
+
+    //metodos auxiliares (son metodos a parte de los que establece el UML)
+    public int getCantidadComunas(){
+        int cont = 0;
+        for(Comuna c : comunas){
+            cont++;
+        }
+        return cont;
+    }
 }

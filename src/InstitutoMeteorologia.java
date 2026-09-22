@@ -42,9 +42,29 @@ public class InstitutoMeteorologia {
     }
     public String[][] listaRegiones(){
         String[][] listaRegiones = new String[regiones.size()][1];
+
         for(int i = 0; i < regiones.size(); i++){
             listaRegiones[i][0] = regiones.get(i).getNombre();
         }
         return listaRegiones;
+    }
+    public String[][] listaComunas(){
+        int cantidadComunas = 0;
+        for(Region r : regiones){
+            cantidadComunas += r.getComunas().length;
+        }
+
+        String[][]listaComunas = new String[cantidadComunas][2];
+        int nFila = 0;
+        //en este apartado hay que crear un arreglo con las comunas por region, recorriendolas en un for doble for each,
+        for(Region r : regiones){
+            Comuna[] comunasPorRegion = r.getComunas();
+            for(Comuna c : comunasPorRegion){
+                listaComunas[nFila][0] = String.valueOf(c.getCodigo());
+                listaComunas[nFila][1] = String.valueOf(c.getNombre());
+            }
+
+        }
+        return listaComunas;
     }
 }
