@@ -3,7 +3,7 @@ public class SensorViento extends Sensor{
         super(codigo, marca, modelo, estacion);
     }
     public String getUnidad(){
-        return "Ola";
+        return "km/h";
     }
     public boolean esValorAdmisible(float valor){
         if(valor>=0 && valor<=250){

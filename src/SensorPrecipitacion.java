@@ -4,7 +4,7 @@ public class SensorPrecipitacion extends Sensor{
     }
 
     public String getUnidad(){
-        return "Ola";
+        return "mm";
     }
 
     public boolean esValorAdmisible(float valor){

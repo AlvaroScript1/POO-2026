@@ -5,7 +5,7 @@ public class SensorHumedad extends Sensor{
     }
 
     public String getUnidad(){
-        return "Ola";
+        return "%";
     }
     public boolean esValorAdmisible(float valor){
         if(valor>=0 && valor<=100){
