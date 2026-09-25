@@ -27,6 +27,6 @@ public final class Medicion { // Hacemos inmutable la clase
     public String toString(){
         DateTimeFormatter formatoRequerido = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // Damos formato requerido por el uml y guia
         String formatoNuevo = this.fechaHora.format(formatoRequerido);
-        return formatoNuevo + "; "+this.valor; // Sobreescribimos el toString a la fecha hora y al valor
+        return formatoNuevo + "; "+String.format("%.1f", this.valor); // Sobreescribimos el toString a la fecha hora y al valor, valor esta formateado a 1 decimal.
     }
 }

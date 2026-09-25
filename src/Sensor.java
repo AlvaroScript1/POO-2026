@@ -77,6 +77,6 @@ public abstract class Sensor {
         }
         return medicionesAptas;
     }
-    public abstract String getUnidad(); //NO SE VEN BIEN EN EL UML SI ES ABSTRACT O NOOOO
+    public abstract String getUnidad();
     public abstract boolean esValorAdmisible(float valor); // metodo abstract
 }
