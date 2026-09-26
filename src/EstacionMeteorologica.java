@@ -5,18 +5,19 @@ public class EstacionMeteorologica {
     private String codigo, nombre;
     private float longitud, latitud, altitud;
     private Estado estado;
+    private Comuna comuna;
     //complemento (creamos un array list de los sensores
-    ;
-    public ArrayList<Sensor> sensores = new ArrayList();
+    private ArrayList<Sensor> sensores = new ArrayList();
     //constructor de EstacionMeteorologica (Falta las comunas)
     public EstacionMeteorologica(String cod, String nombre,
                                  float lon, float lat, float alt,
-                                 int codRegion, int codComuna){
+                                 Comuna comuna){
         this.codigo = cod;
         this.nombre = nombre;
         this.longitud = lon;
         this.latitud = lat;
         this.altitud = alt;
+        this.comuna = comuna;
         this.estado = Estado.ACTIVO; //lo activamos por defecto
         //declaramos el array list de sensor
         this.sensores = new ArrayList<>();

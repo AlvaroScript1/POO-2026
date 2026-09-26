@@ -23,19 +23,24 @@ public class InstitutoMeteorologia {
         return false;
     }
     public boolean creaEstacion(String cod, String nombre, float lon, float lat, float alt, int codRegion, int codComuna){
+        for(EstacionMeteorologica e : estacionesMeteorologicas){
+            if(e.getCodigo().equalsIgnoreCase(cod)){
+                return false;
+            }
+        }
+
         for(Region r : regiones){
             if(codRegion == r.getCodigo()){
-                Comuna c = r.findComunaByid(codComuna);
+                Comuna c = r.findComunaById(codComuna);
                 if(c == null){
                     return false;
                 }
-                if(c.findEstacionById(cod) != null){
-                    return false;
-                }
+                EstacionMeteorologica nuevaEstacion = new EstacionMeteorologica(cod, nombre, lon, lat, alt, c);
+                c.addEstacion(nuevaEstacion);
+                return estacionesMeteorologicas.add(nuevaEstacion);
             }
         }
-        EstacionMeteorologica nuevaEstacion = new EstacionMeteorologica(cod, nombre, lon, lat, alt, codRegion, codComuna);
-        return estacionesMeteorologicas.add(nuevaEstacion);
+        return false;
     }
     public boolean instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion){
         return false;
