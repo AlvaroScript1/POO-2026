@@ -15,7 +15,9 @@ public class Region {
     public int getCodigo(){
         return codigo;
     }
-    public String getNombre(){return nombre;}
+    public String getNombre(){
+        return nombre;
+    }
 
     public boolean addComuna(int cod, String nom){
         for(Comuna c : comunas){
@@ -26,7 +28,7 @@ public class Region {
         Comuna nuevaComuna = new Comuna(cod, nom, this);
         return comunas.add(nuevaComuna);
     }
-    public Comuna findComunaByid(int cod) {
+    public Comuna findComunaById(int cod) {
         for (Comuna c : comunas) {
             if (cod == c.getCodigo()) {
                 return c; //"c" es el parametro de la Comuna.

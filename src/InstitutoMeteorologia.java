@@ -29,7 +29,7 @@ public class InstitutoMeteorologia {
                 if(c == null){
                     return false;
                 }
-                if(c.findEstacionesById(cod) != null){
+                if(c.findEstacionById(cod) != null){
                     return false;
                 }
             }
