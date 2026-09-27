@@ -28,6 +28,9 @@ public class EstacionMeteorologica {
                 return false;
             }
         }
+        if(estado != Estado.ACTIVO){
+            return false;
+        }
         Sensor nuevoSensor = switch(tipo){
             case HUMEDAD -> new SensorHumedad(codigo, marca, modelo, this);
             case TEMPERATURA -> new SensorTemperatura(codigo, marca, modelo, this);
@@ -37,7 +40,10 @@ public class EstacionMeteorologica {
         };
         return sensores.add(nuevoSensor);
     }
-    public boolean RegistraMedicion(LocalDateTime fechaHora, float valor, String codigoSensor){
+    public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codigoSensor){
+        if(estado != Estado.ACTIVO){
+            return false;
+        }
         for(Sensor s : sensores){
             if(s.getCodigo().equalsIgnoreCase(codigoSensor)){ //la condicion que evalua s como obj y compara su codigo con el parametro para buscar el sensor.
                 return s.addMedicion(fechaHora, valor); //llamamos el metodo para agregar la medición con los parametros
