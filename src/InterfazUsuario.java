@@ -21,8 +21,8 @@ public class InterfazUsuario {
             System.out.println("5. Registrar medición");
             System.out.println("6. Generar listados");
             System.out.println("7. Salir");
-            System.out.println("Opcion: ");
-            opciones = sc.nextInt();
+            System.out.print("Opcion: ");
+            opciones = Integer.parseInt(sc.nextLine().trim()); // Leemos un numero en formato String, eliminamos espacios y transformamos el String a int
             switch(opciones){
                 case 1:
                     crearRegion();
@@ -52,15 +52,56 @@ public class InterfazUsuario {
     }
 
     private void crearRegion() {
-
+        System.out.println("CREAR REGIÓN");
+        System.out.println("----------------------------------------------------------");
+        System.out.println("Código de región: ");
+        int codigo = Integer.parseInt(sc.nextLine().trim()); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
+        System.out.println("Nombre: ");
+        String nombre = sc.nextLine().trim(); // Leemos el nombre como String y con trim borramos los espacios.
+        if(instituto.creaRegion(codigo, nombre)){
+            System.out.println("> Región creada correctamente.");
+        }else{
+            System.out.println("> No se ha podido crear la región, ya existe una con nombre o codigo identico");
+        }
     }
-
     private void crearComuna() {
-
+        System.out.println("CREAR COMUNA");
+        System.out.println("----------------------------------------------------------");
+        System.out.println("Código de región: ");
+        int codigoRegión = Integer.parseInt(sc.nextLine().trim());
+        System.out.println("Código de comuna: ");
+        int codigo = Integer.parseInt(sc.nextLine().trim()); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
+        System.out.println("Nombre: ");
+        String nombre = sc.nextLine().trim(); // Leemos el nombre como String y con trim borramos los espacios.
+        if(instituto.creaComuna(codigo, nombre, codigoRegión)){
+            System.out.println("> Comuna creada correctamente.");
+        }else{
+            System.out.println("> No se ha podido crear la comuna, ya existe una con nombre o codigo identico o la region no existe");
+        }
     }
 
     private void crearEstacionMeteorologica() {
-
+        System.out.println("CREAR ESTACIÓN METEOROLÓGICA");
+        System.out.println("----------------------------------------------------------");
+        System.out.print("Código de estación: ");
+        String codigo = sc.nextLine().trim();
+        System.out.print("Nombre: ");
+        String nombre = sc.nextLine().trim();
+        System.out.print("Longitud: ");
+        float lon = Float.parseFloat(sc.nextLine().trim());
+        System.out.print("Latitud: ");
+        float lat = Float.parseFloat(sc.nextLine().trim());
+        System.out.print("Altitud (m): ");
+        float alt = Float.parseFloat(sc.nextLine().trim());
+        System.out.print("Código de región: ");
+        int codRegion = Integer.parseInt(sc.nextLine().trim());
+        System.out.print("Código de comuna: ");
+        int codComuna = Integer.parseInt(sc.nextLine().trim());
+        if(instituto.creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna)){
+            System.out.println("> Estación meteorológica creada correctamente.");
+        }else{
+            System.out.println("> No se ha podido crear la estacion meteorologica, el codigo ya existe, o la region o comuna no existen");
+        }
     }
 
     private void instalarSensor() {
@@ -93,5 +134,21 @@ public class InterfazUsuario {
 
     private void listarMediciones() {
 
+    }
+
+
+
+    /* Abajo iran metodos privados para hacer mas eficiente el codigo, ya que me estoy dando cuenta
+     que se esta repitiendo mucho codigo y puede afectar negativamente la ejecucion del programa o
+     la lectura de este mismo*/
+
+    private int convertidorInt(String texto){ // convierte la funcion convertidorTexto a Int
+        return Integer.parseInt(convertidorTexto(texto));
+    }
+
+
+    private String convertidorTexto(String texto){ // Imprime el texto y ademas retorna una lectura que elimina los espacios
+        System.out.println(texto); //
+        return sc.nextLine().trim();
     }
 }
