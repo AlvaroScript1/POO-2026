@@ -1,3 +1,6 @@
+import org.w3c.dom.ls.LSOutput;
+
+import java.sql.SQLOutput;
 import java.util.*;
 import java.time.*;
 public class InterfazUsuario {
@@ -94,7 +97,39 @@ public class InterfazUsuario {
     }
 
     private void instalarSensor() {
-
+        System.out.println("INSTALAR SENSOR");
+        System.out.println("----------------------------------------------------------");
+        String codigoEstacion = convertidorTexto("Código de estación: ");
+        int opcion = convertidorInt("Tipo [1 Temp.  2 Hum.  3 Presión  4 Viento  5 Precip.]: ");
+        TipoSensor tipoSensor;
+        switch(opcion){
+            case 1:
+                tipoSensor = TipoSensor.TEMPERATURA;
+                break;
+            case 2:
+                tipoSensor = TipoSensor.HUMEDAD;
+                break;
+            case 3:
+                tipoSensor = TipoSensor.PRESION;
+                break;
+            case 4:
+                tipoSensor = TipoSensor.VIENTO;
+                break;
+            case 5:
+                tipoSensor = TipoSensor.PRECIPITACION;
+                break;
+            default:
+                System.out.println("> Sensor invalido");
+                return;
+        }
+        String codigoSen = convertidorTexto("Código de sensor: ");
+        String marca = convertidorTexto("Marca: ");
+        String modelo = convertidorTexto("Modelo: ");
+        if(instituto.instalaSensor(codigoSen, marca, modelo, tipoSensor, codigoEstacion)){
+            System.out.println("> Sensor de "+ tipoSensor.name().toLowerCase()+" instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "Sensor de humedad"
+        }else{
+            System.out.println("> No se ha instalado el sensor, debido a que no existe la estacion, no esta activa o ya existe un sensor con mismo codigo o activo del mismo tipo");
+        }
     }
 
     private void registrarMedicion() {
