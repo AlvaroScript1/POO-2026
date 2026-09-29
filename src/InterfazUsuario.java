@@ -3,7 +3,7 @@ import java.time.*;
 public class InterfazUsuario {
     private Scanner sc = new Scanner(System.in);
     private InstitutoMeteorologia instituto; // Asociacion con InstitutoMetereologia
-    public static void main() {
+    public static void main(String[]args) {
         InterfazUsuario interfaz = new InterfazUsuario();
         interfaz.menuPrincipal();
     }
@@ -54,10 +54,8 @@ public class InterfazUsuario {
     private void crearRegion() {
         System.out.println("CREAR REGIÓN");
         System.out.println("----------------------------------------------------------");
-        System.out.println("Código de región: ");
-        int codigo = Integer.parseInt(sc.nextLine().trim()); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
-        System.out.println("Nombre: ");
-        String nombre = sc.nextLine().trim(); // Leemos el nombre como String y con trim borramos los espacios.
+        int codigo = convertidorInt("Código de región: "); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
+        String nombre = convertidorTexto("Nombre: "); // Leemos el nombre como String y con trim borramos los espacios.
         if(instituto.creaRegion(codigo, nombre)){
             System.out.println("> Región creada correctamente.");
         }else{
@@ -67,13 +65,11 @@ public class InterfazUsuario {
     private void crearComuna() {
         System.out.println("CREAR COMUNA");
         System.out.println("----------------------------------------------------------");
-        System.out.println("Código de región: ");
-        int codigoRegión = Integer.parseInt(sc.nextLine().trim());
-        System.out.println("Código de comuna: ");
-        int codigo = Integer.parseInt(sc.nextLine().trim()); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
-        System.out.println("Nombre: ");
-        String nombre = sc.nextLine().trim(); // Leemos el nombre como String y con trim borramos los espacios.
-        if(instituto.creaComuna(codigo, nombre, codigoRegión)){
+        int codigoRegion = convertidorInt("Código de región: ");
+        int codigo = convertidorInt("Código de comuna: "); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
+        String nombre = convertidorTexto("Nombre: "); // Leemos el nombre como String y con trim borramos los espacios.
+
+        if(instituto.creaComuna(codigo, nombre, codigoRegion)){
             System.out.println("> Comuna creada correctamente.");
         }else{
             System.out.println("> No se ha podido crear la comuna, ya existe una con nombre o codigo identico o la region no existe");
@@ -83,20 +79,13 @@ public class InterfazUsuario {
     private void crearEstacionMeteorologica() {
         System.out.println("CREAR ESTACIÓN METEOROLÓGICA");
         System.out.println("----------------------------------------------------------");
-        System.out.print("Código de estación: ");
-        String codigo = sc.nextLine().trim();
-        System.out.print("Nombre: ");
-        String nombre = sc.nextLine().trim();
-        System.out.print("Longitud: ");
-        float lon = Float.parseFloat(sc.nextLine().trim());
-        System.out.print("Latitud: ");
-        float lat = Float.parseFloat(sc.nextLine().trim());
-        System.out.print("Altitud (m): ");
-        float alt = Float.parseFloat(sc.nextLine().trim());
-        System.out.print("Código de región: ");
-        int codRegion = Integer.parseInt(sc.nextLine().trim());
-        System.out.print("Código de comuna: ");
-        int codComuna = Integer.parseInt(sc.nextLine().trim());
+        String codigo = convertidorTexto("Código de estación: ");
+        String nombre = convertidorTexto("Nombre: ");
+        float lon = convertidorFloat("Longitud: ");
+        float lat = convertidorFloat("Latitud: ");
+        float alt = convertidorFloat("Altitud (m): ");
+        int codRegion = convertidorInt("Código de región: ");
+        int codComuna = convertidorInt("Código de comuna: ");
         if(instituto.creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna)){
             System.out.println("> Estación meteorológica creada correctamente.");
         }else{
@@ -150,5 +139,9 @@ public class InterfazUsuario {
     private String convertidorTexto(String texto){ // Imprime el texto y ademas retorna una lectura que elimina los espacios
         System.out.println(texto); //
         return sc.nextLine().trim();
+    }
+
+    private float convertidorFloat(String texto){
+        return Float.parseFloat(convertidorTexto(texto));
     }
 }
