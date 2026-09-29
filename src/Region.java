@@ -21,7 +21,7 @@ public class Region {
 
     public boolean addComuna(int cod, String nom){
         for(Comuna c : comunas){
-            if(cod == c.getCodigo()){
+            if(cod == c.getCodigo() || c.getNombre().equalsIgnoreCase(nom)){
                 return false;
             }
         }
@@ -52,11 +52,12 @@ public class Region {
     }
 
     //metodos auxiliares (son metodos a parte de los que establece el UML)
-    public int getCantidadComunas(){
+    /* private int getCantidadComunas(){
         int cont = 0;
         for(Comuna c : comunas){
             cont++;
         }
         return cont;
     }
+    */
 }
