@@ -8,7 +8,7 @@ public class InstitutoMeteorologia {
 
     public boolean creaRegion(int codigo, String nombre){
         for(Region r : regiones){
-            if(r.getCodigo()==codigo){
+            if(r.getCodigo()==codigo || r.getNombre().equalsIgnoreCase(nombre)){
                 return false;
             }
         }
@@ -17,7 +17,7 @@ public class InstitutoMeteorologia {
     }
     public boolean creaComuna(int codigo, String nombre, int codigoRegion){
         for(Region r : regiones){
-            if(codigoRegion == r.getCodigo()){
+            if(codigoRegion == r.getCodigo() || r.getNombre().equalsIgnoreCase(nombre)){
                 return r.addComuna(codigo, nombre);
             }
         }

@@ -138,7 +138,7 @@ public class InterfazUsuario {
         String fecha = convertidorTexto("Fecha y hora [dd/MM/yyyy HH:mm]: ");
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos la fecha
         LocalDateTime fechaYHora = LocalDateTime.parse(fecha, formato); // pasamos la fecha al formato indicado y lo pasamos a LocalDateTime
-        float val = convertidorFloat("Valor [°C]: ");
+        float val = convertidorFloat("Valor: ");
         if(instituto.registraMedicion(fechaYHora, val, codEstacion, codSensor)) {
             System.out.println("> Medición registrada correctamente.");
         }else{
@@ -183,7 +183,7 @@ public class InterfazUsuario {
 
 
     private String convertidorTexto(String texto){ // Imprime el texto y ademas retorna una lectura que elimina los espacios
-        System.out.println(texto); //
+        System.out.print(texto); //
         return sc.nextLine().trim();
     }
 

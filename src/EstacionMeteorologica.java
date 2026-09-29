@@ -7,7 +7,7 @@ public class EstacionMeteorologica {
     private Estado estado;
     private Comuna comuna;
     //complemento (creamos un array list de los sensores
-    private ArrayList<Sensor> sensores = new ArrayList();
+    private ArrayList<Sensor> sensores;
     //constructor de EstacionMeteorologica (Falta las comunas)
     public EstacionMeteorologica(String cod, String nombre,
                                  float lon, float lat, float alt,
