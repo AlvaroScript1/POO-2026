@@ -44,6 +44,11 @@ public class InstitutoMeteorologia {
         return false;
     }
     public boolean instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion){
+        for(EstacionMeteorologica e : estacionesMeteorologicas){
+            if(e.getCodigo().equalsIgnoreCase(codigoEstacion)){
+                return e.instalaSensor(cod, marca, modelo, tipo);
+            }
+        }
         return false;
     }
     public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor){
