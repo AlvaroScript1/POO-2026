@@ -131,7 +131,20 @@ public class InterfazUsuario {
     }
 
     private void registrarMedicion() {
-
+        System.out.println("REGISTRAR MEDICIÓN");
+        System.out.println("----------------------------------------------------------");
+        String codEstacion = convertidorTexto("Código de estación: ");
+        String codSensor = convertidorTexto("Código de sensor: ");
+        String fecha = convertidorTexto("Fecha y hora [dd/MM/yyyy HH:mm]: ");
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos la fecha
+        LocalDateTime fechaYHora = LocalDateTime.parse(fecha, formato); // pasamos la fecha al formato indicado y lo pasamos a LocalDateTime
+        float val = convertidorFloat("Valor [°C]: ");
+        if(instituto.registraMedicion(fechaYHora, val, codEstacion, codSensor)) {
+            System.out.println("> Medición registrada correctamente.");
+        }else{
+            System.out.println("> No se ha podido registrar la medicion: la estacion o el sensor no existen o se encuentran inactivos, "+
+                    "el valor no es apto o ya existe una medicion en esa fecha y hora");
+        }
     }
 
     private void menuListados() {

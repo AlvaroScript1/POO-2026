@@ -1,4 +1,5 @@
 import java.util.*;
+import java.time.*;
 public class InstitutoMeteorologia {
 
     //ArrayList auxiliares
@@ -43,6 +44,14 @@ public class InstitutoMeteorologia {
         return false;
     }
     public boolean instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion){
+        return false;
+    }
+    public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor){
+        for(EstacionMeteorologica est : estacionesMeteorologicas){
+            if(est.getCodigo().equalsIgnoreCase(codEstacion)){
+                return est.registraMedicion(fechaHora, valor, codSensor); // usa registraMedicion de EstacionMeteorologica
+            }
+        }
         return false;
     }
     public String[][] listaRegiones(){
