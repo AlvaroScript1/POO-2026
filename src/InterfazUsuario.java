@@ -1,8 +1,6 @@
-import org.w3c.dom.ls.LSOutput;
-
-import java.sql.SQLOutput;
 import java.util.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 public class InterfazUsuario {
     private Scanner sc = new Scanner(System.in);
     private InstitutoMeteorologia instituto; // Asociacion con InstitutoMetereologia
