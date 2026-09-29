@@ -142,13 +142,46 @@ public class InterfazUsuario {
         if(instituto.registraMedicion(fechaYHora, val, codEstacion, codSensor)) {
             System.out.println("> Medición registrada correctamente.");
         }else{
-            System.out.println("> No se ha podido registrar la medicion: la estacion o el sensor no existen o se encuentran inactivos, "+
+            System.out.println("> No se ha podido registrar la medicion, la estacion o el sensor no existen o se encuentran inactivos, "+
                     "el valor no es apto o ya existe una medicion en esa fecha y hora");
         }
     }
 
     private void menuListados() {
-
+        int opcion;
+        do{
+            System.out.println("LISTADOS");
+            System.out.println("----------------------------------------------------------");
+            System.out.println("1. Regiones");
+            System.out.println("2. Comunas");
+            System.out.println("3. Estaciones de una comuna");
+            System.out.println("4. Sensores de una estacion");
+            System.out.println("5. Mediciones de un sensor");
+            System.out.println("6. Volver al menu principal");
+            opcion = convertidorInt("Seleccione una opcion: ");
+            switch(opcion){
+                case 1:
+                    listarRegiones();
+                    break;
+                case 2:
+                    listarComunas();
+                    break;
+                case 3:
+                    listarEstaciones();
+                    break;
+                case 4:
+                    listarSensores();
+                    break;
+                case 5:
+                    listarMediciones();
+                    break;
+                case 6:
+                    break;
+                default:
+                    System.out.println("Opcion invalida");
+                    break;
+            }
+        }while(opcion != 6);
     }
 
     private void listarRegiones() {
@@ -190,4 +223,7 @@ public class InterfazUsuario {
     private float convertidorFloat(String texto){
         return Float.parseFloat(convertidorTexto(texto));
     }
+    // Lo que hacen estos metodos es leer un String que asumimos que seran datos correctos en su caso, eliminar espacios inadecuados que existan y
+    // transformarlos a un tipo de dato correspondiente, en este caso puede ser Float o Int, para el metodo convertidorTexto, muestra un texto correspondiente
+    // ademas de eso hace una lectura de parte del usuario.
 }

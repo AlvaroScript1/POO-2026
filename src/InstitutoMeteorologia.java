@@ -17,7 +17,7 @@ public class InstitutoMeteorologia {
     }
     public boolean creaComuna(int codigo, String nombre, int codigoRegion){
         for(Region r : regiones){
-            if(codigoRegion == r.getCodigo() || r.getNombre().equalsIgnoreCase(nombre)){
+            if(codigoRegion == r.getCodigo()){
                 return r.addComuna(codigo, nombre);
             }
         }
