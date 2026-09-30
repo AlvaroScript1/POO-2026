@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 public class InterfazUsuario {
     private Scanner sc = new Scanner(System.in);
     private InstitutoMeteorologia instituto; // Asociacion con InstitutoMetereologia
-    static void main(String[]args) {
+    public static void main(String[]args) {
         InterfazUsuario interfaz = new InterfazUsuario();
         interfaz.menuPrincipal();
     }
@@ -185,23 +185,83 @@ public class InterfazUsuario {
     }
 
     private void listarRegiones() {
-
+        String[][] m = instituto.listaRegiones(); // Usamos listaRegiones de InstitutoMeteorologia
+        System.out.println("LISTADO DE REGIONES");
+        System.out.println("----------------------------------------------------------");
+        if(m.length == 0){
+            System.out.println("> No existen regiones registradas en el sistema");
+            return;   // Esto es para regresar y no seguir con el resto de codigo
+        }
+        System.out.println("CÓDIGO\tNOMBRE\t\tCOMUNAS\tESTACIONES");
+        for(String[] f : m){
+            System.out.println(f[0]+"\t"+f[1]+"\t\t"+f[2]+"\t"+f[3]+"\t"+f[4]);
+        }
     }
 
     private void listarComunas() {
-
+        String[][] m = instituto.listaComunas(); // Usamos listaComunas de InstitutoMeteorologia
+        System.out.println("LISTADO DE COMUNAS");
+        System.out.println("----------------------------------------------------------");
+        if(m.length == 0){
+            System.out.println("> No existen comunas registradas en el sistema");
+            return;
+        }
+        System.out.println("CODIGO\tNOMBRE\t\tREGION\t\tESTACIONES\tACTIVAS");
+        for(String[] f : m){
+            System.out.println(f[0]+"\t\t"+f[1]+"\t\t"+f[2]+"\t"+f[3]+"\t"+f[4]);
+        }
     }
 
     private void listarEstaciones() {
-
+        int codR = convertidorInt("Código de región: ");
+        int codC = convertidorInt("Código de comuna: ");
+        String[][] m = instituto.listaEstaciones(codR, codC); // Usamos listaEstaciones de InstitutoMeteorologia
+        System.out.println("ESTACIONES DE LA COMUNA "+codC);
+        System.out.println("----------------------------------------------------------");
+        if(m.length == 0){
+            System.out.println("> No hay estaciones existentes para la comuna y region indicadas");
+            return;
+        }
+        System.out.println("CÓDIGO\t\tNOMBRE\t\tUBICACION\t\t\tESTADO\tSENSORES OPERATIVOS");
+        for(String[] f : m){
+            System.out.println(f[0]+"\t\t"+f[1]+"\t\t"+f[2]+"\t"+f[3]+"\t"+f[4]);
+        }
     }
 
     private void listarSensores() {
-
+        String codE = convertidorTexto("Código de estación: ");
+        String[][] m = instituto.listaSensores(codE); // Usamos listaSensores de InstitutoMeteorologia
+        System.out.println("SENSORES DE "+ codE.toUpperCase());
+        System.out.println("----------------------------------------------------------");
+        if(m.length == 0){
+            System.out.println("> Estacion inexistente o sin sensores instalados en ella");
+            return;
+        }
+        System.out.println("CODIGO\tTIPO\t\tMARCA\tMODELO\tUNIDAD\tESTADO\tULTIMA MEDICION");
+        for(String[] f : m){
+            System.out.println(f[0]+"\t"+f[1]+"\t"+f[2]+"\t"+f[3]+"\t"+f[4]+"\t"+f[5]+"\t"+f[6]);
+        }
     }
 
     private void listarMediciones() {
+        String codE = convertidorTexto("Código de estación: ");
+        String codS = convertidorTexto("Código de sensor: ");
+        DateTimeFormatter formateado = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos fecha
+        LocalDateTime i = LocalDateTime.parse(convertidorTexto("Inicio [dd/MM/yyyy HH:mm]: "), formateado); // pasamos un string de fecha a un formato y esa nueva fecha formateada la pasamos a tipo LocalDateTime
+        LocalDateTime f = LocalDateTime.parse(convertidorTexto("Fin [dd/MM/yyyy HH:mm]: "), formateado);
+        String[][] m = instituto.listaMediciones(codE, codS, i, f); // Usamos listaMediciones de InstitutoMeteorologia
 
+        System.out.println("MEDICIONES DEL SENSOR "+codS.toUpperCase());
+        System.out.println("----------------------------------------------------------");
+        if(m.length == 0){
+            System.out.println("> No hay mediciones existentes para los datos y fecha indicados");
+            return;
+        }
+        System.out.println("Período: "+ i.format(formateado)+" a "+f.format(formateado)); // Este es el titulo que se mostrara con las fechas formateadas
+        System.out.println("FECHA\t\tHORA\tVALOR\tUNIDAD");
+        for(String[] a : m){
+            System.out.println(a[0]+"\t"+a[1]+"\t"+a[2]+"\t"+a[3]);
+        }
     }
 
 
