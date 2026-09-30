@@ -23,11 +23,6 @@ public class EstacionMeteorologica {
         this.sensores = new ArrayList<>();
     }
     public boolean instalaSensor(String codigo, String marca, String modelo, TipoSensor tipo){
-        for(Sensor s : sensores){
-            if(s.getCodigo().equalsIgnoreCase(codigo)){
-                return false;
-            }
-        }
         if(estado != Estado.ACTIVO){
             return false;
         }
@@ -38,6 +33,14 @@ public class EstacionMeteorologica {
             case VIENTO -> new SensorViento(codigo, marca, modelo, this);
             case PRECIPITACION -> new SensorPrecipitacion(codigo, marca, modelo, this);
         };
+        for(Sensor s : sensores){
+            if(s.getCodigo().equalsIgnoreCase(codigo)){
+                return false;
+            }
+            if(s.getEstado() == Estado.ACTIVO && (s.getClass() == nuevoSensor.getClass())){ // si existe un sensor activo igual a otro sensor activo, entonces rechazamos el cambio
+                return false;
+            }
+        }
         return sensores.add(nuevoSensor);
     }
     public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codigoSensor){
@@ -54,17 +57,34 @@ public class EstacionMeteorologica {
 
     @Override
     public String toString() {
-        return String.format("%s, %s, (%.2f, %.2f, %.2f), %s, %d",
-                codigo, nombre, latitud, longitud, altitud, estado, sensores.size());
+        int senActivo = 0;
+        for(Sensor s : sensores){
+            if(s.getEstado() == Estado.ACTIVO){ // Cuenta solo los sensores activos
+                senActivo++;
+            }
+        }
+        return String.format("%s; %s; (%.4f, %.4f, %.0f m); %s; %d",
+                codigo, nombre, latitud, longitud, altitud, estado, senActivo);
     }
     public String[][] getResumenSensores(){
-        String[][] resumenSensores = new String[sensores.size()][5];
-        for(int i = 0; i < sensores.size(); i++){
+        String[][] resumenSensores = new String[sensores.size()][7];
+        for(int i = 0; i < sensores.size(); i++) {
+            String nomClase = sensores.get(i).getClass().getSimpleName(); // Tomamos la clase y la llevamos a String
+            String sensor = nomClase.replace("Sensor", ""); // replace reemplaza un algo por algo, en este caso Sensor por "" que seria nada
             resumenSensores[i][0] = sensores.get(i).getCodigo();
-            resumenSensores[i][1] = sensores.get(i).getMarca();
-            resumenSensores[i][2] = sensores.get(i).getModelo();
-            resumenSensores[i][3] = String.valueOf(sensores.get(i).getEstado());
-            resumenSensores[i][4] = sensores.get(i).getLastMedicion().toString();
+            resumenSensores[i][1] = sensor.toUpperCase(); // Mostramos solo el tipo de sensor / Ej: HUMEDAD sin el Sensor por delante, sin el cambio hubiese quedado como SensorHumedad
+            resumenSensores[i][2] = sensores.get(i).getMarca();
+            resumenSensores[i][3] = sensores.get(i).getModelo();
+            resumenSensores[i][4] = sensores.get(i).getUnidad();
+            resumenSensores[i][5] = String.valueOf(sensores.get(i).getEstado()); // Tomamos el estado y lo transformamos en String
+
+            Medicion medUltima = sensores.get(i).getLastMedicion(); // Tomamos la ultima medicion
+            if (medUltima == null) { // Vemos el caso en el que la ultima medicion es null, no existe
+                resumenSensores[i][6] = "No existe medicion";
+            } else {
+                resumenSensores[i][6] = medUltima.toString() + " " + sensores.get(i).getUnidad();
+                // Transformamos la ultima medicion a String y de paso le concatenamos su unidad correspondiente polimorficamente
+            }
         }
         return resumenSensores;
     }
