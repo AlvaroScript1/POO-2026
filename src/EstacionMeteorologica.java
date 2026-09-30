@@ -1,6 +1,6 @@
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
-
+import java.time.format.DateTimeFormatter;
 public class EstacionMeteorologica {
     private String codigo, nombre;
     private float longitud, latitud, altitud;
@@ -66,9 +66,9 @@ public class EstacionMeteorologica {
         return String.format("%s; %s; (%.4f, %.4f, %.0f m); %s; %d",
                 codigo, nombre, latitud, longitud, altitud, estado, senActivo);
     }
-    public String[][] getResumenSensores(){
+    public String[][] getResumenSensores() {
         String[][] resumenSensores = new String[sensores.size()][7];
-        for(int i = 0; i < sensores.size(); i++) {
+        for (int i = 0; i < sensores.size(); i++) {
             String nomClase = sensores.get(i).getClass().getSimpleName(); // Tomamos la clase y la llevamos a String
             String sensor = nomClase.replace("Sensor", ""); // replace reemplaza un algo por algo, en este caso Sensor por "" que seria nada
             resumenSensores[i][0] = sensores.get(i).getCodigo();
@@ -87,6 +87,25 @@ public class EstacionMeteorologica {
             }
         }
         return resumenSensores;
+    }
+
+    public String [][] getMedicionesSensorBetween(String codigoSensor, LocalDateTime inicio, LocalDateTime fin) {
+        for (Sensor s : sensores) { // hacemos un for-each de sensores
+            if (s.getCodigo().equalsIgnoreCase(codigoSensor)) { // si el codigo de sensores es igual a codigoSensor, entonces existe y podemos seguir
+                DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // formateamos la fecha y hora
+                DateTimeFormatter h = DateTimeFormatter.ofPattern("HH:mm");
+                Medicion[] l = s.getMedicionesBetween(inicio, fin); // Toma las mediciones y usa el metodo getMedicionesBetween de Sensor
+                String[][] requerido = new String[l.length][4];
+                for (int i = 0; i < l.length; i++) {
+                    requerido[i][0] = l[i].getFechaHora().format(f);
+                    requerido[i][1] = l[i].getFechaHora().format(h);
+                    requerido[i][2] = String.format("%.1f", l[i].getValor()); // pasamos el valor a String y le damos solamente 1 decimal
+                    requerido[i][3] = s.getUnidad(); // simplemente llamamos a la unidad polimorficamente
+                }
+                return requerido; // retornamos la matriz con los valores ya puestos
+            }
+        }
+        return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
 
     //metodos auxiliares:
