@@ -15,18 +15,20 @@ public class Region {
     public int getCodigo(){
         return codigo;
     }
-    public String getNombre(){return nombre;}
+    public String getNombre(){
+        return nombre;
+    }
 
     public boolean addComuna(int cod, String nom){
         for(Comuna c : comunas){
-            if(cod == c.getCodigo()){
+            if(cod == c.getCodigo() || c.getNombre().equalsIgnoreCase(nom)){
                 return false;
             }
         }
         Comuna nuevaComuna = new Comuna(cod, nom, this);
         return comunas.add(nuevaComuna);
     }
-    public Comuna findComunaByid(int cod) {
+    public Comuna findComunaById(int cod) {
         for (Comuna c : comunas) {
             if (cod == c.getCodigo()) {
                 return c; //"c" es el parametro de la Comuna.
@@ -50,11 +52,12 @@ public class Region {
     }
 
     //metodos auxiliares (son metodos a parte de los que establece el UML)
-    public int getCantidadComunas(){
+    /* private int getCantidadComunas(){
         int cont = 0;
         for(Comuna c : comunas){
             cont++;
         }
         return cont;
     }
+    */
 }
