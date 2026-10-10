@@ -1,6 +1,12 @@
+package vista;
+
+import controlador.*; //importes de los packages
+import modelo.*;
+
 import java.util.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+
 public class InterfazUsuario {
     private Scanner sc = new Scanner(System.in);
     private InstitutoMeteorologia instituto; // Asociacion con InstitutoMetereologia
@@ -71,7 +77,7 @@ public class InterfazUsuario {
         String nombre = convertidorTexto("Nombre: "); // Leemos el nombre como String y con trim borramos los espacios.
 
         if(instituto.creaComuna(codigo, nombre, codigoRegion)){
-            System.out.println("> Comuna creada correctamente.");
+            System.out.println("> modelo.Comuna creada correctamente.");
         }else{
             System.out.println("> No se ha podido crear la comuna, ya existe una con nombre o codigo identico o la region no existe");
         }
@@ -117,14 +123,14 @@ public class InterfazUsuario {
                 tipoSensor = TipoSensor.PRECIPITACION;
                 break;
             default:
-                System.out.println("> Sensor invalido");
+                System.out.println("> modelo.Sensor invalido");
                 return;
         }
         String codigoSen = convertidorTexto("Código de sensor: ");
         String marca = convertidorTexto("Marca: ");
         String modelo = convertidorTexto("Modelo: ");
         if(instituto.instalaSensor(codigoSen, marca, modelo, tipoSensor, codigoEstacion)){
-            System.out.println("> Sensor de "+ tipoSensor.name().toLowerCase()+" instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "Sensor de humedad"
+            System.out.println("> modelo.Sensor de "+ tipoSensor.name().toLowerCase()+" instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "modelo.Sensor de humedad"
         }else{
             System.out.println("> No se ha instalado el sensor, debido a que no existe la estacion, no esta activa o ya existe un sensor con mismo codigo o activo del mismo tipo");
         }
@@ -185,7 +191,7 @@ public class InterfazUsuario {
     }
 
     private void listarRegiones() {
-        String[][] m = instituto.listaRegiones(); // Usamos listaRegiones de InstitutoMeteorologia
+        String[][] m = instituto.listaRegiones(); // Usamos listaRegiones de controlador.InstitutoMeteorologia
         System.out.println("LISTADO DE REGIONES");
         System.out.println("----------------------------------------------------------");
         if(m.length == 0){
@@ -199,7 +205,7 @@ public class InterfazUsuario {
     }
 
     private void listarComunas() {
-        String[][] m = instituto.listaComunas(); // Usamos listaComunas de InstitutoMeteorologia
+        String[][] m = instituto.listaComunas(); // Usamos listaComunas de controlador.InstitutoMeteorologia
         System.out.println("LISTADO DE COMUNAS");
         System.out.println("----------------------------------------------------------");
         if(m.length == 0){
@@ -215,7 +221,7 @@ public class InterfazUsuario {
     private void listarEstaciones() {
         int codR = convertidorInt("Código de región: ");
         int codC = convertidorInt("Código de comuna: ");
-        String[][] m = instituto.listaEstaciones(codR, codC); // Usamos listaEstaciones de InstitutoMeteorologia
+        String[][] m = instituto.listaEstaciones(codR, codC); // Usamos listaEstaciones de controlador.InstitutoMeteorologia
         System.out.println("ESTACIONES DE LA COMUNA "+codC);
         System.out.println("----------------------------------------------------------");
         if(m.length == 0){
@@ -230,7 +236,7 @@ public class InterfazUsuario {
 
     private void listarSensores() {
         String codE = convertidorTexto("Código de estación: ");
-        String[][] m = instituto.listaSensores(codE); // Usamos listaSensores de InstitutoMeteorologia
+        String[][] m = instituto.listaSensores(codE); // Usamos listaSensores de controlador.InstitutoMeteorologia
         System.out.println("SENSORES DE "+ codE.toUpperCase());
         System.out.println("----------------------------------------------------------");
         if(m.length == 0){
@@ -249,7 +255,7 @@ public class InterfazUsuario {
         DateTimeFormatter formateado = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos fecha
         LocalDateTime i = LocalDateTime.parse(convertidorTexto("Inicio [dd/MM/yyyy HH:mm]: "), formateado); // pasamos un string de fecha a un formato y esa nueva fecha formateada la pasamos a tipo LocalDateTime
         LocalDateTime f = LocalDateTime.parse(convertidorTexto("Fin [dd/MM/yyyy HH:mm]: "), formateado);
-        String[][] m = instituto.listaMediciones(codE, codS, i, f); // Usamos listaMediciones de InstitutoMeteorologia
+        String[][] m = instituto.listaMediciones(codE, codS, i, f); // Usamos listaMediciones de controlador.InstitutoMeteorologia
 
         System.out.println("MEDICIONES DEL SENSOR "+codS.toUpperCase());
         System.out.println("----------------------------------------------------------");
