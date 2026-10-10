@@ -1,4 +1,6 @@
-public class SensorTemperatura extends Sensor{
+package modelo;
+
+public class SensorTemperatura extends Sensor {
     public SensorTemperatura(String codigo, String marca, String modelo, EstacionMeteorologica estacion){
         super(codigo, marca, modelo, estacion);
     }

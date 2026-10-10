@@ -1,5 +1,10 @@
+package controlador;
+
+import modelo.*;
+
 import java.util.*;
 import java.time.*;
+
 public class InstitutoMeteorologia {
 
     //ArrayList auxiliares
@@ -54,7 +59,7 @@ public class InstitutoMeteorologia {
     public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor){
         for(EstacionMeteorologica est : estacionesMeteorologicas){
             if(est.getCodigo().equalsIgnoreCase(codEstacion)){
-                return est.registraMedicion(fechaHora, valor, codSensor); // usa registraMedicion de EstacionMeteorologica
+                return est.registraMedicion(fechaHora, valor, codSensor); // usa registraMedicion de modelo.EstacionMeteorologica
             }
         }
         return false;
@@ -62,7 +67,7 @@ public class InstitutoMeteorologia {
     public String[][] listaRegiones(){
         String[][] listaRegiones = new String[regiones.size()][4];
         for(int i = 0; i < regiones.size(); i++){
-            Region re = regiones.get(i); // Guardamos en la variable re de tipo Region, regiones.get(i)
+            Region re = regiones.get(i); // Guardamos en la variable re de tipo modelo.Region, regiones.get(i)
             listaRegiones[i][0] = String.valueOf(re.getCodigo()); // Convierte valor numerico a String debido a que el arreglo es de String
             listaRegiones[i][1] = re.getNombre();
             listaRegiones[i][2] = String.valueOf(re.getComunas().length);
@@ -105,7 +110,7 @@ public class InstitutoMeteorologia {
                 int nFila = 0;
                 for(EstacionMeteorologica e : estacionesMeteorologicas){
                     if(comuna.findEstacionById(e.getCodigo()) != null){ // Si al buscar la estacion pertenece a esa comuna entonces no es null
-                        listaEstaciones[nFila] = e.toString().split("; ");// Se entrega el toString de EstacionMeteorologica y se hace un split en cada "; "
+                        listaEstaciones[nFila] = e.toString().split("; ");// Se entrega el toString de modelo.EstacionMeteorologica y se hace un split en cada "; "
                         nFila++;
                     }
                 }

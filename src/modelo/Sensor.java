@@ -1,3 +1,5 @@
+package modelo;
+
 import java.util.ArrayList;
 import java.time.*;
 public abstract class Sensor {
@@ -40,7 +42,7 @@ public abstract class Sensor {
                     return false;
                 }
             }
-            Medicion medicionNueva = new Medicion(fechaHora, valor); // creamos un nuevo objeto Medicion
+            Medicion medicionNueva = new Medicion(fechaHora, valor); // creamos un nuevo objeto modelo.Medicion
             mediciones.add(medicionNueva); // Añadimos el nuevo objeto creado con anterioridad al arrayList mediciones
             return true;
         }

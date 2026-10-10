@@ -1,3 +1,5 @@
+package modelo;
+
 import java.util.ArrayList;
 
 public class Region {
@@ -31,7 +33,7 @@ public class Region {
     public Comuna findComunaById(int cod) {
         for (Comuna c : comunas) {
             if (cod == c.getCodigo()) {
-                return c; //"c" es el parametro de la Comuna.
+                return c; //"c" es el parametro de la modelo.Comuna.
             }
         }
         return null;
@@ -54,7 +56,7 @@ public class Region {
     //metodos auxiliares (son metodos a parte de los que establece el UML)
     /* private int getCantidadComunas(){
         int cont = 0;
-        for(Comuna c : comunas){
+        for(modelo.Comuna c : comunas){
             cont++;
         }
         return cont;

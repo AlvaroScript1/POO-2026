@@ -1,4 +1,6 @@
-public class SensorHumedad extends Sensor{
+package modelo;
+
+public class SensorHumedad extends Sensor {
 
     public SensorHumedad(String codigo, String marca, String modelo, EstacionMeteorologica estacion){
         super(codigo, marca, modelo, estacion);
