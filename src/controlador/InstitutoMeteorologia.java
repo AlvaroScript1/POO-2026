@@ -6,10 +6,22 @@ import java.util.*;
 import java.time.*;
 
 public class InstitutoMeteorologia {
+    private static InstitutoMeteorologia instance = null;
+    private ArrayList<EstacionMeteorologica> estacionesMeteorologicas;
+    private ArrayList<Region> regiones;
 
-    //ArrayList auxiliares
-    private ArrayList<EstacionMeteorologica> estacionesMeteorologicas = new ArrayList<>();
-    private ArrayList<Region> regiones = new ArrayList<>();
+    private InstitutoMeteorologia(){
+        estacionesMeteorologicas = new ArrayList<>();
+        regiones = new ArrayList<>();
+    }
+
+    public static InstitutoMeteorologia getInstance(){
+        if(instance == null){
+            instance = new InstitutoMeteorologia();
+        }
+        return instance;
+    }
+
 
     public boolean creaRegion(int codigo, String nombre){
         for(Region r : regiones){
@@ -64,6 +76,15 @@ public class InstitutoMeteorologia {
         }
         return false;
     }
+
+    public void cambiaEstadoSensor(String codigoEstacion, String codigoSensor, Estado estado) throws MeteorologiaException{
+        for(EstacionMeteorologica e : estacionesMeteorologicas){
+            if(e.getCodigo().equalsIgnoreCase(codigoEstacion)){
+                e.cambiaEstadoSensor(codigoSensor);
+            }
+        }
+    }
+
     public String[][] listaRegiones(){
         String[][] listaRegiones = new String[regiones.size()][4];
         for(int i = 0; i < regiones.size(); i++){
