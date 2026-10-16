@@ -81,6 +81,8 @@ public class InstitutoMeteorologia {
         for(EstacionMeteorologica e : estacionesMeteorologicas){
             if(e.getCodigo().equalsIgnoreCase(codigoEstacion)){
                 e.cambiaEstadoSensor(codigoSensor);
+            }else{
+                throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
             }
         }
     }
