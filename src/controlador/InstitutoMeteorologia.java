@@ -160,4 +160,40 @@ public class InstitutoMeteorologia {
         }
         return new String[0][4]; // si no pasa el if, entonces la estacion no existe y se devuelve una matriz vacia
     }
+
+    public Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
+        for(Region r : regiones){
+            if(codigo == r.getCodigo()){
+                return Optional.of(r);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Comuna> findComuna(int codRegion, int codComuna){
+        for(Region r : regiones){
+            if(codRegion == r.getCodigo()){
+                return r.findComunaById(codComuna); // JODER QUE COSTO ESTA PARTE SOLO PQ PENSE QUE TIRABA ERROR ESTABA MALO Y ES PQ EL METODO NO EST ACTUALIZADO EN REGION
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<EstacionMeteorologica> findEstacion(String codigo){
+        for(EstacionMeteorologica e : estacionesMeteorologicas){
+            if(e.getCodigo().equalsIgnoreCase(codigo)){
+                return Optional.of(e);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Sensor> findSensor(String codEstacion, String codSensor){
+        for(EstacionMeteorologica e : estacionesMeteorologicas){
+            if(e.getCodigo().equalsIgnoreCase(codEstacion)){
+                return e.findSensorById(codSensor); // Por el momento lanza error imagino pq no existe ese metodo en la estacion
+            }
+        }
+        return Optional.empty();
+    }
 }
