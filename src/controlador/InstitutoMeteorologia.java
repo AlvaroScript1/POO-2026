@@ -23,44 +23,50 @@ public class InstitutoMeteorologia {
     }
 
 
-    public boolean creaRegion(int codigo, String nombre){
-        for(Region r : regiones){
-            if(r.getCodigo()==codigo || r.getNombre().equalsIgnoreCase(nombre)){
-                return false;
+    public void creaRegion(int codigo, String nombre) throws MeteorologiaException{
+        Optional<Region> region = findRegion(codigo); // se crea un optional de region donde se le asigna el metodo findRegion(codigo)
+
+        if(region.isPresent()){ // odio tener que volver a los ppt para ver las funciones/metodos de optional; este if retorna true si region contiene un valor
+            Region r = region.get();
+            if(r.getCodigo() == codigo){
+                throw new MeteorologiaException("Ya existe una región con el código <"+codigo+">"); // lanzamos una excepcion con el mensaje dentro si existe una region con igual codigo
             }
         }
-        Region nuevaRegion = new Region(codigo, nombre);
-        return regiones.add(nuevaRegion);
-    }
-    public boolean creaComuna(int codigo, String nombre, int codigoRegion){
-        for(Region r : regiones){
-            if(codigoRegion == r.getCodigo()){
-                return r.addComuna(codigo, nombre);
-            }
-        }
-        return false;
-    }
-    public boolean creaEstacion(String cod, String nombre, float lon, float lat, float alt, int codRegion, int codComuna){
-        for(EstacionMeteorologica e : estacionesMeteorologicas){
-            if(e.getCodigo().equalsIgnoreCase(cod)){
-                return false;
+        for(Region r : regiones){ // Hacemos este for por si existe una region que no tiene mismo codigo que otra, pero si mismo nombre
+            if(r.getNombre().equalsIgnoreCase(nombre)){
+                throw new MeteorologiaException("Ya existe una región con el nombre <"+nombre+">");
             }
         }
 
-        for(Region r : regiones){
-            if(codRegion == r.getCodigo()){
-                Comuna c = r.findComunaById(codComuna);
-                if(c == null){
-                    return false;
-                }
-                EstacionMeteorologica nuevaEstacion = new EstacionMeteorologica(cod, nombre, lon, lat, alt, c);
-                c.addEstacion(nuevaEstacion);
-                return estacionesMeteorologicas.add(nuevaEstacion);
-            }
-        }
-        return false;
+        Region r1 = new Region(codigo, nombre);
+        regiones.add(r1);
     }
-    public boolean instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion){
+    public void creaComuna(int codigo, String nombre, int codigoRegion) throws MeteorologiaException{ // Avisamos de que puede haber una excepcion{
+        Optional<Region> region = findRegion(codigoRegion);
+        if(region.isEmpty()){ // Si el metodo findRegion lanza un Optional que esta vacio, significa que no se encontro el objeto
+            throw new MeteorologiaException("No existe una región con el código <"+codigoRegion+">");
+        }
+        Region r = region.get(); // Obtenemos el objeto para acceder al metodo addComuna de Region
+        r.addComuna(codigo, nombre);
+    }
+    public void creaEstacion(String cod, String nombre, float lon, float lat, float alt, int codRegion, int codComuna) throws MeteorologiaException {
+        if(findEstacion(cod).isPresent()){ // En el orden del enunciado/word, vemos si existe la estacion con ese codigo con el metodo findEstacion
+            throw new MeteorologiaException("Ya existe una estación con el código <"+cod+">");
+        }
+        Optional<Region> region = findRegion(codRegion);
+        if(region.isEmpty()){
+            throw new MeteorologiaException("No existe una región con el código <"+codRegion+">");
+        }
+        Region r = region.get(); // obtenemos r como objeto de tipo Region para usarlo en la excepcion con r.getnombre()
+        Optional<Comuna> comuna = findComuna(codRegion,codComuna); // creamos un optional de tipo comuna referenciado con el metodo findComuna
+        if(comuna.isEmpty()){ // si comuna es un optional vacio entonces no existe
+            throw new MeteorologiaException("No existe una comuna con el código <"+codComuna+"> en la región <"+r.getNombre()+">");
+        }
+        Comuna c = comuna.get(); // obtenemos c como objeto tipo Comuna para usarlo en la creacion de la EstacionMeteorologica
+        EstacionMeteorologica est = new EstacionMeteorologica(cod, nombre, lon, lat, alt, c);
+        c.addEstacion(est);
+    }
+    public void instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion){
         for(EstacionMeteorologica e : estacionesMeteorologicas){
             if(e.getCodigo().equalsIgnoreCase(codigoEstacion)){
                 return e.instalaSensor(cod, marca, modelo, tipo);
@@ -68,7 +74,7 @@ public class InstitutoMeteorologia {
         }
         return false;
     }
-    public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor){
+    public void registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor){
         for(EstacionMeteorologica est : estacionesMeteorologicas){
             if(est.getCodigo().equalsIgnoreCase(codEstacion)){
                 return est.registraMedicion(fechaHora, valor, codSensor); // usa registraMedicion de modelo.EstacionMeteorologica
@@ -174,7 +180,7 @@ public class InstitutoMeteorologia {
         for(Region r : regiones){
             if(codRegion == r.getCodigo()){
                 return r.findComunaById(codComuna); // JODER QUE COSTO ESTA PARTE SOLO PQ PENSE QUE TIRABA ERROR ESTABA MALO Y ES PQ EL METODO NO EST ACTUALIZADO EN REGION
-            }
+            } // nooooooo esto puede retornar null... tocara volver a ver como se retorna para que no de null o algo parecido
         }
         return Optional.empty();
     }
