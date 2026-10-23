@@ -1,6 +1,5 @@
 package modelo;
-
-import java.util.ArrayList;
+import java.util.*;
 
 public class Comuna {
     private int codigo;
@@ -23,23 +22,20 @@ public class Comuna {
     public void addEstacion(EstacionMeteorologica estacion){
         estacionesPorComuna.add(estacion);
     }
-    public EstacionMeteorologica findEstacionById(String codigo){
+    public Optional<EstacionMeteorologica> findEstacionById(String codigo){
         for(EstacionMeteorologica e : estacionesPorComuna){
             if(e.getCodigo().equalsIgnoreCase(codigo)){
-                return e;
+                return Optional.of(e); // en este caso retornamos el optional con la estacion meteorologica que tiene el codigo indicado
             }
         }
-        return null;
+        return Optional.empty(); // Si no encontramos la region entonces retornamos un Optional vacio
     }
     public Region getRegion(){
         return this.region;
     }
-    public int getCantidadEstaciones(){
-        int i = 0;
-        for(EstacionMeteorologica e : estacionesPorComuna){
-            i++;
-        }
-        return i;
+
+    public EstacionMeteorologica[] getEstaciones(){
+        return estacionesPorComuna.toArray(new EstacionMeteorologica[0]); // retornamos un arrayList que es convertido a arreglo de tipo EstacionMeteorologica
     }
     public int getCantidadEstacionesActivas(){
         int i = 0;
