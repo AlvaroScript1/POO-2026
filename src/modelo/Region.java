@@ -1,5 +1,5 @@
 package modelo;
-
+import controlador.MeteorologiaException;
 import java.util.ArrayList;
 import java.util.Optional;
 
