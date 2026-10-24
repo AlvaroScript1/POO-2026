@@ -1,5 +1,4 @@
 package vista;
-
 import controlador.*; //importes de los packages
 import modelo.*;
 
@@ -8,17 +7,19 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 public class InterfazUsuario {
-    private Scanner sc = new Scanner(System.in);
-    private InstitutoMeteorologia instituto; // Asociacion con InstitutoMetereologia
-    public static void main(String[]args) {
-        InterfazUsuario interfaz = new InterfazUsuario();
-        interfaz.menuPrincipal();
+    private static InterfazUsuario UI;
+    private Scanner sc;
+    private InstitutoMeteorologia instituto;
+    private InterfazUsuario() {
+        sc = new Scanner(System.in);
+        instituto = InstitutoMeteorologia.getInstance();
     }
 
+
     private void menuPrincipal() { // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
-        instituto = new InstitutoMeteorologia();
+        instituto = InstitutoMeteorologia.getInstance();
         int opciones;
-        do{
+        do {
             System.out.println("SISTEMA DE INFORMACIÓN METEOROLÓGICA");
             System.out.println("----------------------------------------------------------");
             System.out.println("1. Crear región");
@@ -30,7 +31,7 @@ public class InterfazUsuario {
             System.out.println("7. Salir");
             System.out.print("Opcion: ");
             opciones = Integer.parseInt(sc.nextLine().trim()); // Leemos un numero en formato String, eliminamos espacios y transformamos el String a int
-            switch(opciones){
+            switch (opciones) {
                 case 1:
                     crearRegion();
                     break;
@@ -55,7 +56,7 @@ public class InterfazUsuario {
                 default:
                     System.out.println("Ingrese una opcion valida");
             }
-        }while(opciones != 7);
+        } while (opciones != 7);
     }
 
     private void crearRegion() {
@@ -63,23 +64,25 @@ public class InterfazUsuario {
         System.out.println("----------------------------------------------------------");
         int codigo = convertidorInt("Código de región: "); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
         String nombre = convertidorTexto("Nombre: "); // Leemos el nombre como String y con trim borramos los espacios.
-        if(instituto.creaRegion(codigo, nombre)){
-            System.out.println("> Región creada correctamente.");
-        }else{
-            System.out.println("> No se ha podido crear la región, ya existe una con nombre o codigo identico");
+        try {
+            instituto.creaRegion(codigo, nombre);
+            System.out.println("Región creada con éxito.");
+        } catch (MeteorologiaException e) {
+            System.err.println("Error: " + e.getMessage());
         }
     }
+
     private void crearComuna() {
         System.out.println("CREAR COMUNA");
         System.out.println("----------------------------------------------------------");
         int codigoRegion = convertidorInt("Código de región: ");
         int codigo = convertidorInt("Código de comuna: "); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
         String nombre = convertidorTexto("Nombre: "); // Leemos el nombre como String y con trim borramos los espacios.
-
-        if(instituto.creaComuna(codigo, nombre, codigoRegion)){
-            System.out.println("> modelo.Comuna creada correctamente.");
-        }else{
-            System.out.println("> No se ha podido crear la comuna, ya existe una con nombre o codigo identico o la region no existe");
+        try {
+            instituto.creaComuna(codigo, nombre, codigoRegion);
+            System.out.println("Comuna creada con éxito.");
+        } catch (MeteorologiaException e) {
+            System.err.println("Error: " + e);
         }
     }
 
@@ -93,10 +96,11 @@ public class InterfazUsuario {
         float alt = convertidorFloat("Altitud (m): ");
         int codRegion = convertidorInt("Código de región: ");
         int codComuna = convertidorInt("Código de comuna: ");
-        if(instituto.creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna)){
-            System.out.println("> Estación meteorológica creada correctamente.");
-        }else{
-            System.out.println("> No se ha podido crear la estacion meteorologica, el codigo ya existe, o la region o comuna no existen");
+        try {
+            instituto.creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
+            System.out.println("Estacion creada con éxito");
+        } catch (MeteorologiaException e) {
+            System.err.println("Error: " + e);
         }
     }
 
@@ -106,7 +110,7 @@ public class InterfazUsuario {
         String codigoEstacion = convertidorTexto("Código de estación: ");
         int opcion = convertidorInt("Tipo [1 Temp.  2 Hum.  3 Presión  4 Viento  5 Precip.]: ");
         TipoSensor tipoSensor;
-        switch(opcion){
+        switch (opcion) {
             case 1:
                 tipoSensor = TipoSensor.TEMPERATURA;
                 break;
@@ -129,9 +133,11 @@ public class InterfazUsuario {
         String codigoSen = convertidorTexto("Código de sensor: ");
         String marca = convertidorTexto("Marca: ");
         String modelo = convertidorTexto("Modelo: ");
-        if(instituto.instalaSensor(codigoSen, marca, modelo, tipoSensor, codigoEstacion)){
-            System.out.println("> modelo.Sensor de "+ tipoSensor.name().toLowerCase()+" instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "modelo.Sensor de humedad"
-        }else{
+        try {
+            instituto.instalaSensor(codigoSen, marca, modelo, tipoSensor, codigoEstacion);
+            System.out.println("> modelo.Sensor de " + tipoSensor.name().toLowerCase() + " instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "modelo.Sensor de humedad"
+        } catch (MeteorologiaException e) {
+            System.err.println(e);
             System.out.println("> No se ha instalado el sensor, debido a que no existe la estacion, no esta activa o ya existe un sensor con mismo codigo o activo del mismo tipo");
         }
     }
@@ -145,17 +151,18 @@ public class InterfazUsuario {
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos la fecha
         LocalDateTime fechaYHora = LocalDateTime.parse(fecha, formato); // pasamos la fecha al formato indicado y lo pasamos a LocalDateTime
         float val = convertidorFloat("Valor: ");
-        if(instituto.registraMedicion(fechaYHora, val, codEstacion, codSensor)) {
+        try {
+            instituto.registraMedicion(fechaYHora, val, codEstacion, codSensor);
             System.out.println("> Medición registrada correctamente.");
-        }else{
-            System.out.println("> No se ha podido registrar la medicion, la estacion o el sensor no existen o se encuentran inactivos, "+
-                    "el valor no es apto o ya existe una medicion en esa fecha y hora");
+        } catch (MeteorologiaException e) {
+            System.err.println("> No se ha podido registrar la medicion, la estacion o el sensor no existen o se encuentran inactivos, " +
+                    "el valor no es apto o ya existe una medicion en esa fecha y hora " + e);
         }
     }
 
     private void menuListados() {
         int opcion;
-        do{
+        do {
             System.out.println("LISTADOS");
             System.out.println("----------------------------------------------------------");
             System.out.println("1. Regiones");
@@ -165,7 +172,7 @@ public class InterfazUsuario {
             System.out.println("5. Mediciones de un sensor");
             System.out.println("6. Volver al menu principal");
             opcion = convertidorInt("Seleccione una opcion: ");
-            switch(opcion){
+            switch (opcion) {
                 case 1:
                     listarRegiones();
                     break;
@@ -187,20 +194,20 @@ public class InterfazUsuario {
                     System.out.println("Opcion invalida");
                     break;
             }
-        }while(opcion != 6);
+        } while (opcion != 6);
     }
 
     private void listarRegiones() {
         String[][] m = instituto.listaRegiones(); // Usamos listaRegiones de controlador.InstitutoMeteorologia
         System.out.println("LISTADO DE REGIONES");
         System.out.println("----------------------------------------------------------");
-        if(m.length == 0){
+        if (m.length == 0) {
             System.out.println("> No existen regiones registradas en el sistema");
             return;   // Esto es para regresar y no seguir con el resto de codigo
         }
         System.out.println("CÓDIGO\tNOMBRE\t\tCOMUNAS\tESTACIONES");
-        for(String[] f : m){
-            System.out.println(f[0]+"\t"+f[1]+"\t\t"+f[2]+"\t"+f[3]+"\t"+f[4]);
+        for (String[] f : m) {
+            System.out.println(f[0] + "\t" + f[1] + "\t\t" + f[2] + "\t" + f[3] + "\t" + f[4]);
         }
     }
 
@@ -208,44 +215,48 @@ public class InterfazUsuario {
         String[][] m = instituto.listaComunas(); // Usamos listaComunas de controlador.InstitutoMeteorologia
         System.out.println("LISTADO DE COMUNAS");
         System.out.println("----------------------------------------------------------");
-        if(m.length == 0){
+        if (m.length == 0) {
             System.out.println("> No existen comunas registradas en el sistema");
             return;
         }
         System.out.println("CODIGO\tNOMBRE\t\tREGION\t\tESTACIONES\tACTIVAS");
-        for(String[] f : m){
-            System.out.println(f[0]+"\t\t"+f[1]+"\t\t"+f[2]+"\t"+f[3]+"\t"+f[4]);
+        for (String[] f : m) {
+            System.out.println(f[0] + "\t\t" + f[1] + "\t\t" + f[2] + "\t" + f[3] + "\t" + f[4]);
         }
     }
 
     private void listarEstaciones() {
         int codR = convertidorInt("Código de región: ");
         int codC = convertidorInt("Código de comuna: ");
-        String[][] m = instituto.listaEstaciones(codR, codC); // Usamos listaEstaciones de controlador.InstitutoMeteorologia
-        System.out.println("ESTACIONES DE LA COMUNA "+codC);
-        System.out.println("----------------------------------------------------------");
-        if(m.length == 0){
-            System.out.println("> No hay estaciones existentes para la comuna y region indicadas");
-            return;
-        }
-        System.out.println("CÓDIGO\t\tNOMBRE\t\tUBICACION\t\t\tESTADO\tSENSORES OPERATIVOS");
-        for(String[] f : m){
-            System.out.println(f[0]+"\t\t"+f[1]+"\t\t"+f[2]+"\t"+f[3]+"\t"+f[4]);
+        try {
+            String[][] m = instituto.listaEstaciones(codR, codC); // Usamos listaEstaciones de controlador.InstitutoMeteorologia
+            System.out.println("ESTACIONES DE LA COMUNA " + codC);
+            System.out.println("----------------------------------------------------------");
+            if (m.length == 0) {
+                System.out.println("> No hay estaciones existentes para la comuna y region indicadas");
+                return;
+            }
+            System.out.println("CÓDIGO\t\tNOMBRE\t\tUBICACION\t\t\tESTADO\tSENSORES OPERATIVOS");
+            for (String[] f : m) {
+                System.out.println(f[0] + "\t\t" + f[1] + "\t\t" + f[2] + "\t" + f[3] + "\t" + f[4]);
+            }
+        } catch (MeteorologiaException e) {
+            System.err.println("No se pudo listar las estaciones, es probable que los codigos especificados no sean válidos: " + e);
         }
     }
 
     private void listarSensores() {
         String codE = convertidorTexto("Código de estación: ");
         String[][] m = instituto.listaSensores(codE); // Usamos listaSensores de controlador.InstitutoMeteorologia
-        System.out.println("SENSORES DE "+ codE.toUpperCase());
+        System.out.println("SENSORES DE " + codE.toUpperCase());
         System.out.println("----------------------------------------------------------");
-        if(m.length == 0){
+        if (m.length == 0) {
             System.out.println("> Estacion inexistente o sin sensores instalados en ella");
             return;
         }
         System.out.println("CODIGO\tTIPO\t\tMARCA\tMODELO\tUNIDAD\tESTADO\tULTIMA MEDICION");
-        for(String[] f : m){
-            System.out.println(f[0]+"\t"+f[1]+"\t"+f[2]+"\t"+f[3]+"\t"+f[4]+"\t"+f[5]+"\t"+f[6]);
+        for (String[] f : m) {
+            System.out.println(f[0] + "\t" + f[1] + "\t" + f[2] + "\t" + f[3] + "\t" + f[4] + "\t" + f[5] + "\t" + f[6]);
         }
     }
 
@@ -257,16 +268,16 @@ public class InterfazUsuario {
         LocalDateTime f = LocalDateTime.parse(convertidorTexto("Fin [dd/MM/yyyy HH:mm]: "), formateado);
         String[][] m = instituto.listaMediciones(codE, codS, i, f); // Usamos listaMediciones de controlador.InstitutoMeteorologia
 
-        System.out.println("MEDICIONES DEL SENSOR "+codS.toUpperCase());
+        System.out.println("MEDICIONES DEL SENSOR " + codS.toUpperCase());
         System.out.println("----------------------------------------------------------");
-        if(m.length == 0){
+        if (m.length == 0) {
             System.out.println("> No hay mediciones existentes para los datos y fecha indicados");
             return;
         }
-        System.out.println("Período: "+ i.format(formateado)+" a "+f.format(formateado)); // Este es el titulo que se mostrara con las fechas formateadas
+        System.out.println("Período: " + i.format(formateado) + " a " + f.format(formateado)); // Este es el titulo que se mostrara con las fechas formateadas
         System.out.println("FECHA\t\tHORA\tVALOR\tUNIDAD");
-        for(String[] a : m){
-            System.out.println(a[0]+"\t"+a[1]+"\t"+a[2]+"\t"+a[3]);
+        for (String[] a : m) {
+            System.out.println(a[0] + "\t" + a[1] + "\t" + a[2] + "\t" + a[3]);
         }
     }
 
@@ -276,20 +287,21 @@ public class InterfazUsuario {
      que se esta repitiendo mucho codigo y puede afectar negativamente la ejecucion del programa o
      la lectura de este mismo*/
 
-    private int convertidorInt(String texto){ // convierte la funcion convertidorTexto a Int
+    private int convertidorInt(String texto) { // convierte la funcion convertidorTexto a Int
         return Integer.parseInt(convertidorTexto(texto));
     }
 
 
-    private String convertidorTexto(String texto){ // Imprime el texto y ademas retorna una lectura que elimina los espacios
+    private String convertidorTexto(String texto) { // Imprime el texto y ademas retorna una lectura que elimina los espacios
         System.out.print(texto); //
         return sc.nextLine().trim();
     }
 
-    private float convertidorFloat(String texto){
+    private float convertidorFloat(String texto) {
         return Float.parseFloat(convertidorTexto(texto));
     }
     // Lo que hacen estos metodos es leer un String que asumimos que seran datos correctos en su caso, eliminar espacios inadecuados que existan y
     // transformarlos a un tipo de dato correspondiente, en este caso puede ser Float o Int, para el metodo convertidorTexto, muestra un texto correspondiente
     // ademas de eso hace una lectura de parte del usuario.
 }
+
