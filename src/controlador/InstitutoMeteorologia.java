@@ -66,31 +66,32 @@ public class InstitutoMeteorologia {
         EstacionMeteorologica est = new EstacionMeteorologica(cod, nombre, lon, lat, alt, c);
         c.addEstacion(est);
     }
-    public void instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion){
-        for(EstacionMeteorologica e : estacionesMeteorologicas){
-            if(e.getCodigo().equalsIgnoreCase(codigoEstacion)){
-                return e.instalaSensor(cod, marca, modelo, tipo);
-            }
+    public void instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion) throws MeteorologiaException{
+        Optional<EstacionMeteorologica> est = findEstacion(codigoEstacion);
+        if(est.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
         }
-        return false;
+        EstacionMeteorologica estacion =  est.get();
+        estacion.instalaSensor(cod, marca, modelo, tipo);
+        return;
     }
-    public void registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor){
-        for(EstacionMeteorologica est : estacionesMeteorologicas){
-            if(est.getCodigo().equalsIgnoreCase(codEstacion)){
-                return est.registraMedicion(fechaHora, valor, codSensor); // usa registraMedicion de modelo.EstacionMeteorologica
-            }
+    public void registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor) throws MeteorologiaException{
+        Optional<EstacionMeteorologica> est = findEstacion(codEstacion);
+        if(est.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codEstacion+">");
         }
-        return false;
+        EstacionMeteorologica estacion = est.get();
+        estacion.registraMedicion(fechaHora, valor, codSensor);
     }
 
     public void cambiaEstadoSensor(String codigoEstacion, String codigoSensor, Estado estado) throws MeteorologiaException{
         for(EstacionMeteorologica e : estacionesMeteorologicas){
-            if(e.getCodigo().equalsIgnoreCase(codigoEstacion)){
-                e.cambiaEstadoSensor(codigoSensor);
-            }else{
-                throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+            if(e.getCodigo().equalsIgnoreCase(codigoEstacion)) {
+                e.cambiaEstadoSensor(codigoSensor, estado);
+                return; // como en metodos anteriores, esto retorna al menu, la razon es que si dejamos pasar este return entonces se llega al throw de abajo y se ejecuta
             }
         }
+        throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
     }
 
     public String[][] listaRegiones(){
