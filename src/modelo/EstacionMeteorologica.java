@@ -109,8 +109,4 @@ public class EstacionMeteorologica {
         }
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
-
-    //metodos auxiliares:
-    public String getCodigo(){return codigo;}
-    public Estado getEstado(){return estado;}
 }
