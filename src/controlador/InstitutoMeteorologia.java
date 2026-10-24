@@ -120,7 +120,7 @@ public class InstitutoMeteorologia {
                 listaComunas[nFila][0] = String.valueOf(c.getCodigo());
                 listaComunas[nFila][1] = c.getNombre();
                 listaComunas[nFila][2] = r.getNombre();
-                listaComunas[nFila][3] = String.valueOf(c.getCantidadEstaciones());
+                listaComunas[nFila][3] = String.valueOf(c.getEstaciones().length);
                 listaComunas[nFila][4] = String.valueOf(c.getCantidadEstacionesActivas());
                 nFila++;
             }
@@ -129,25 +129,22 @@ public class InstitutoMeteorologia {
         return listaComunas;
     }
 
-    public String[][] listaEstaciones(int codigoRegion, int codigoComuna){
+    public String[][] listaEstaciones(int codigoRegion, int codigoComuna) throws MeteorologiaException{
         for(Region re : regiones){
             if(codigoRegion == re.getCodigo()){
-                Comuna comuna = re.findComunaById(codigoComuna);
-                if(comuna == null){ // Nos aseguramos de si comuna es null desde el primer momento
-                    return new String[0][5]; // si comuna es null/no existe entonces retornamos una matriz vacia
+                Optional<Comuna> comuna = re.findComunaById(codigoComuna);
+                if(comuna.isEmpty()){
+                    throw new MeteorologiaException("No existe una comuna con el código <"+codigoComuna+"> en la región <"+re.getNombre()+">");
                 }
-                String[][] listaEstaciones = new String[comuna.getCantidadEstaciones()][5]; // Luego de la verificacion creamos la matriz
-                int nFila = 0;
-                for(EstacionMeteorologica e : estacionesMeteorologicas){
-                    if(comuna.findEstacionById(e.getCodigo()) != null){ // Si al buscar la estacion pertenece a esa comuna entonces no es null
-                        listaEstaciones[nFila] = e.toString().split("; ");// Se entrega el toString de modelo.EstacionMeteorologica y se hace un split en cada "; "
-                        nFila++;
-                    }
+                Comuna c = comuna.get();
+                String[][] listaEstaciones = new String[c.getEstaciones().length][]; // Luego de la verificacion creamos la matriz
+                for(int i = 0; i<c.getEstaciones().length;i++){
+                    listaEstaciones[i] = c.getEstaciones()[i].toString().split("; "); // Gracias al metodo getEstaciones de comuna podemos iterar directamente desde el metodo y por cada iteracion hacer un toString.split(" )
                 }
                 return listaEstaciones;
             }
         }
-        return new String[0][5]; // Retornamos una matriz vacia como se nos indica si es que la region no existe
+        throw new MeteorologiaException("No existe una región con el código <"+codigoRegion+">");// Retornamos una matriz vacia como se nos indica si es que la region no existe
     }
 
     public String[][] listaSensores(String codigoEstacion){
