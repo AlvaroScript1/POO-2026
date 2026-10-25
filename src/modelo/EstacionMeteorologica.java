@@ -72,7 +72,7 @@ public class EstacionMeteorologica {
         String[][] resumenSensores = new String[sensores.size()][7];
         for (int i = 0; i < sensores.size(); i++) {
             String nomClase = sensores.get(i).getClass().getSimpleName(); // Tomamos la clase y la llevamos a String
-            String sensor = nomClase.replace("modelo.Sensor", ""); // replace reemplaza un algo por algo, en este caso modelo.Sensor por "" que seria nada
+            String sensor = nomClase.replace("Sensor", ""); // replace reemplaza un algo por algo, en este caso modelo.Sensor por "" que seria nada
             resumenSensores[i][0] = sensores.get(i).getCodigo();
             resumenSensores[i][1] = sensor.toUpperCase(); // Mostramos solo el tipo de sensor / Ej: HUMEDAD sin el modelo.Sensor por delante, sin el cambio hubiese quedado como modelo.SensorHumedad
             resumenSensores[i][2] = sensores.get(i).getMarca();

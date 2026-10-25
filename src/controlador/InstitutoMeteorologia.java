@@ -147,22 +147,29 @@ public class InstitutoMeteorologia {
         throw new MeteorologiaException("No existe una región con el código <"+codigoRegion+">");// Retornamos una matriz vacia como se nos indica si es que la region no existe
     }
 
-    public String[][] listaSensores(String codigoEstacion){
-        for(EstacionMeteorologica est : estacionesMeteorologicas){
-            if(est.getCodigo().equalsIgnoreCase(codigoEstacion)){
-                return est.getResumenSensores(); // Si una estacion tiene el mismo codigo entonces regresamos un resumen de esa estacion
-            }
+    public String[][] listaSensores(String codigoEstacion) throws MeteorologiaException{
+        Optional<EstacionMeteorologica> estacion = findEstacion(codigoEstacion); // aprovechamos findEstacion para ver si existe la estacion o no
+        if(estacion.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">"); // Lanzamos inmediatamente la excepcion si no existe una estacion con el codigo indicado
         }
-        return new String[0][7]; // Si no pasa entonces se retorna una matriz vacia como se indica
+        EstacionMeteorologica est = estacion.get();
+        return est.getResumenSensores();
     }
 
-    public String[][] listaMediciones(String codEstacion, String codSensor, LocalDateTime inicio, LocalDateTime fin){
-        for(EstacionMeteorologica est : estacionesMeteorologicas){
-            if(est.getCodigo().equalsIgnoreCase(codEstacion)){
-                return est.getMedicionesSensorBetween(codSensor, inicio, fin);
-            }
+    public String[][] listaMediciones(String codEstacion, String codSensor, LocalDateTime inicio, LocalDateTime fin)throws MeteorologiaException{
+        Optional<EstacionMeteorologica> estacion = findEstacion(codEstacion);
+        if(estacion.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codEstacion+">");
         }
-        return new String[0][4]; // si no pasa el if, entonces la estacion no existe y se devuelve una matriz vacia
+        EstacionMeteorologica est = estacion.get();
+        Optional<Sensor> sensor = findSensor(codEstacion, codSensor);
+        if(sensor.isEmpty()){
+            throw new MeteorologiaException("No existe el sensor <"+codSensor+"> en la estación <"+codEstacion+">");
+        }
+        if(fin.isBefore(inicio)){
+            throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+        }
+        return est.getMedicionesSensorBetween(codSensor, inicio, fin);
     }
 
     public Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
