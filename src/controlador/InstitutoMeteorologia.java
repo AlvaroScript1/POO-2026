@@ -101,19 +101,24 @@ public class InstitutoMeteorologia {
             String[] s = PersistenciaTexto.leeRegistros("sensores.txt");
             String[] m = PersistenciaTexto.leeRegistros("mediciones.txt");
             try {
+                int cantidad = 1;
                 for (String re : r) {
                     String[] datos = re.split(";"); // esto es para separar los datos en una arreglo cuando haya un ; como separador
                     int codigo = Integer.parseInt(datos[0]); // convertimos el dato del indice 0 del arreglo a int de inmediato para luego crear el objeto region
                     String nombre = datos[1]; // el indice 1 corresponde al nombre de la region
                     creaRegion(codigo, nombre); // este metodo crea la region, en caso de error lanza excepcion
+                    cantidad++;
                 }
+                cantidad = 1;
                 for (String co : c) {
                     String[] datos = co.split(";");
                     int codigo = Integer.parseInt(datos[0]);
                     int codigoRegion = Integer.parseInt(datos[1]);
                     String nombre = datos[2];
                     creaComuna(codigo, nombre, codigoRegion);
+                    cantidad++;
                 }
+                cantidad = 1;
                 for (String est : e) {
                     String[] datos = est.split(";");
                     String codigo = datos[0];
@@ -124,15 +129,22 @@ public class InstitutoMeteorologia {
                     int codRegion = Integer.parseInt(datos[5]);
                     int codComuna = Integer.parseInt(datos[6]);
                     creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
+                    cantidad++;
                 }
+                Estado[] tiposEstado = new Estado[s.length];
+                cantidad = 1;
                 for (String sen : s) {
                     String[] datos = sen.split(";");
                     String codigo = datos[0];
-                    String marca = datos[1];
+                    String modelo = datos[1];
                     String enume = datos[2];
                     TipoSensor nuevoSensor = TipoSensor.valueOf(datos[2].trim().toUpperCase()); // Extraemos el texto, con trim eliminamos espacios a los costados, con valueOf si tienes TEMPERATURA, buscara en el enum la coincidencia y te devolvera TEMPERATURA
-                    // el to upper case de la linea de arriba se asegura de que el String este en mayusculas para que coincida con los enums en mayusculas.
-
+                    String marca = datos[3];
+                    String codigoEstacion = datos[4];
+                    Estado estado = Estado.valueOf(datos[5].trim().toUpperCase());// el to upper case se asegura de que el String este en mayusculas para que coincida con los enums en mayusculas.
+                    tiposEstado[cantidad-1] = estado;
+                    instalaSensor(codigo, marca, modelo, nuevoSensor, codigoEstacion);
+                    cantidad++;
                 }
             }catch(Exception exc){
                 throw new MeteorologiaException("Ola");
