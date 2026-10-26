@@ -12,18 +12,14 @@ public class Comuna {
         this.nombre = nombre;
         this.region = region;
     }
-    public int getCodigo(){return codigo;}
-    public String getNombre(){return nombre;}
+    public int getCodigo(){
+        return codigo;
+    }
+    public String getNombre(){
+        return nombre;
+    }
     public void addEstacion(EstacionMeteorologica estacion){
         estacionesPorComuna.add(estacion);
-    }
-    public EstacionMeteorologica findEstacionesById(String codigo){
-        for(EstacionMeteorologica e : estacionesPorComuna){
-            if(e.getCodigo().equalsIgnoreCase(codigo)){
-                return e;
-            }
-        }
-        return null;
     }
     public EstacionMeteorologica findEstacionById(String codigo){
         for(EstacionMeteorologica e : estacionesPorComuna){
@@ -43,7 +39,7 @@ public class Comuna {
         }
         return i;
     }
-    public int getEstacionesActivas(){
+    public int getCantidadEstacionesActivas(){
         int i = 0;
         for(EstacionMeteorologica e : estacionesPorComuna){
             if(e.getEstado() == Estado.ACTIVO){
