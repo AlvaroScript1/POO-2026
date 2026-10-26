@@ -93,6 +93,58 @@ public class InstitutoMeteorologia {
         }
         throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
     }
+    public void cargaDatos() throws MeteorologiaException{
+        if(regiones.isEmpty() && estacionesMeteorologicas.isEmpty()){
+            String[] r = PersistenciaTexto.leeRegistros("regiones.txt");
+            String[] c = PersistenciaTexto.leeRegistros("comunas.txt");
+            String[] e = PersistenciaTexto.leeRegistros("estaciones.txt");
+            String[] s = PersistenciaTexto.leeRegistros("sensores.txt");
+            String[] m = PersistenciaTexto.leeRegistros("mediciones.txt");
+            try {
+                for (String re : r) {
+                    String[] datos = re.split(";"); // esto es para separar los datos en una arreglo cuando haya un ; como separador
+                    int codigo = Integer.parseInt(datos[0]); // convertimos el dato del indice 0 del arreglo a int de inmediato para luego crear el objeto region
+                    String nombre = datos[1]; // el indice 1 corresponde al nombre de la region
+                    creaRegion(codigo, nombre); // este metodo crea la region, en caso de error lanza excepcion
+                }
+                for (String co : c) {
+                    String[] datos = co.split(";");
+                    int codigo = Integer.parseInt(datos[0]);
+                    int codigoRegion = Integer.parseInt(datos[1]);
+                    String nombre = datos[2];
+                    creaComuna(codigo, nombre, codigoRegion);
+                }
+                for (String est : e) {
+                    String[] datos = est.split(";");
+                    String codigo = datos[0];
+                    String nombre = datos[1];
+                    float lon = Float.parseFloat(datos[2]);
+                    float lat = Float.parseFloat(datos[3]);
+                    float alt = Float.parseFloat(datos[4]);
+                    int codRegion = Integer.parseInt(datos[5]);
+                    int codComuna = Integer.parseInt(datos[6]);
+                    creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
+                }
+                for (String sen : s) {
+                    String[] datos = sen.split(";");
+                    String codigo = datos[0];
+                    String marca = datos[1];
+                    String enume = datos[2];
+                    TipoSensor nuevoSensor = TipoSensor.valueOf(datos[2].trim().toUpperCase()); // Extraemos el texto, con trim eliminamos espacios a los costados, con valueOf si tienes TEMPERATURA, buscara en el enum la coincidencia y te devolvera TEMPERATURA
+                    // el to upper case de la linea de arriba se asegura de que el String este en mayusculas para que coincida con los enums en mayusculas.
+
+                }
+            }catch(Exception exc){
+                throw new MeteorologiaException("Ola");
+            }
+        }else{
+            throw new MeteorologiaException("La carga de datos solo puede realizarse cuando no existen datos registrados");
+        }
+    }
+
+    public void guardaDatos(){
+
+    }
 
     public String[][] listaRegiones(){
         String[][] listaRegiones = new String[regiones.size()][4];
