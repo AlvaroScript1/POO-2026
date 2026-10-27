@@ -1,0 +1,112 @@
+package modelo;
+
+import java.time.*;
+import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
+public class EstacionMeteorologica {
+    private String codigo, nombre;
+    private float longitud, latitud, altitud;
+    private Estado estado;
+    private Comuna comuna;
+    //complemento (creamos un array list de los sensores
+    private ArrayList<Sensor> sensores;
+    //constructor de modelo.EstacionMeteorologica (Falta las comunas)
+    public EstacionMeteorologica(String cod, String nombre,
+                                 float lon, float lat, float alt,
+                                 Comuna comuna){
+        this.codigo = cod;
+        this.nombre = nombre;
+        this.longitud = lon;
+        this.latitud = lat;
+        this.altitud = alt;
+        this.comuna = comuna;
+        this.estado = Estado.ACTIVO; //lo activamos por defecto
+        //declaramos el array list de sensor
+        this.sensores = new ArrayList<>();
+    }
+    public boolean instalaSensor(String codigo, String marca, String modelo, TipoSensor tipo){
+        if(estado != Estado.ACTIVO){
+            return false;
+        }
+        Sensor nuevoSensor = switch(tipo){
+            case TipoSensor.HUMEDAD -> new SensorHumedad(codigo, marca, modelo, this);
+            case TipoSensor.TEMPERATURA -> new SensorTemperatura(codigo, marca, modelo, this);
+            case TipoSensor.PRESION -> new SensorPresion(codigo, marca, modelo, this);
+            case TipoSensor.VIENTO -> new SensorViento(codigo, marca, modelo, this);
+            case TipoSensor.PRECIPITACION -> new SensorPrecipitacion(codigo, marca, modelo, this);
+        };
+        for(Sensor s : sensores){
+            if(s.getCodigo().equalsIgnoreCase(codigo)){
+                return false;
+            }
+            if(s.getEstado() == Estado.ACTIVO && (s.getClass() == nuevoSensor.getClass())){ // si existe un sensor activo igual a otro sensor activo, entonces rechazamos el cambio
+                return false;
+            }
+        }
+        return sensores.add(nuevoSensor);
+    }
+    public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codigoSensor){
+        if(estado != Estado.ACTIVO){
+            return false;
+        }
+        for(Sensor s : sensores){
+            if(s.getCodigo().equalsIgnoreCase(codigoSensor)){ //la condicion que evalua s como obj y compara su codigo con el parametro para buscar el sensor.
+                return s.addMedicion(fechaHora, valor); //llamamos el metodo para agregar la medición con los parametros
+            }
+        }
+        return false; //no se encontro ningún codigo que coincida
+    }
+
+    @Override
+    public String toString() {
+        int senActivo = 0;
+        for(Sensor s : sensores){
+            if(s.getEstado() == Estado.ACTIVO){ // Cuenta solo los sensores activos
+                senActivo++;
+            }
+        }
+        return String.format("%s; %s; (%.4f, %.4f, %.0f m); %s; %d",
+                codigo, nombre, latitud, longitud, altitud, estado, senActivo);
+    }
+    public String[][] getResumenSensores() {
+        String[][] resumenSensores = new String[sensores.size()][7];
+        for (int i = 0; i < sensores.size(); i++) {
+            String nomClase = sensores.get(i).getClass().getSimpleName(); // Tomamos la clase y la llevamos a String
+            String sensor = nomClase.replace("modelo.Sensor", ""); // replace reemplaza un algo por algo, en este caso modelo.Sensor por "" que seria nada
+            resumenSensores[i][0] = sensores.get(i).getCodigo();
+            resumenSensores[i][1] = sensor.toUpperCase(); // Mostramos solo el tipo de sensor / Ej: HUMEDAD sin el modelo.Sensor por delante, sin el cambio hubiese quedado como modelo.SensorHumedad
+            resumenSensores[i][2] = sensores.get(i).getMarca();
+            resumenSensores[i][3] = sensores.get(i).getModelo();
+            resumenSensores[i][4] = sensores.get(i).getUnidad();
+            resumenSensores[i][5] = String.valueOf(sensores.get(i).getEstado()); // Tomamos el estado y lo transformamos en String
+
+            Medicion medUltima = sensores.get(i).getLastMedicion(); // Tomamos la ultima medicion
+            if (medUltima == null) { // Vemos el caso en el que la ultima medicion es null, no existe
+                resumenSensores[i][6] = "No existe medicion";
+            } else {
+                resumenSensores[i][6] = medUltima.toString() + " " + sensores.get(i).getUnidad();
+                // Transformamos la ultima medicion a String y de paso le concatenamos su unidad correspondiente polimorficamente
+            }
+        }
+        return resumenSensores;
+    }
+
+    public String [][] getMedicionesSensorBetween(String codigoSensor, LocalDateTime inicio, LocalDateTime fin) {
+        for (Sensor s : sensores) { // hacemos un for-each de sensores
+            if (s.getCodigo().equalsIgnoreCase(codigoSensor)) { // si el codigo de sensores es igual a codigoSensor, entonces existe y podemos seguir
+                DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // formateamos la fecha y hora
+                DateTimeFormatter h = DateTimeFormatter.ofPattern("HH:mm");
+                Medicion[] l = s.getMedicionesBetween(inicio, fin); // Toma las mediciones y usa el metodo getMedicionesBetween de modelo.Sensor
+                String[][] requerido = new String[l.length][4];
+                for (int i = 0; i < l.length; i++) {
+                    requerido[i][0] = l[i].getFechaHora().format(f);
+                    requerido[i][1] = l[i].getFechaHora().format(h);
+                    requerido[i][2] = String.format("%.1f", l[i].getValor()); // pasamos el valor a String y le damos solamente 1 decimal
+                    requerido[i][3] = s.getUnidad(); // simplemente llamamos a la unidad polimorficamente
+                }
+                return requerido; // retornamos la matriz con los valores ya puestos
+            }
+        }
+        return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
+    }
+}
