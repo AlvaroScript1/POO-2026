@@ -1,7 +1,6 @@
 package controlador;
 
 import modelo.*;
-
 import java.util.*;
 import java.time.*;
     
@@ -93,6 +92,115 @@ public class InstitutoMeteorologia {
         }
         throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
     }
+    public void cargaDatos() throws MeteorologiaException{
+        if(regiones.isEmpty() && estacionesMeteorologicas.isEmpty()){
+            String[] r = PersistenciaTexto.leeRegistros("regiones.txt");
+            String[] c = PersistenciaTexto.leeRegistros("comunas.txt");
+            String[] e = PersistenciaTexto.leeRegistros("estaciones.txt");
+            String[] s = PersistenciaTexto.leeRegistros("sensores.txt");
+            String[] m = PersistenciaTexto.leeRegistros("mediciones.txt");
+            int cantidad = 1;
+            for (String re : r) {
+                try {
+                    String[] datos = re.split(";"); // esto es para separar los datos en una arreglo cuando haya un ; como separador
+                    int codigo = Integer.parseInt(datos[0].trim()); // convertimos el dato del indice 0 del arreglo a int de inmediato para luego crear el objeto region
+                    String nombre = datos[1]; // el indice 1 corresponde al nombre de la region
+                    creaRegion(codigo, nombre); // este metodo crea la region, en caso de error lanza excepcion
+                }catch(MeteorologiaException exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo regiones.txt: "+ exc.getMessage()+" No se cargo ningun dato");
+                }catch(Exception exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo regiones.txt: formato invalido. No se cargo ningun archivo");
+                }
+                cantidad++;
+            }
+            cantidad = 1;
+            for (String co : c) {
+                try {
+                    // En este caso repetimos el proceso de arriba solo que con mas parametros para la creacion del objeto mediante su respectivo metodo
+                    String[] datos = co.split(";");
+                    int codigo = Integer.parseInt(datos[0].trim());
+                    int codigoRegion = Integer.parseInt(datos[1].trim());
+                    String nombre = datos[2];
+                    creaComuna(codigo, nombre, codigoRegion);
+                }catch(MeteorologiaException exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo comunas.txt: "+exc.getMessage()+" No se cargo ningun dato");
+                }catch(Exception exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo comunas.txt: formato invalido. No se cargo ningun archivo");
+                }
+                cantidad++;
+            }
+            cantidad = 1;
+            for (String est : e){
+                try {
+                    String[] datos = est.split(";");
+                    String codigo = datos[0];
+                    String nombre = datos[1];
+                    float lon = Float.parseFloat(datos[2].trim());
+                    float lat = Float.parseFloat(datos[3].trim());
+                    float alt = Float.parseFloat(datos[4].trim());
+                    int codRegion = Integer.parseInt(datos[5].trim());
+                    int codComuna = Integer.parseInt(datos[6].trim());
+                    creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
+                }catch(MeteorologiaException exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo estaciones.txt: "+exc.getMessage()+" No se cargo ningun dato");
+                }catch(Exception exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo estaciones.txt: formato invalido. No se cargo ningun dato");
+                }
+                cantidad++;
+            }
+            Estado[] tiposEstado = new Estado[s.length];
+            ArrayList<String> copia = new ArrayList<>();
+            cantidad = 1;
+            for (String sen : s) {
+                try {
+                    String[] datos = sen.split(";");
+                    String codigoEstacion = datos[0];
+                    String codigo = datos[1];
+                    TipoSensor nuevoSensor = TipoSensor.valueOf(datos[2].trim().toUpperCase()); // Extraemos el texto, con trim eliminamos espacios a los costados, con valueOf si tienes TEMPERATURA, buscara en el enum la coincidencia y te devolvera TEMPERATURA
+                    String marca = datos[3];
+                    String modelo = datos[4];
+                    Estado estado = Estado.valueOf(datos[5].trim().toUpperCase());// el to upper case se asegura de que el String este en mayusculas para que coincida con los enums en mayusculas.
+                    instalaSensor(codigo, marca, modelo, nuevoSensor, codigoEstacion);
+                    if (estado == Estado.ACTIVO) {
+                        copia.add(codigo);
+                        copia.add(codigoEstacion);
+                    }
+                }catch(MeteorologiaException exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo sensores.txt: "+exc.getMessage()+" No se cargo ningun dato");
+                }catch(Exception exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo sensores.txt: formato invalido. No se cargo ningun dato");
+                }
+                cantidad++;
+            }
+            cantidad = 1;
+            for(String med : m){
+                try {
+                    String[] datos = med.split(";");
+                    String codEstacion = datos[0];
+                    String codSensor = datos[1];
+                    LocalDateTime fechaYHora = LocalDateTime.parse(datos[2]);
+                    Float valor = Float.parseFloat(datos[3].trim());
+                    registraMedicion(fechaYHora, valor, codEstacion, codSensor);
+                }catch(MeteorologiaException exc){
+                    throw new MeteorologiaException("Linea "+cantidad+" del archivo mediciones.txt: "+exc.getMessage()+" No se cargo ningun dato");
+                }catch(Exception exc){
+                    throw new MeteorologiaException("Linea "+cantidad+"del archivo mediciones.txt: formato invalido. No se cargo ningun dato");
+                }
+                cantidad++;
+            }
+            for(int i = 0; i<copia.size();i+=2){
+                String codSen = copia.get(i);
+                String codEst = copia.get(i+1);
+                cambiaEstadoSensor(codEst, codSen, Estado.ACTIVO);
+            }
+        }else{
+            throw new MeteorologiaException("La carga de datos solo puede realizarse cuando no existen datos registrados");
+        }
+    }
+
+    public void guardaDatos(){
+
+    }
 
     public String[][] listaRegiones(){
         String[][] listaRegiones = new String[regiones.size()][4];
@@ -147,22 +255,45 @@ public class InstitutoMeteorologia {
         throw new MeteorologiaException("No existe una región con el código <"+codigoRegion+">");// Retornamos una matriz vacia como se nos indica si es que la region no existe
     }
 
-    public String[][] listaSensores(String codigoEstacion){
-        for(EstacionMeteorologica est : estacionesMeteorologicas){
-            if(est.getCodigo().equalsIgnoreCase(codigoEstacion)){
-                return est.getResumenSensores(); // Si una estacion tiene el mismo codigo entonces regresamos un resumen de esa estacion
-            }
+    public String[][] listaSensores(String codigoEstacion) throws MeteorologiaException{
+        Optional<EstacionMeteorologica> estacion = findEstacion(codigoEstacion); // aprovechamos findEstacion para ver si existe la estacion o no
+        if(estacion.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">"); // Lanzamos inmediatamente la excepcion si no existe una estacion con el codigo indicado
         }
-        return new String[0][7]; // Si no pasa entonces se retorna una matriz vacia como se indica
+        EstacionMeteorologica est = estacion.get();
+        return est.getResumenSensores();
     }
 
-    public String[][] listaMediciones(String codEstacion, String codSensor, LocalDateTime inicio, LocalDateTime fin){
-        for(EstacionMeteorologica est : estacionesMeteorologicas){
-            if(est.getCodigo().equalsIgnoreCase(codEstacion)){
-                return est.getMedicionesSensorBetween(codSensor, inicio, fin);
-            }
+    public String[][] listaMediciones(String codEstacion, String codSensor, LocalDateTime inicio, LocalDateTime fin)throws MeteorologiaException{
+        Optional<EstacionMeteorologica> estacion = findEstacion(codEstacion);
+        if(estacion.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codEstacion+">");
         }
-        return new String[0][4]; // si no pasa el if, entonces la estacion no existe y se devuelve una matriz vacia
+        EstacionMeteorologica est = estacion.get();
+        Optional<Sensor> sensor = findSensor(codEstacion, codSensor);
+        if(sensor.isEmpty()){
+            throw new MeteorologiaException("No existe el sensor <"+codSensor+"> en la estación <"+codEstacion+">");
+        }
+        if(fin.isBefore(inicio)){
+            throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+        }
+        return est.getMedicionesSensorBetween(codSensor, inicio, fin);
+    }
+    public String[] listaResumenMediciones(String codigoEstacion, String codigoSensor, LocalDateTime inicio, LocalDateTime fin) throws MeteorologiaException{
+        Optional<EstacionMeteorologica> est = findEstacion(codigoEstacion);
+        if(est.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+        }
+        EstacionMeteorologica estacion = est.get();
+        Optional<Sensor> sen = findSensor(codigoEstacion, codigoSensor);
+        if(sen.isEmpty()){
+            throw new MeteorologiaException("No existe el sensor <"+codigoSensor+"> en la estación <"+codigoEstacion+">");
+        }
+        Sensor sensor = sen.get();
+        if(fin.isBefore(inicio)){
+            throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+        }
+        sensor.getResumenBetween(inicio, fin);
     }
 
     public Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
