@@ -24,6 +24,21 @@ public class EstacionMeteorologica {
         //declaramos el array list de sensor
         this.sensores = new ArrayList<>();
     }
+    public String getCodigo(){
+        return this.codigo;
+    }
+    public String getNombre(){
+        return this.nombre;
+    }
+    public String getPosicion(){
+        return this.longitud +";"+this.latitud+";"+this.altitud;
+    }
+    public Estado getEstado(){
+        return this.estado;
+    }
+    public Comuna getComuna(){
+        return this.comuna;
+    }
     public boolean instalaSensor(String codigo, String marca, String modelo, TipoSensor tipo){
         if(estado != Estado.ACTIVO){
             return false;
@@ -109,4 +124,5 @@ public class EstacionMeteorologica {
         }
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
-}
+
+    }
