@@ -26,6 +26,21 @@ public class EstacionMeteorologica {
         //declaramos el array list de sensor
         this.sensores = new ArrayList<>();
     }
+    public String getCodigo(){
+        return this.codigo;
+    }
+    public String getNombre(){
+        return this.nombre;
+    }
+    public String getPosicion(){
+        return this.longitud +";"+this.latitud+";"+this.altitud;
+    }
+    public Estado getEstado(){
+        return this.estado;
+    }
+    public Comuna getComuna(){
+        return this.comuna;
+    }
     public void instalaSensor(String codigo, String marca, String modelo, TipoSensor tipo) throws MeteorologiaException {
         if(this.estado != Estado.ACTIVO){ // si no esta activo lanzamos excepcion
             throw new MeteorologiaException("La estacion <"+this.codigo+"> no esta activa");
@@ -123,7 +138,6 @@ public class EstacionMeteorologica {
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
     public AlertaMeteorologica[] getAlertasBetween(LocalDateTime inicio, LocalDateTime fin){
-
     }
 
     public Optional<Sensor> findSensorById(String codigo){ // recorremos con un for-each la lista de sensores y buscamos una coincidencia mediante el codigo de sensor, si es asi retornamos un Optional del objeto
