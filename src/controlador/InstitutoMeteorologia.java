@@ -110,7 +110,7 @@ public class InstitutoMeteorologia {
                     cantidad++;
                 }
                 cantidad = 1;
-                for (String co : c) {
+                for (String co : c) { // En este caso repetimos el proceso de arriba solo que con mas parametros para la creacion del objeto mediante su respectivo metodo
                     String[] datos = co.split(";");
                     int codigo = Integer.parseInt(datos[0]);
                     int codigoRegion = Integer.parseInt(datos[1]);
