@@ -2,6 +2,7 @@ package modelo;
 
 import controlador.MeteorologiaException;
 
+import java.sql.Array;
 import java.time.*;
 import java.util.*;
 import java.time.format.DateTimeFormatter;
@@ -10,6 +11,7 @@ public class EstacionMeteorologica {
     private float longitud, latitud, altitud;
     private Estado estado;
     private Comuna comuna;
+    private ArrayList<AlertaMeteorologica> alertas = new ArrayList<>();
     //complemento (creamos un array list de los sensores
     private ArrayList<Sensor> sensores;
     //constructor de modelo.EstacionMeteorologica (Falta las comunas)
@@ -74,7 +76,7 @@ public class EstacionMeteorologica {
         if(estado == Estado.ACTIVO) { // verificamos que este el estado sea activo en base al enunciado
             for (Sensor s : sensores) { // recorremos la lista de sensores
                 if (!s.getCodigo().equalsIgnoreCase(codigoSensor) && (s.getTipo() == sensor.getTipo()) && (s.getEstado() == Estado.ACTIVO)) { // esto es medio confuso, pero en una sola "condicion" o if, nos aseguramos de que se pase por ese if cuando el codigo no es igual a si mismo y
-                    throw new MeteorologiaException("No es posible activar el sensor <" + codigoSensor + ">: la estación ya tiene activo el sensor <" + s.getCodigo() + "> de tipo <" + s.getTipo() + ">"); // los tipos sean iguales y el sensor este activo
+                    throw new MeteorologiaException("No es posible activar el sensor <" + codigoSensor + ">: la estación ya tiene activo el sensor <" + s.getCodigo() + "> de tipo <" + s.getTipo() + ">"); // los tipos sean iguales y el sensor este activo, finalmente arrojando una excepcion
                 }
             }
         }
@@ -138,6 +140,13 @@ public class EstacionMeteorologica {
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
     public AlertaMeteorologica[] getAlertasBetween(LocalDateTime inicio, LocalDateTime fin){
+        ArrayList<AlertaMeteorologica> aler = new ArrayList<>();
+        for(AlertaMeteorologica a : alertas){
+            if(!a.getFechaHora().isBefore(inicio) && !a.getFechaHora().isAfter(fin)){
+                aler.add(a);
+            }
+        }
+        aler.toArray(new AlertaMeteorologica[0]);
     }
 
     public Optional<Sensor> findSensorById(String codigo){ // recorremos con un for-each la lista de sensores y buscamos una coincidencia mediante el codigo de sensor, si es asi retornamos un Optional del objeto
