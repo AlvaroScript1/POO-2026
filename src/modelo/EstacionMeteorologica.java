@@ -146,7 +146,7 @@ public class EstacionMeteorologica {
                 aler.add(a);
             }
         }
-        aler.toArray(new AlertaMeteorologica[0]);
+        return aler.toArray(new AlertaMeteorologica[0]);
     }
 
     public Optional<Sensor> findSensorById(String codigo){ // recorremos con un for-each la lista de sensores y buscamos una coincidencia mediante el codigo de sensor, si es asi retornamos un Optional del objeto
