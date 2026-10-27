@@ -2,6 +2,11 @@ package modelo;
 
 import java.util.ArrayList;
 import java.time.*;
+import controlador.MeteorologiaException;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Optional;
+
 public abstract class Sensor {
     private String codigo;
     private String marca;
@@ -49,18 +54,10 @@ public abstract class Sensor {
         return false;
     }
 
-    public Medicion getLastMedicion(){ // En este caso queremos el objeto medicion más reciente de nuestra lista mediciones
-        if(mediciones.isEmpty()){
-            return null;// Pero sí esta vacía debería retornar null
-        }
-        Medicion actualCronologicamente = mediciones.get(0); // tomamos la primera medicion como última cronológicamente
-        for(Medicion m : mediciones){
-            if(m.getFechaHora().isAfter(actualCronologicamente.getFechaHora())){ // Hacemos un for-each y si una medicion viene después cronológicamente que la actualCronologicamente
-                actualCronologicamente = m; // si una medicion es mas actual, entonces pasa a ser la mas actualCronologicamente
-            }
-        }
-        return actualCronologicamente; // retornamos finalmente la cronológicamente más actual
+    public Medicion[] getMediciones() {
+        return mediciones.toArray(new Medicion[0]);
     }
+
     public Medicion[] getMedicionesBetween(LocalDateTime inicio, LocalDateTime fin){
         int contador = 0;
         for(Medicion m : mediciones){
@@ -79,6 +76,8 @@ public abstract class Sensor {
         }
         return medicionesAptas;
     }
+
+    public abstract TipoSensor getTipo();
     public abstract String getUnidad();
     public abstract boolean esValorAdmisible(float valor); // metodo abstract
 }
