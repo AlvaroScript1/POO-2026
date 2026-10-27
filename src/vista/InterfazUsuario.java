@@ -207,7 +207,7 @@ public class InterfazUsuario {
         }
         System.out.println("CÓDIGO\tNOMBRE\t\tCOMUNAS\tESTACIONES");
         for (String[] f : m) {
-            System.out.println(f[0] + "\t" + f[1] + "\t\t" + f[2] + "\t" + f[3] + "\t" + f[4]);
+            System.out.println(f[0] + "\t" + f[1] + "\t\t" + f[2] + "\t" + f[3]); // Existia un indice de mas que podia provocar un error indexOutofBounds, era Index no me se el error en si
         }
     }
 
