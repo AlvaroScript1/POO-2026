@@ -1,7 +1,9 @@
 package modelo;
 
+import controlador.MeteorologiaException;
+
 import java.time.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.time.format.DateTimeFormatter;
 public class EstacionMeteorologica {
     private String codigo, nombre;
@@ -24,49 +26,60 @@ public class EstacionMeteorologica {
         //declaramos el array list de sensor
         this.sensores = new ArrayList<>();
     }
-    public boolean instalaSensor(String codigo, String marca, String modelo, TipoSensor tipo){
-        if(estado != Estado.ACTIVO){
-            return false;
+    public void instalaSensor(String codigo, String marca, String modelo, TipoSensor tipo) throws MeteorologiaException {
+        if(this.estado != Estado.ACTIVO){ // si no esta activo lanzamos excepcion
+            throw new MeteorologiaException("La estacion <"+this.codigo+"> no esta activa");
         }
-        Sensor nuevoSensor = switch(tipo){
-            case TipoSensor.HUMEDAD -> new SensorHumedad(codigo, marca, modelo, this);
-            case TipoSensor.TEMPERATURA -> new SensorTemperatura(codigo, marca, modelo, this);
-            case TipoSensor.PRESION -> new SensorPresion(codigo, marca, modelo, this);
-            case TipoSensor.VIENTO -> new SensorViento(codigo, marca, modelo, this);
-            case TipoSensor.PRECIPITACION -> new SensorPrecipitacion(codigo, marca, modelo, this);
-        };
         for(Sensor s : sensores){
-            if(s.getCodigo().equalsIgnoreCase(codigo)){
-                return false;
+            if(s.getCodigo().equalsIgnoreCase(codigo)){ // Si existe un sensor con igual codigo, entonces lanzamos excepcion
+                throw new MeteorologiaException("La estacion <"+this.codigo+"> ya tiene un sensor con el código <"+codigo+">");
             }
-            if(s.getEstado() == Estado.ACTIVO && (s.getClass() == nuevoSensor.getClass())){ // si existe un sensor activo igual a otro sensor activo, entonces rechazamos el cambio
-                return false;
+            if(s.getEstado() == Estado.ACTIVO && (s.getTipo() == tipo)){ // si existe un sensor activo igual a otro sensor activo, entonces rechazamos el cambio, aprovechando getTipo de Sensor
+                throw new MeteorologiaException("La estacion <"+this.codigo+"> ya tiene un sensor ACTIVO de tipo <"+tipo+"> (<"+s.getCodigo()+">)");
             }
         }
-        return sensores.add(nuevoSensor);
+        Sensor nuevoSensor = switch(tipo){ // si se cumple lo requerido, creamos un nuevo sensor y lo agregamos a la lista de sensores
+            case HUMEDAD -> new SensorHumedad(codigo, marca, modelo, this);
+            case TEMPERATURA -> new SensorTemperatura(codigo, marca, modelo, this);
+            case PRESION -> new SensorPresion(codigo, marca, modelo, this);
+            case VIENTO -> new SensorViento(codigo, marca, modelo, this);
+            case PRECIPITACION -> new SensorPrecipitacion(codigo, marca, modelo, this);
+        };
+        sensores.add(nuevoSensor);
     }
-    public boolean registraMedicion(LocalDateTime fechaHora, float valor, String codigoSensor){
+    public void cambiaEstadoSensor(String codigoSensor, Estado estado) throws MeteorologiaException{
+        Optional<Sensor> sen = findSensorById(codigoSensor); // usamos el metodo findSensorById, si es un Optional vacio, entonces no existe ese sensor en la estacion
+        if(sen.isEmpty()){
+            throw new MeteorologiaException("No existe el sensor <"+codigoSensor+"> en la estación <"+this.codigo+">");
+        }
+        Sensor sensor = sen.get(); // obtenemos el objeto para usar sus metodos
+        if(sensor.getEstado() == estado){ // si el estado de sensor es igual al estado del parametro indicado, entonces no hay nada que cambiar y lanzamos excepcion
+            throw new MeteorologiaException("El sensor <"+codigoSensor+"> ya se encuentra en estado <"+estado+">");
+        }
+        if(estado == Estado.ACTIVO) { // verificamos que este el estado sea activo en base al enunciado
+            for (Sensor s : sensores) { // recorremos la lista de sensores
+                if (!s.getCodigo().equalsIgnoreCase(codigoSensor) && (s.getTipo() == sensor.getTipo()) && (s.getEstado() == Estado.ACTIVO)) { // esto es medio confuso, pero en una sola "condicion" o if, nos aseguramos de que se pase por ese if cuando el codigo no es igual a si mismo y
+                    throw new MeteorologiaException("No es posible activar el sensor <" + codigoSensor + ">: la estación ya tiene activo el sensor <" + s.getCodigo() + "> de tipo <" + s.getTipo() + ">"); // los tipos sean iguales y el sensor este activo
+                }
+            }
+        }
+        sensor.setEstado(estado); // luego de pasar todas las verificaciones, hacemos un set estado al objeto de tipo Sensor sensor, el cual esta vinculado al sensor guardado en la lista
+    }
+    public void registraMedicion(LocalDateTime fechaHora, float valor, String codigoSensor)throws MeteorologiaException{
         if(estado != Estado.ACTIVO){
-            return false;
+            throw new MeteorologiaException("La estacion <"+this.codigo+"> no está activa");
         }
         for(Sensor s : sensores){
             if(s.getCodigo().equalsIgnoreCase(codigoSensor)){ //la condicion que evalua s como obj y compara su codigo con el parametro para buscar el sensor.
-                return s.addMedicion(fechaHora, valor); //llamamos el metodo para agregar la medición con los parametros
+                s.addMedicion(fechaHora, valor); //llamamos el metodo para agregar la medición con los parametros
+                return; // Este return es vital para que no se lance la excepcion de mas abajo
             }
         }
-        return false; //no se encontro ningún codigo que coincida
+        throw new MeteorologiaException("No existe el sensor <"+codigoSensor+"> en la estación <"+this.codigo+">"); //no se encontro ningún codigo que coincida
     }
 
-    @Override
-    public String toString() {
-        int senActivo = 0;
-        for(Sensor s : sensores){
-            if(s.getEstado() == Estado.ACTIVO){ // Cuenta solo los sensores activos
-                senActivo++;
-            }
-        }
-        return String.format("%s; %s; (%.4f, %.4f, %.0f m); %s; %d",
-                codigo, nombre, latitud, longitud, altitud, estado, senActivo);
+    public Sensor[] getSensores(){
+        return sensores.toArray(new Sensor[0]);
     }
     public String[][] getResumenSensores() {
         String[][] resumenSensores = new String[sensores.size()][7];
@@ -110,7 +123,24 @@ public class EstacionMeteorologica {
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
 
-    //metodos auxiliares:
-    public String getCodigo(){return codigo;}
-    public Estado getEstado(){return estado;}
+    public Optional<Sensor> findSensorById(String codigo){ // recorremos con un for-each la lista de sensores y buscamos una coincidencia mediante el codigo de sensor, si es asi retornamos un Optional del objeto
+        for(Sensor s : sensores){
+            if(s.getCodigo().equalsIgnoreCase(codigo)){
+                return Optional.of(s);
+            }
+        }
+        return Optional.empty(); // si no hay coincidencias entonces retornamos un optional vacio
+    }
+
+    @Override
+    public String toString() {
+        int senActivo = 0;
+        for(Sensor s : sensores){
+            if(s.getEstado() == Estado.ACTIVO){ // Cuenta solo los sensores activos
+                senActivo++;
+            }
+        }
+        return String.format("%s; %s; (%.4f, %.4f, %.0f m); %s; %d",
+                codigo, nombre, latitud, longitud, altitud, estado, senActivo);
+    }
 }
