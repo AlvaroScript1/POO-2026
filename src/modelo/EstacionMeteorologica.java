@@ -122,6 +122,9 @@ public class EstacionMeteorologica {
         }
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
+    public AlertaMeteorologica[] getAlertasBetween(LocalDateTime inicio, LocalDateTime fin){
+
+    }
 
     public Optional<Sensor> findSensorById(String codigo){ // recorremos con un for-each la lista de sensores y buscamos una coincidencia mediante el codigo de sensor, si es asi retornamos un Optional del objeto
         for(Sensor s : sensores){
