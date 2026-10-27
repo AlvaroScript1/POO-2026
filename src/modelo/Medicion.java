@@ -1,3 +1,5 @@
+package modelo;
+
 import java.time.*; // esto para usar el LocalDateTime
 import java.time.format.DateTimeFormatter; // esto para usar el formatter
 public final class Medicion { // Hacemos inmutable la clase
@@ -17,7 +19,7 @@ public final class Medicion { // Hacemos inmutable la clase
     }
     @Override // Sobreescribimos ya que esta clase ocupara en si este equals
     public boolean equals(Object o){
-        if(o instanceof Medicion obj){ //Nos aseguramos que o pertenezca a Medicion
+        if(o instanceof Medicion obj){ //Nos aseguramos que o pertenezca a modelo.Medicion
             return this.fechaHora.equals(obj.getFechaHora());
         }
         return false;//Si no es asi retornamos falso

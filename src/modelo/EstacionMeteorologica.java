@@ -1,3 +1,5 @@
+package modelo;
+
 import java.time.*;
 import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
@@ -8,7 +10,7 @@ public class EstacionMeteorologica {
     private Comuna comuna;
     //complemento (creamos un array list de los sensores
     private ArrayList<Sensor> sensores;
-    //constructor de EstacionMeteorologica (Falta las comunas)
+    //constructor de modelo.EstacionMeteorologica (Falta las comunas)
     public EstacionMeteorologica(String cod, String nombre,
                                  float lon, float lat, float alt,
                                  Comuna comuna){
@@ -27,11 +29,11 @@ public class EstacionMeteorologica {
             return false;
         }
         Sensor nuevoSensor = switch(tipo){
-            case HUMEDAD -> new SensorHumedad(codigo, marca, modelo, this);
-            case TEMPERATURA -> new SensorTemperatura(codigo, marca, modelo, this);
-            case PRESION -> new SensorPresion(codigo, marca, modelo, this);
-            case VIENTO -> new SensorViento(codigo, marca, modelo, this);
-            case PRECIPITACION -> new SensorPrecipitacion(codigo, marca, modelo, this);
+            case TipoSensor.HUMEDAD -> new SensorHumedad(codigo, marca, modelo, this);
+            case TipoSensor.TEMPERATURA -> new SensorTemperatura(codigo, marca, modelo, this);
+            case TipoSensor.PRESION -> new SensorPresion(codigo, marca, modelo, this);
+            case TipoSensor.VIENTO -> new SensorViento(codigo, marca, modelo, this);
+            case TipoSensor.PRECIPITACION -> new SensorPrecipitacion(codigo, marca, modelo, this);
         };
         for(Sensor s : sensores){
             if(s.getCodigo().equalsIgnoreCase(codigo)){
@@ -70,9 +72,9 @@ public class EstacionMeteorologica {
         String[][] resumenSensores = new String[sensores.size()][7];
         for (int i = 0; i < sensores.size(); i++) {
             String nomClase = sensores.get(i).getClass().getSimpleName(); // Tomamos la clase y la llevamos a String
-            String sensor = nomClase.replace("Sensor", ""); // replace reemplaza un algo por algo, en este caso Sensor por "" que seria nada
+            String sensor = nomClase.replace("modelo.Sensor", ""); // replace reemplaza un algo por algo, en este caso modelo.Sensor por "" que seria nada
             resumenSensores[i][0] = sensores.get(i).getCodigo();
-            resumenSensores[i][1] = sensor.toUpperCase(); // Mostramos solo el tipo de sensor / Ej: HUMEDAD sin el Sensor por delante, sin el cambio hubiese quedado como SensorHumedad
+            resumenSensores[i][1] = sensor.toUpperCase(); // Mostramos solo el tipo de sensor / Ej: HUMEDAD sin el modelo.Sensor por delante, sin el cambio hubiese quedado como modelo.SensorHumedad
             resumenSensores[i][2] = sensores.get(i).getMarca();
             resumenSensores[i][3] = sensores.get(i).getModelo();
             resumenSensores[i][4] = sensores.get(i).getUnidad();
@@ -94,7 +96,7 @@ public class EstacionMeteorologica {
             if (s.getCodigo().equalsIgnoreCase(codigoSensor)) { // si el codigo de sensores es igual a codigoSensor, entonces existe y podemos seguir
                 DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // formateamos la fecha y hora
                 DateTimeFormatter h = DateTimeFormatter.ofPattern("HH:mm");
-                Medicion[] l = s.getMedicionesBetween(inicio, fin); // Toma las mediciones y usa el metodo getMedicionesBetween de Sensor
+                Medicion[] l = s.getMedicionesBetween(inicio, fin); // Toma las mediciones y usa el metodo getMedicionesBetween de modelo.Sensor
                 String[][] requerido = new String[l.length][4];
                 for (int i = 0; i < l.length; i++) {
                     requerido[i][0] = l[i].getFechaHora().format(f);
@@ -107,8 +109,4 @@ public class EstacionMeteorologica {
         }
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
-
-    //metodos auxiliares:
-    public String getCodigo(){return codigo;}
-    public Estado getEstado(){return estado;}
 }
