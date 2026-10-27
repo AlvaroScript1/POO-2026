@@ -1,7 +1,6 @@
 package controlador;
 
 import modelo.*;
-
 import java.util.*;
 import java.time.*;
     
@@ -104,7 +103,7 @@ public class InstitutoMeteorologia {
                 int cantidad = 1;
                 for (String re : r) {
                     String[] datos = re.split(";"); // esto es para separar los datos en una arreglo cuando haya un ; como separador
-                    int codigo = Integer.parseInt(datos[0]); // convertimos el dato del indice 0 del arreglo a int de inmediato para luego crear el objeto region
+                    int codigo = Integer.parseInt(datos[0].trim()); // convertimos el dato del indice 0 del arreglo a int de inmediato para luego crear el objeto region
                     String nombre = datos[1]; // el indice 1 corresponde al nombre de la region
                     creaRegion(codigo, nombre); // este metodo crea la region, en caso de error lanza excepcion
                     cantidad++;
@@ -112,8 +111,8 @@ public class InstitutoMeteorologia {
                 cantidad = 1;
                 for (String co : c) { // En este caso repetimos el proceso de arriba solo que con mas parametros para la creacion del objeto mediante su respectivo metodo
                     String[] datos = co.split(";");
-                    int codigo = Integer.parseInt(datos[0]);
-                    int codigoRegion = Integer.parseInt(datos[1]);
+                    int codigo = Integer.parseInt(datos[0].trim());
+                    int codigoRegion = Integer.parseInt(datos[1].trim());
                     String nombre = datos[2];
                     creaComuna(codigo, nombre, codigoRegion);
                     cantidad++;
@@ -123,28 +122,47 @@ public class InstitutoMeteorologia {
                     String[] datos = est.split(";");
                     String codigo = datos[0];
                     String nombre = datos[1];
-                    float lon = Float.parseFloat(datos[2]);
-                    float lat = Float.parseFloat(datos[3]);
-                    float alt = Float.parseFloat(datos[4]);
-                    int codRegion = Integer.parseInt(datos[5]);
-                    int codComuna = Integer.parseInt(datos[6]);
+                    float lon = Float.parseFloat(datos[2].trim());
+                    float lat = Float.parseFloat(datos[3].trim());
+                    float alt = Float.parseFloat(datos[4].trim());
+                    int codRegion = Integer.parseInt(datos[5].trim());
+                    int codComuna = Integer.parseInt(datos[6].trim());
                     creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
                     cantidad++;
                 }
                 Estado[] tiposEstado = new Estado[s.length];
+                ArrayList<String> copia = new ArrayList<>();
                 cantidad = 1;
                 for (String sen : s) {
                     String[] datos = sen.split(";");
-                    String codigo = datos[0];
-                    String modelo = datos[1];
-                    String enume = datos[2];
+                    String codigoEstacion = datos[0];
+                    String codigo = datos[1];
                     TipoSensor nuevoSensor = TipoSensor.valueOf(datos[2].trim().toUpperCase()); // Extraemos el texto, con trim eliminamos espacios a los costados, con valueOf si tienes TEMPERATURA, buscara en el enum la coincidencia y te devolvera TEMPERATURA
                     String marca = datos[3];
-                    String codigoEstacion = datos[4];
+                    String modelo = datos[4];
                     Estado estado = Estado.valueOf(datos[5].trim().toUpperCase());// el to upper case se asegura de que el String este en mayusculas para que coincida con los enums en mayusculas.
-                    tiposEstado[cantidad-1] = estado;
                     instalaSensor(codigo, marca, modelo, nuevoSensor, codigoEstacion);
                     cantidad++;
+                    if(estado == Estado.ACTIVO){
+                        copia.add(codigo);
+                        copia.add(codigoEstacion);
+                    }
+                    cantidad++;
+                }
+                cantidad = 1;
+                for(String med : m){
+                    String[] datos = med.split(";");
+                    String codEstacion = datos[0];
+                    String codSensor = datos[1];
+                    LocalDateTime fechaYHora = LocalDateTime.parse(datos[2]);
+                    Float valor = Float.parseFloat(datos[3].trim());
+                    registraMedicion(fechaYHora, valor, codEstacion, codSensor);
+                    cantidad++;
+                }
+                for(int i = 0; i<copia.size();i+=2){
+                    String codSen = copia.get(i);
+                    String codEst = copia.get(i+1);
+                    cambiaEstadoSensor(codEst, codSen, Estado.ACTIVO);
                 }
             }catch(Exception exc){
                 throw new MeteorologiaException("Ola");
@@ -234,6 +252,22 @@ public class InstitutoMeteorologia {
             throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
         }
         return est.getMedicionesSensorBetween(codSensor, inicio, fin);
+    }
+    public String[] listaResumenMediciones(String codigoEstacion, String codigoSensor, LocalDateTime inicio, LocalDateTime fin) throws MeteorologiaException{
+        Optional<EstacionMeteorologica> est = findEstacion(codigoEstacion);
+        if(est.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+        }
+        EstacionMeteorologica estacion = est.get();
+        Optional<Sensor> sen = findSensor(codigoEstacion, codigoSensor);
+        if(sen.isEmpty()){
+            throw new MeteorologiaException("No existe el sensor <"+codigoSensor+"> en la estación <"+codigoEstacion+">");
+        }
+        Sensor sensor = sen.get();
+        if(fin.isBefore(inicio)){
+            throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+        }
+        sensor.getResumenBetween(inicio, fin);
     }
 
     public Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
