@@ -284,7 +284,6 @@ public class InstitutoMeteorologia {
         if(est.isEmpty()){
             throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
         }
-        EstacionMeteorologica estacion = est.get();
         Optional<Sensor> sen = findSensor(codigoEstacion, codigoSensor);
         if(sen.isEmpty()){
             throw new MeteorologiaException("No existe el sensor <"+codigoSensor+"> en la estación <"+codigoEstacion+">");
@@ -293,7 +292,18 @@ public class InstitutoMeteorologia {
         if(fin.isBefore(inicio)){
             throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
         }
-        sensor.getResumenBetween(inicio, fin);
+        Optional<ResumenMediciones> medicionRes = sensor.getResumenBetween(inicio, fin);
+        if(medicionRes.isEmpty()){
+            return new String[0];
+        }
+        String[] resumen = new String[4]; // Creamos un arreglo para guardar dentro el max, min, cantidad, promedio junto a la hora
+        Medicion minim = medicionRes.getMinimo();
+        Medicion maxim = medicionRes.getMaximo();
+        resumen[0] = String.valueOf(medicionRes.getCantidad());
+        resumen[1] = String.valueOf(medicionRes.getPromedio());
+        resumen[2] = minim.getFechaHora() +";"+ minim.getValor();
+        resumen[3] = maxim.getFechaHora() +";"+maxim.getValor();
+        return resumen;
     }
 
     public Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
