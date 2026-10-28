@@ -1,6 +1,9 @@
 package controlador;
 
 import modelo.*;
+
+import java.lang.reflect.Array;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.*;
     
@@ -198,8 +201,56 @@ public class InstitutoMeteorologia {
         }
     }
 
-    public void guardaDatos(){
+    public void guardaDatos() throws MeteorologiaException{
+        ArrayList<String> regio = new ArrayList<>();
+        for(Region r : regiones){
+            String l1 = r.getCodigo()+";"+r.getNombre();
+            regio.add(l1); // Este parece el proceso inverso de cargaDatos, jaja una funcion inversa que loco, simplemente vamos escribiendo en 1 linea todo un indice de un arreglo
+        }
+        String[] re = regio.toArray(new String[0]);
+        PersistenciaTexto.escribeRegistros("regiones.txt", re);
 
+        ArrayList<String> lisComunas = new ArrayList<>();
+        for(Region r : regiones){
+            for(Comuna c : r.getComunas()){
+                String l1 = r.getCodigo()+";"+c.getCodigo()+";"+c.getNombre();
+                lisComunas.add(l1);
+            }
+        }
+        String[] co = lisComunas.toArray(new String[0]);
+        PersistenciaTexto.escribeRegistros("comunas.txt", co);
+
+        ArrayList<String> lisEstaciones = new ArrayList<>(); // POR QUE ES TAN LARGO ESTE CODIGOOOOOOOOOOOOOO Y SOLO VOY EN ESTACION TODAVIA ME QUEDAN MAS
+        for(EstacionMeteorologica est : estacionesMeteorologicas){
+            String l1 = est.getCodigo()+";"+est.getNombre()+";"+est.getPosicion()+";"+est.getComuna().getRegion().getCodigo()+";"+est.getComuna().getCodigo();
+            lisEstaciones.add(l1);
+        }
+        String[] estac = lisEstaciones.toArray(new String[0]);
+        PersistenciaTexto.escribeRegistros("estaciones.txt", estac);
+
+        ArrayList<String> lisSensores = new ArrayList<>();
+        for(EstacionMeteorologica est : estacionesMeteorologicas){ // Pero mira esta aberrasidad, recorrer las estaciones, luego los sensores y por ultimo las mediciones y de ahi extraer todo T-T
+            for(Sensor s : est.getSensores()){ // Ayudante te pido ayuda
+                String l1 = est.getCodigo()+";"+s.getCodigo()+";"+s.getTipo()+";"+s.getMarca()+";"+s.getModelo()+";"+s.getEstado();
+                lisSensores.add(l1);
+            }
+        }
+        String[] sens = lisSensores.toArray(new String[0]);
+        PersistenciaTexto.escribeRegistros("sensores.txt", sens);
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        ArrayList<String> lisMediciones = new ArrayList<>();
+        for(EstacionMeteorologica e : estacionesMeteorologicas){
+            for(Sensor s : e.getSensores()){
+                for(Medicion m : s.getMediciones()){ // QUEDA TIEMPO, PUEDO USAR EL FORMATEADOR? SI ALCANZO, SI
+                    String fechaFormat = m.getFechaHora().format(format);
+                    String l1 = e.getCodigo()+";"+s.getCodigo()+";"+fechaFormat+";"+m.getValor();
+                    lisMediciones.add(l1);
+                }
+            }
+        }
+        String[] medicion = lisMediciones.toArray(new String[0]);
+        PersistenciaTexto.escribeRegistros("mediciones.txt", medicion); // SIIIIIIII ME DIO EL TIEMPO A BUSCAR COMO SE HACIA EL FORMAT Y HACERLO, se me olvida por ratos como se hace, pero bueno
     }
 
     public String[][] listaRegiones(){
