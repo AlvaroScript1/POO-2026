@@ -15,4 +15,9 @@ public class SensorPresion extends Sensor {
         }
         return false;
     }
+
+    @Override
+    public TipoSensor getTipo() {
+        return TipoSensor.PRESION;
+    }
 }

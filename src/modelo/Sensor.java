@@ -2,6 +2,7 @@ package modelo;
 
 import java.util.ArrayList;
 import java.time.*;
+import controlador.MeteorologiaException;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -64,6 +65,19 @@ public abstract class Sensor {
 
     public Medicion[] getMediciones() {
         return mediciones.toArray(new Medicion[0]);
+    }
+
+    public Medicion getLastMedicion(){
+        if(mediciones.isEmpty()){
+            return null;
+        }
+        Medicion actualCronologicamente = mediciones.get(0);
+        for(Medicion m : mediciones){
+            if(m.getFechaHora().isAfter(actualCronologicamente.getFechaHora())){
+                actualCronologicamente = m;
+            }
+        }
+        return actualCronologicamente;
     }
 
     public Medicion[] getMedicionesBetween(LocalDateTime inicio, LocalDateTime fin){
