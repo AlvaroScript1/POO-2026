@@ -347,11 +347,13 @@ public class InstitutoMeteorologia {
         if(medicionRes.isEmpty()){
             return new String[0];
         }
+        ResumenMediciones resum = medicionRes.get();
         String[] resumen = new String[4]; // Creamos un arreglo para guardar dentro el max, min, cantidad, promedio junto a la hora
-        Medicion minim = medicionRes.getMinimo();
-        Medicion maxim = medicionRes.getMaximo();
-        resumen[0] = String.valueOf(medicionRes.getCantidad());
-        resumen[1] = String.valueOf(medicionRes.getPromedio());
+        Medicion minim = resum.getMinimo();
+        Medicion maxim = resum.getMaximo();
+
+        resumen[0] = String.valueOf(resum.getCantidad());
+        resumen[1] = String.valueOf(resum.getPromedio());
         resumen[2] = minim.getFechaHora() +";"+ minim.getValor();
         resumen[3] = maxim.getFechaHora() +";"+maxim.getValor();
         return resumen;
