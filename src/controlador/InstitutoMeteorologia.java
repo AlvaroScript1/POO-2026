@@ -305,6 +305,27 @@ public class InstitutoMeteorologia {
         resumen[3] = maxim.getFechaHora() +";"+maxim.getValor();
         return resumen;
     }
+    public String[][] listaAlertas(String codigoEstacion, LocalDateTime inicio, LocalDateTime fin)throws MeteorologiaException{
+        Optional<EstacionMeteorologica> estacion = findEstacion(codigoEstacion);
+        if(estacion.isEmpty()){
+            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+        }
+        if(fin.isBefore(inicio)){
+            throw new MeteorologiaException("La fecha y hora de termino (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+        }
+        EstacionMeteorologica est = estacion.get();
+        AlertaMeteorologica[] objAlertas = est.getAlertasBetween(inicio, fin);
+        String[][] alertas = new String[objAlertas.length][6];
+        for(int i = 0; i< objAlertas.length;i++){
+            alertas[i][0] = String.valueOf(objAlertas[i].getFechaHora());
+            alertas[i][1] = objAlertas[i].getSensor().getCodigo();
+            alertas[i][2] = objAlertas[i].getFenomeno();
+            alertas[i][3] = String.valueOf(objAlertas[i].getValor());
+            alertas[i][4] = objAlertas[i].getSensor().getUnidad();
+            alertas[i][5] = String.valueOf(objAlertas[i].getNivel());
+        }
+        return alertas;
+    }
 
     public Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
         for(Region r : regiones){
