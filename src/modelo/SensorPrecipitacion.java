@@ -37,4 +37,9 @@ public class SensorPrecipitacion extends Sensor implements Alertable {
         }
         return "";
     }
+
+    @Override
+    public TipoSensor getTipo() {
+        return TipoSensor.PRECIPITACION;
+    }
 }

@@ -37,4 +37,8 @@ public class SensorViento extends Sensor implements Alertable {
         }
         return "";
     }
+    @Override
+    public TipoSensor getTipo() {
+        return TipoSensor.VIENTO;
+    }
 }

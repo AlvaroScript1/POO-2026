@@ -16,4 +16,9 @@ public class SensorHumedad extends Sensor {
         }
         return false;
     }
+
+    @Override
+    public TipoSensor getTipo() {
+        return TipoSensor.HUMEDAD;
+    }
 }

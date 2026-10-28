@@ -2,6 +2,10 @@ package modelo;
 
 import java.util.ArrayList;
 import java.time.*;
+import controlador.MeteorologiaException;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 public abstract class Sensor {
     private String codigo;
     private String marca;
@@ -35,32 +39,47 @@ public abstract class Sensor {
         this.estado = estado;
     }
 
-    public boolean addMedicion(LocalDateTime fechaHora, float valor){
-        if(estado.equals(Estado.ACTIVO) && (this.esValorAdmisible(valor))){
-            for(Medicion m: mediciones){
-                if(m.getFechaHora().equals(fechaHora)){ // Usamos método getFechaHora() de la clase medicion
-                    return false;
-                }
-            }
-            Medicion medicionNueva = new Medicion(fechaHora, valor); // creamos un nuevo objeto modelo.Medicion
-            mediciones.add(medicionNueva); // Añadimos el nuevo objeto creado con anterioridad al arrayList mediciones
-            return true;
+    public void addMedicion(LocalDateTime fechaHora, float valor) throws MeteorologiaException {
+        if (estado != Estado.ACTIVO) {
+            throw new MeteorologiaException("El sensor " + codigo + " no está activo.");
         }
-        return false;
+        if (!esValorAdmisible(valor)) {
+            throw new MeteorologiaException("El valor " + String.format("%.1f", valor) + " " + getUnidad()
+                    + " no es admisible para un sensor de tipo " + getTipo() + ".");
+        }
+
+        // Como la lista ya está ordenada, la posición es la cantidad de mediciones anteriores.
+        int posicion = 0;
+        for (Medicion m : mediciones) {
+            if (m.getFechaHora().equals(fechaHora)) {
+                throw new MeteorologiaException("El sensor " + codigo + " ya registra una medición el "
+                        + fechaHora.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " a las "
+                        + fechaHora.format(DateTimeFormatter.ofPattern("HH:mm")) + ".");
+            }
+            if (m.getFechaHora().isBefore(fechaHora)) {
+                posicion++;
+            }
+        }
+        mediciones.add(posicion, new Medicion(fechaHora, valor));
     }
 
-    public Medicion getLastMedicion(){ // En este caso queremos el objeto medicion más reciente de nuestra lista mediciones
+    public Medicion[] getMediciones() {
+        return mediciones.toArray(new Medicion[0]);
+    }
+
+    public Medicion getLastMedicion(){
         if(mediciones.isEmpty()){
-            return null;// Pero sí esta vacía debería retornar null
+            return null;
         }
-        Medicion actualCronologicamente = mediciones.get(0); // tomamos la primera medicion como última cronológicamente
+        Medicion actualCronologicamente = mediciones.get(0);
         for(Medicion m : mediciones){
-            if(m.getFechaHora().isAfter(actualCronologicamente.getFechaHora())){ // Hacemos un for-each y si una medicion viene después cronológicamente que la actualCronologicamente
-                actualCronologicamente = m; // si una medicion es mas actual, entonces pasa a ser la mas actualCronologicamente
+            if(m.getFechaHora().isAfter(actualCronologicamente.getFechaHora())){
+                actualCronologicamente = m;
             }
         }
-        return actualCronologicamente; // retornamos finalmente la cronológicamente más actual
+        return actualCronologicamente;
     }
+
     public Medicion[] getMedicionesBetween(LocalDateTime inicio, LocalDateTime fin){
         int contador = 0;
         for(Medicion m : mediciones){
@@ -71,7 +90,7 @@ public abstract class Sensor {
         int i = 0;
         Medicion[] medicionesAptas = new Medicion[contador];
         for(Medicion m : mediciones){
-            if(!m.getFechaHora().isBefore(inicio) && !m.getFechaHora().isAfter(fin)) { //Usamos mismo codigo de arriba para verificar las mediciones
+            if(!m.getFechaHora().isBefore(inicio) && !m.getFechaHora().isAfter(fin)) { //Usamos mismo código de arriba para verificar las mediciones
                 medicionesAptas[i] = m;
                 i++; // De esta forma hacemos un for-each que recorra las mediciones y además por cada vuelta válida del if, se suma una i, que sirve como contador
                 // Este contador es para que se simule un for normal
@@ -79,6 +98,16 @@ public abstract class Sensor {
         }
         return medicionesAptas;
     }
+
+    public Optional<ResumenMediciones> getResumenBetween(LocalDateTime inicio, LocalDateTime fin) {
+        Medicion[] delIntervalo = getMedicionesBetween(inicio, fin);
+        if (delIntervalo.length == 0) {
+            return Optional.empty();
+        }
+        return Optional.of(new ResumenMediciones(delIntervalo));
+    }
+
+    public abstract TipoSensor getTipo();
     public abstract String getUnidad();
     public abstract boolean esValorAdmisible(float valor); // metodo abstract
 }
