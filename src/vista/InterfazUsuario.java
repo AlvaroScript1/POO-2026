@@ -16,7 +16,7 @@ public class InterfazUsuario {
     }
 
 
-    private void menuPrincipal() { // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
+    private void menuPrincipal() throws MeteorologiaException{ // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
         instituto = InstitutoMeteorologia.getInstance();
         int opciones;
         do {
@@ -160,7 +160,7 @@ public class InterfazUsuario {
         }
     }
 
-    private void menuListados() {
+    private void menuListados() throws MeteorologiaException{
         int opcion;
         do {
             System.out.println("LISTADOS");
@@ -245,7 +245,7 @@ public class InterfazUsuario {
         }
     }
 
-    private void listarSensores() {
+    private void listarSensores() throws MeteorologiaException{
         String codE = convertidorTexto("Código de estación: ");
         String[][] m = instituto.listaSensores(codE); // Usamos listaSensores de controlador.InstitutoMeteorologia
         System.out.println("SENSORES DE " + codE.toUpperCase());
@@ -260,7 +260,7 @@ public class InterfazUsuario {
         }
     }
 
-    private void listarMediciones() {
+    private void listarMediciones() throws MeteorologiaException{
         String codE = convertidorTexto("Código de estación: ");
         String codS = convertidorTexto("Código de sensor: ");
         DateTimeFormatter formateado = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos fecha
