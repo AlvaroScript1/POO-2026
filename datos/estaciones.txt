@@ -1,0 +1,4 @@
+EST01;Estación Chillán Centro;-36.6063;-72.1023;124.0;16;1
+EST02;Estación San Carlos Norte;-36.4231;-71.9582;161.0;16;2
+EST03;Estación Concepción Costa;-36.8270;-73.0498;12.0;8;3
+EST04;Estación Los Ángeles Valle;-37.4689;-72.3528;139.0;8;4

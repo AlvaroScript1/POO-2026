@@ -1,0 +1,4 @@
+16;1;Chillán
+16;2;San Carlos
+8;3;Concepción
+8;4;Los Ángeles
