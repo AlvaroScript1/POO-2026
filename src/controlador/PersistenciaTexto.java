@@ -10,7 +10,7 @@ public class PersistenciaTexto {
 
     private PersistenciaTexto(){}
 
-    public PersistenciaTexto getInstance(){
+    public static PersistenciaTexto getInstance(){
         if(instance == null){
             instance = new PersistenciaTexto(); // Patron singleton
         }

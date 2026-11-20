@@ -380,7 +380,7 @@ public class InstitutoMeteorologia {
         return alertas;
     }
 
-    public Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
+    private Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
         for(Region r : regiones){
             if(codigo == r.getCodigo()){
                 return Optional.of(r);
@@ -389,7 +389,7 @@ public class InstitutoMeteorologia {
         return Optional.empty();
     }
 
-    public Optional<Comuna> findComuna(int codRegion, int codComuna){
+    private Optional<Comuna> findComuna(int codRegion, int codComuna){
         for(Region r : regiones){
             if(codRegion == r.getCodigo()){
                 return r.findComunaById(codComuna); // JODER QUE COSTO ESTA PARTE SOLO PQ PENSE QUE TIRABA ERROR ESTABA MALO Y ES PQ EL METODO NO EST ACTUALIZADO EN REGION
@@ -398,7 +398,7 @@ public class InstitutoMeteorologia {
         return Optional.empty();
     }
 
-    public Optional<EstacionMeteorologica> findEstacion(String codigo){
+    private Optional<EstacionMeteorologica> findEstacion(String codigo){
         for(EstacionMeteorologica e : estacionesMeteorologicas){
             if(e.getCodigo().equalsIgnoreCase(codigo)){
                 return Optional.of(e);
@@ -407,7 +407,7 @@ public class InstitutoMeteorologia {
         return Optional.empty();
     }
 
-    public Optional<Sensor> findSensor(String codEstacion, String codSensor){
+    private Optional<Sensor> findSensor(String codEstacion, String codSensor){
         for(EstacionMeteorologica e : estacionesMeteorologicas){
             if(e.getCodigo().equalsIgnoreCase(codEstacion)){
                 return e.findSensorById(codSensor); // Por el momento lanza error imagino pq no existe ese metodo en la estacion

@@ -8,27 +8,37 @@ import java.time.format.DateTimeFormatter;
 
 public class InterfazUsuario {
     private static InterfazUsuario UI;
+    private static InterfazUsuario instance = null;
     private Scanner sc;
     private InstitutoMeteorologia instituto;
     private InterfazUsuario() {
         sc = new Scanner(System.in);
         instituto = InstitutoMeteorologia.getInstance();
     }
+    public static InterfazUsuario getInstance(){ // Se añadio el patron singleton en su totalidad
+        if(instance == null){
+            instance = new InterfazUsuario();
+        }
+        return instance;
+    }
 
 
-    private void menuPrincipal() throws MeteorologiaException{ // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
+    public void menuPrincipal() throws MeteorologiaException{ // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
         instituto = InstitutoMeteorologia.getInstance();
         int opciones;
         do {
             System.out.println("SISTEMA DE INFORMACIÓN METEOROLÓGICA");
             System.out.println("----------------------------------------------------------");
-            System.out.println("1. Crear región");
-            System.out.println("2. Crear comuna");
-            System.out.println("3. Crear estación meteorológica");
-            System.out.println("4. Instalar sensor");
-            System.out.println("5. Registrar medición");
-            System.out.println("6. Generar listados");
-            System.out.println("7. Salir");
+            System.out.println(" 1. Crear región");
+            System.out.println(" 2. Crear comuna");
+            System.out.println(" 3. Crear estación meteorológica");
+            System.out.println(" 4. Instalar sensor");
+            System.out.println(" 5. Registrar medición");
+            System.out.println(" 6. Cambiar estado de sensor");
+            System.out.println(" 7. Generar listados");
+            System.out.println(" 8. Cargar datos");
+            System.out.println(" 9. Guardar datos");
+            System.out.println("10. Salir");
             System.out.print("Opcion: ");
             opciones = Integer.parseInt(sc.nextLine().trim()); // Leemos un numero en formato String, eliminamos espacios y transformamos el String a int
             switch (opciones) {
@@ -48,15 +58,47 @@ public class InterfazUsuario {
                     registrarMedicion();
                     break;
                 case 6:
-                    menuListados();
+                    String codEst = convertidorTexto("Código de estación: ");
+                    String codSen = convertidorTexto("Código de sensor: ");
+                    int opcionSen = convertidorInt("Nuevo estado [1 ACTIVO  2 INACTIVO]: ");
+                    switch(opcionSen){
+                        case 1:
+                            instituto.cambiaEstadoSensor(codEst, codSen, Estado.ACTIVO);
+                            break;
+                        case 2:
+                            instituto.cambiaEstadoSensor(codEst, codSen, Estado.INACTIVO);
+                            break;
+                        default:
+                            System.out.println("Opcion invalida.");
+                            System.out.println("Regresando al menu principal...");
+                            return;
+                    }
                     break;
                 case 7:
-                    System.out.println("Has salido del sistema");
+                    menuListados();
                     break;
+                case 8:
+                    instituto.cargaDatos();
+                    break;
+                case 9:
+                    instituto.guardaDatos();
+                    break;
+                case 10:
+                    String cuestionamiento = convertidorTexto("¿Desea guardar los datos antes de salir? [S/N]: ");
+                    if(cuestionamiento.equalsIgnoreCase("S")){
+                        instituto.guardaDatos();
+                        System.out.println("> Fin del programa.");
+                        break;
+                    }else if(cuestionamiento.equalsIgnoreCase("N")){
+                        System.out.println("> Fin del programa.");
+                        break;
+                    }else{
+                        System.out.println("> Fin del programa.");
+                    }
                 default:
                     System.out.println("Ingrese una opcion valida");
             }
-        } while (opciones != 7);
+        } while (opciones != 10);
     }
 
     private void crearRegion() {
@@ -127,7 +169,7 @@ public class InterfazUsuario {
                 tipoSensor = TipoSensor.PRECIPITACION;
                 break;
             default:
-                System.out.println("> modelo.Sensor invalido");
+                System.out.println("> Sensor invalido");
                 return;
         }
         String codigoSen = convertidorTexto("Código de sensor: ");
@@ -135,7 +177,7 @@ public class InterfazUsuario {
         String modelo = convertidorTexto("Modelo: ");
         try {
             instituto.instalaSensor(codigoSen, marca, modelo, tipoSensor, codigoEstacion);
-            System.out.println("> modelo.Sensor de " + tipoSensor.name().toLowerCase() + " instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "modelo.Sensor de humedad"
+            System.out.println("> Sensor de " + tipoSensor.name().toLowerCase() + " instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "modelo.Sensor de humedad"
         } catch (MeteorologiaException e) {
             System.err.println(e);
             System.out.println("> No se ha instalado el sensor, debido a que no existe la estacion, no esta activa o ya existe un sensor con mismo codigo o activo del mismo tipo");
