@@ -327,7 +327,9 @@ public class InstitutoMeteorologia {
             throw new MeteorologiaException("No existe el sensor "+codSensor+" en la estación "+codEstacion);
         }
         if(fin.isBefore(inicio)){
-            throw new MeteorologiaException("La fecha y hora de término ("+fin+") es anterior a la de inicio ("+inicio+")");
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm");
+            throw new MeteorologiaException("La fecha y hora de término ("+fin.format(formato)+") es anterior a la de inicio ("+inicio.format(formato)+")");
+            // Ajustamos el como se muestran las fechas de manera correcta
         }
         return est.getMedicionesSensorBetween(codSensor, inicio, fin);
     }
@@ -342,7 +344,9 @@ public class InstitutoMeteorologia {
         }
         Sensor sensor = sen.get();
         if(fin.isBefore(inicio)){
-            throw new MeteorologiaException("La fecha y hora de término ("+fin+") es anterior a la de inicio ("+inicio+")");
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            throw new MeteorologiaException("La fecha y hora de término ("+fin.format(formato)+") es anterior a la de inicio ("+inicio.format(formato)+")");
+            // Aplicamos a las fechas el formato correspondiente para que no salga como LocalDateTime y se vea de forma incorrecta
         }
         Optional<ResumenMediciones> medicionRes = sensor.getResumenBetween(inicio, fin);
         if(medicionRes.isEmpty()){
@@ -370,7 +374,9 @@ public class InstitutoMeteorologia {
             throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion);
         }
         if(fin.isBefore(inicio)){
-            throw new MeteorologiaException("La fecha y hora de termino ("+fin+") es anterior a la de inicio ("+inicio+")");
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            throw new MeteorologiaException("La fecha y hora de termino ("+fin.format(formato)+") es anterior a la de inicio ("+inicio.format(formato)+")");
+            // Corregimos un detalle y es que la fecha y hora no se mostraba en su formato, si no que se mostraba como LocalDateTime
         }
         DateTimeFormatter ff = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter hh = DateTimeFormatter.ofPattern("HH/mm");
