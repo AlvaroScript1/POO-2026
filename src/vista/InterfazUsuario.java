@@ -7,10 +7,9 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 public class InterfazUsuario {
-    private static InterfazUsuario UI;
     private static InterfazUsuario instance = null;
-    private Scanner sc;
     private InstitutoMeteorologia instituto;
+    private Scanner sc;
     private InterfazUsuario() {
         sc = new Scanner(System.in);
         instituto = InstitutoMeteorologia.getInstance();
@@ -24,7 +23,6 @@ public class InterfazUsuario {
 
 
     public void menuPrincipal() throws MeteorologiaException{ // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
-        instituto = InstitutoMeteorologia.getInstance();
         int opciones;
         do {
             System.out.println("SISTEMA DE INFORMACIÓN METEOROLÓGICA");

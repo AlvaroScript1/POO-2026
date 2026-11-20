@@ -31,12 +31,12 @@ public class InstitutoMeteorologia {
         if(region.isPresent()){ // odio tener que volver a los ppt para ver las funciones/metodos de optional; este if retorna true si region contiene un valor
             Region r = region.get();
             if(r.getCodigo() == codigo){
-                throw new MeteorologiaException("Ya existe una región con el código <"+codigo+">"); // lanzamos una excepcion con el mensaje dentro si existe una region con igual codigo
+                throw new MeteorologiaException("Ya existe una región con el código "+codigo); // lanzamos una excepcion con el mensaje dentro si existe una region con igual codigo
             }
         }
         for(Region r : regiones){ // Hacemos este for por si existe una region que no tiene mismo codigo que otra, pero si mismo nombre
             if(r.getNombre().equalsIgnoreCase(nombre)){
-                throw new MeteorologiaException("Ya existe una región con el nombre <"+nombre+">");
+                throw new MeteorologiaException("Ya existe una región con el nombre "+nombre);
             }
         }
 
@@ -46,32 +46,33 @@ public class InstitutoMeteorologia {
     public void creaComuna(int codigo, String nombre, int codigoRegion) throws MeteorologiaException{ // Avisamos de que puede haber una excepcion{
         Optional<Region> region = findRegion(codigoRegion);
         if(region.isEmpty()){ // Si el metodo findRegion lanza un Optional que esta vacio, significa que no se encontro el objeto
-            throw new MeteorologiaException("No existe una región con el código <"+codigoRegion+">");
+            throw new MeteorologiaException("No existe una región con el código "+codigoRegion);
         }
         Region r = region.get(); // Obtenemos el objeto para acceder al metodo addComuna de Region
         r.addComuna(codigo, nombre);
     }
     public void creaEstacion(String cod, String nombre, float lon, float lat, float alt, int codRegion, int codComuna) throws MeteorologiaException {
         if(findEstacion(cod).isPresent()){ // En el orden del enunciado/word, vemos si existe la estacion con ese codigo con el metodo findEstacion
-            throw new MeteorologiaException("Ya existe una estación con el código <"+cod+">");
+            throw new MeteorologiaException("Ya existe una estación con el código "+cod);
         }
         Optional<Region> region = findRegion(codRegion);
         if(region.isEmpty()){
-            throw new MeteorologiaException("No existe una región con el código <"+codRegion+">");
+            throw new MeteorologiaException("No existe una región con el código "+codRegion);
         }
         Region r = region.get(); // obtenemos r como objeto de tipo Region para usarlo en la excepcion con r.getnombre()
         Optional<Comuna> comuna = findComuna(codRegion,codComuna); // creamos un optional de tipo comuna referenciado con el metodo findComuna
         if(comuna.isEmpty()){ // si comuna es un optional vacio entonces no existe
-            throw new MeteorologiaException("No existe una comuna con el código <"+codComuna+"> en la región <"+r.getNombre()+">");
+            throw new MeteorologiaException("No existe una comuna con el código "+codComuna+" en la región "+r.getNombre());
         }
         Comuna c = comuna.get(); // obtenemos c como objeto tipo Comuna para usarlo en la creacion de la EstacionMeteorologica
         EstacionMeteorologica est = new EstacionMeteorologica(cod, nombre, lon, lat, alt, c);
         c.addEstacion(est);
+        estacionesMeteorologicas.add(est); // En este caso agregamos al arrayList estacionesMeteorologicas la estacion, esto para que no se repitan las estaciones
     }
     public void instalaSensor(String cod, String marca, String modelo, TipoSensor tipo, String codigoEstacion) throws MeteorologiaException{
         Optional<EstacionMeteorologica> est = findEstacion(codigoEstacion);
         if(est.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+            throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion);
         }
         EstacionMeteorologica estacion =  est.get();
         estacion.instalaSensor(cod, marca, modelo, tipo);
@@ -80,7 +81,7 @@ public class InstitutoMeteorologia {
     public void registraMedicion(LocalDateTime fechaHora, float valor, String codEstacion, String codSensor) throws MeteorologiaException{
         Optional<EstacionMeteorologica> est = findEstacion(codEstacion);
         if(est.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código <"+codEstacion+">");
+            throw new MeteorologiaException("No existe una estación con el código "+codEstacion);
         }
         EstacionMeteorologica estacion = est.get();
         estacion.registraMedicion(fechaHora, valor, codSensor);
@@ -93,7 +94,7 @@ public class InstitutoMeteorologia {
                 return; // como en metodos anteriores, esto retorna al menu, la razon es que si dejamos pasar este return entonces se llega al throw de abajo y se ejecuta
             }
         }
-        throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+        throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion);
     }
     public void cargaDatos() throws MeteorologiaException{
         if(regiones.isEmpty() && estacionesMeteorologicas.isEmpty()){
@@ -293,7 +294,7 @@ public class InstitutoMeteorologia {
             if(codigoRegion == re.getCodigo()){
                 Optional<Comuna> comuna = re.findComunaById(codigoComuna);
                 if(comuna.isEmpty()){
-                    throw new MeteorologiaException("No existe una comuna con el código <"+codigoComuna+"> en la región <"+re.getNombre()+">");
+                    throw new MeteorologiaException("No existe una comuna con el código "+codigoComuna+" en la región "+re.getNombre());
                 }
                 Comuna c = comuna.get();
                 String[][] listaEstaciones = new String[c.getEstaciones().length][]; // Luego de la verificacion creamos la matriz
@@ -303,13 +304,13 @@ public class InstitutoMeteorologia {
                 return listaEstaciones;
             }
         }
-        throw new MeteorologiaException("No existe una región con el código <"+codigoRegion+">");// Retornamos una matriz vacia como se nos indica si es que la region no existe
+        throw new MeteorologiaException("No existe una región con el código "+codigoRegion);// Retornamos una matriz vacia como se nos indica si es que la region no existe
     }
 
     public String[][] listaSensores(String codigoEstacion) throws MeteorologiaException{
         Optional<EstacionMeteorologica> estacion = findEstacion(codigoEstacion); // aprovechamos findEstacion para ver si existe la estacion o no
         if(estacion.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">"); // Lanzamos inmediatamente la excepcion si no existe una estacion con el codigo indicado
+            throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion); // Lanzamos inmediatamente la excepcion si no existe una estacion con el codigo indicado
         }
         EstacionMeteorologica est = estacion.get();
         return est.getResumenSensores();
@@ -318,64 +319,74 @@ public class InstitutoMeteorologia {
     public String[][] listaMediciones(String codEstacion, String codSensor, LocalDateTime inicio, LocalDateTime fin)throws MeteorologiaException{
         Optional<EstacionMeteorologica> estacion = findEstacion(codEstacion);
         if(estacion.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código <"+codEstacion+">");
+            throw new MeteorologiaException("No existe una estación con el código "+codEstacion);
         }
         EstacionMeteorologica est = estacion.get();
         Optional<Sensor> sensor = findSensor(codEstacion, codSensor);
         if(sensor.isEmpty()){
-            throw new MeteorologiaException("No existe el sensor <"+codSensor+"> en la estación <"+codEstacion+">");
+            throw new MeteorologiaException("No existe el sensor "+codSensor+" en la estación "+codEstacion);
         }
         if(fin.isBefore(inicio)){
-            throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+            throw new MeteorologiaException("La fecha y hora de término ("+fin+") es anterior a la de inicio ("+inicio+")");
         }
         return est.getMedicionesSensorBetween(codSensor, inicio, fin);
     }
     public String[] listaResumenMediciones(String codigoEstacion, String codigoSensor, LocalDateTime inicio, LocalDateTime fin) throws MeteorologiaException{
         Optional<EstacionMeteorologica> est = findEstacion(codigoEstacion);
         if(est.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+            throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion);
         }
         Optional<Sensor> sen = findSensor(codigoEstacion, codigoSensor);
         if(sen.isEmpty()){
-            throw new MeteorologiaException("No existe el sensor <"+codigoSensor+"> en la estación <"+codigoEstacion+">");
+            throw new MeteorologiaException("No existe el sensor "+codigoSensor+" en la estación "+codigoEstacion);
         }
         Sensor sensor = sen.get();
         if(fin.isBefore(inicio)){
-            throw new MeteorologiaException("La fecha y hora de término (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+            throw new MeteorologiaException("La fecha y hora de término ("+fin+") es anterior a la de inicio ("+inicio+")");
         }
         Optional<ResumenMediciones> medicionRes = sensor.getResumenBetween(inicio, fin);
         if(medicionRes.isEmpty()){
             return new String[0];
         }
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateador que usaremos mas adelante
         ResumenMediciones resum = medicionRes.get();
-        String[] resumen = new String[4]; // Creamos un arreglo para guardar dentro el max, min, cantidad, promedio junto a la hora
+        String[] resumen = new String[8]; // Creamos un arreglo para guardar dentro el max, min, cantidad, promedio junto a la hora
         Medicion minim = resum.getMinimo();
         Medicion maxim = resum.getMaximo();
 
-        resumen[0] = String.valueOf(resum.getCantidad());
-        resumen[1] = String.valueOf(resum.getPromedio());
-        resumen[2] = minim.getFechaHora() +";"+ minim.getValor();
-        resumen[3] = maxim.getFechaHora() +";"+maxim.getValor();
+        resumen[0] = String.valueOf(sensor.getTipo()); // Es el sensor a mostrar
+        resumen[1] = sensor.getUnidad(); // La unidad del sensor
+        resumen[2] = String.valueOf(resum.getCantidad());
+        resumen[3] = String.format("%.1f", minim.getValor());// limitamos a 1 decimal y obtenemos el valor min
+        resumen[4] = minim.getFechaHora().format(formato); //obtenemos la hora de la medicion minima en formato dd/MM/yyyy HH:mm
+        resumen[5] = String.format("%.1f", maxim.getValor()); // limitamos a 1 decimal y obtenemos el max valor
+        resumen[6] = maxim.getFechaHora().format(formato); // obtenemos la hora de la medicion maxima en formato dd/MM/yyyy HH:mm
+        resumen[7] = String.format("%.1f", resum.getPromedio()); // Obtenemos el promedio limitandolo a 1 decimal
         return resumen;
     }
     public String[][] listaAlertas(String codigoEstacion, LocalDateTime inicio, LocalDateTime fin)throws MeteorologiaException{
         Optional<EstacionMeteorologica> estacion = findEstacion(codigoEstacion);
         if(estacion.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código <"+codigoEstacion+">");
+            throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion);
         }
         if(fin.isBefore(inicio)){
-            throw new MeteorologiaException("La fecha y hora de termino (<"+fin+">) es anterior a la de inicio (<"+inicio+">)");
+            throw new MeteorologiaException("La fecha y hora de termino ("+fin+") es anterior a la de inicio ("+inicio+")");
         }
+        DateTimeFormatter ff = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter hh = DateTimeFormatter.ofPattern("HH/mm");
+
         EstacionMeteorologica est = estacion.get();
         AlertaMeteorologica[] objAlertas = est.getAlertasBetween(inicio, fin);
-        String[][] alertas = new String[objAlertas.length][6];
+        String[][] alertas = new String[objAlertas.length][7];
         for(int i = 0; i< objAlertas.length;i++){
-            alertas[i][0] = String.valueOf(objAlertas[i].getFechaHora());
-            alertas[i][1] = objAlertas[i].getSensor().getCodigo();
-            alertas[i][2] = objAlertas[i].getFenomeno();
-            alertas[i][3] = String.valueOf(objAlertas[i].getValor());
-            alertas[i][4] = objAlertas[i].getSensor().getUnidad();
-            alertas[i][5] = String.valueOf(objAlertas[i].getNivel());
+            AlertaMeteorologica ale = objAlertas[i];
+            alertas[i][0] = ale.getFechaHora().format(ff); // de aqui con el format sacamos la fecha y hora pero almacenandolas en 2 indices distintos
+            alertas[i][1] = ale.getFechaHora().format(hh);
+            alertas[i][1] = ale.getSensor().getCodigo();
+            alertas[i][2] = ale.getFenomeno();
+            alertas[i][3] = String.format("%.1f", ale.getValor()); // obtenemos el valor y lo dejamos a 1 decimal
+            alertas[i][4] = ale.getSensor().getUnidad();
+            alertas[i][5] = String.valueOf(ale.getNivel());
         }
         return alertas;
     }

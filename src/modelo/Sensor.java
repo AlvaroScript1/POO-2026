@@ -12,13 +12,11 @@ public abstract class Sensor {
     private String modelo;
     private Estado estado;
     private ArrayList<Medicion> mediciones;
-    private EstacionMeteorologica estacion;
 
     protected Sensor(String codigo, String marca, String modelo, EstacionMeteorologica estacion) {
         this.codigo = codigo;
         this.marca = marca;
         this.modelo = modelo;
-        this.estacion = estacion;
         this.estado = Estado.ACTIVO;
         this.mediciones = new ArrayList<>();
     }
@@ -65,19 +63,6 @@ public abstract class Sensor {
 
     public Medicion[] getMediciones() {
         return mediciones.toArray(new Medicion[0]);
-    }
-
-    public Medicion getLastMedicion(){
-        if(mediciones.isEmpty()){
-            return null;
-        }
-        Medicion actualCronologicamente = mediciones.get(0);
-        for(Medicion m : mediciones){
-            if(m.getFechaHora().isAfter(actualCronologicamente.getFechaHora())){
-                actualCronologicamente = m;
-            }
-        }
-        return actualCronologicamente;
     }
 
     public Medicion[] getMedicionesBetween(LocalDateTime inicio, LocalDateTime fin){
