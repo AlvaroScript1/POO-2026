@@ -98,104 +98,114 @@ public class InstitutoMeteorologia {
     }
     public void cargaDatos() throws MeteorologiaException{
         if(regiones.isEmpty() && estacionesMeteorologicas.isEmpty()){
-            String[] r = PersistenciaTexto.leeRegistros("regiones.txt");
-            String[] c = PersistenciaTexto.leeRegistros("comunas.txt");
-            String[] e = PersistenciaTexto.leeRegistros("estaciones.txt");
-            String[] s = PersistenciaTexto.leeRegistros("sensores.txt");
-            String[] m = PersistenciaTexto.leeRegistros("mediciones.txt");
-            int cantidad = 1;
-            for (String re : r) {
-                try {
-                    String[] datos = re.split(";"); // esto es para separar los datos en una arreglo cuando haya un ; como separador
-                    int codigo = Integer.parseInt(datos[0].trim()); // convertimos el dato del indice 0 del arreglo a int de inmediato para luego crear el objeto region
-                    String nombre = datos[1]; // el indice 1 corresponde al nombre de la region
-                    creaRegion(codigo, nombre); // este metodo crea la region, en caso de error lanza excepcion
-                }catch(MeteorologiaException exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo regiones.txt: "+ exc.getMessage()+" No se cargo ningun dato");
-                }catch(Exception exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo regiones.txt: formato invalido. No se cargo ningun archivo");
-                }
-                cantidad++;
-            }
-            cantidad = 1;
-            for (String co : c) {
-                try {
-                    // En este caso repetimos el proceso de arriba solo que con mas parametros para la creacion del objeto mediante su respectivo metodo
-                    String[] datos = co.split(";");
-                    int codigo = Integer.parseInt(datos[0].trim());
-                    int codigoRegion = Integer.parseInt(datos[1].trim());
-                    String nombre = datos[2];
-                    creaComuna(codigo, nombre, codigoRegion);
-                }catch(MeteorologiaException exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo comunas.txt: "+exc.getMessage()+" No se cargo ningun dato");
-                }catch(Exception exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo comunas.txt: formato invalido. No se cargo ningun archivo");
-                }
-                cantidad++;
-            }
-            cantidad = 1;
-            for (String est : e){
-                try {
-                    String[] datos = est.split(";");
-                    String codigo = datos[0];
-                    String nombre = datos[1];
-                    float lon = Float.parseFloat(datos[2].trim());
-                    float lat = Float.parseFloat(datos[3].trim());
-                    float alt = Float.parseFloat(datos[4].trim());
-                    int codRegion = Integer.parseInt(datos[5].trim());
-                    int codComuna = Integer.parseInt(datos[6].trim());
-                    creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
-                }catch(MeteorologiaException exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo estaciones.txt: "+exc.getMessage()+" No se cargo ningun dato");
-                }catch(Exception exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo estaciones.txt: formato invalido. No se cargo ningun dato");
-                }
-                cantidad++;
-            }
-            Estado[] tiposEstado = new Estado[s.length];
-            ArrayList<String> copia = new ArrayList<>();
-            cantidad = 1;
-            for (String sen : s) {
-                try {
-                    String[] datos = sen.split(";");
-                    String codigoEstacion = datos[0];
-                    String codigo = datos[1];
-                    TipoSensor nuevoSensor = TipoSensor.valueOf(datos[2].trim().toUpperCase()); // Extraemos el texto, con trim eliminamos espacios a los costados, con valueOf si tienes TEMPERATURA, buscara en el enum la coincidencia y te devolvera TEMPERATURA
-                    String marca = datos[3];
-                    String modelo = datos[4];
-                    Estado estado = Estado.valueOf(datos[5].trim().toUpperCase());// el to upper case se asegura de que el String este en mayusculas para que coincida con los enums en mayusculas.
-                    instalaSensor(codigo, marca, modelo, nuevoSensor, codigoEstacion);
-                    if (estado == Estado.ACTIVO) {
-                        copia.add(codigo);
-                        copia.add(codigoEstacion);
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            try {
+                String[] r = PersistenciaTexto.leeRegistros("regiones.txt");
+                String[] c = PersistenciaTexto.leeRegistros("comunas.txt");
+                String[] e = PersistenciaTexto.leeRegistros("estaciones.txt");
+                String[] s = PersistenciaTexto.leeRegistros("sensores.txt");
+                String[] m = PersistenciaTexto.leeRegistros("mediciones.txt");
+                int cantidad = 1;
+                for (String re : r) {
+                    try {
+                        String[] datos = re.split(";"); // esto es para separar los datos en una arreglo cuando haya un ; como separador
+                        int codigo = Integer.parseInt(datos[0].trim()); // convertimos el dato del indice 0 del arreglo a int de inmediato para luego crear el objeto region
+                        String nombre = datos[1]; // el indice 1 corresponde al nombre de la region
+                        creaRegion(codigo, nombre); // este metodo crea la region, en caso de error lanza excepcion
+                    } catch (MeteorologiaException exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo regiones.txt: " + exc.getMessage() + " No se cargo ningun dato");
+                    } catch (Exception exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo regiones.txt: formato invalido. No se cargo ningun archivo");
                     }
-                }catch(MeteorologiaException exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo sensores.txt: "+exc.getMessage()+" No se cargo ningun dato");
-                }catch(Exception exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo sensores.txt: formato invalido. No se cargo ningun dato");
+                    cantidad++;
                 }
-                cantidad++;
-            }
-            cantidad = 1;
-            for(String med : m){
-                try {
-                    String[] datos = med.split(";");
-                    String codEstacion = datos[0];
-                    String codSensor = datos[1];
-                    LocalDateTime fechaYHora = LocalDateTime.parse(datos[2]);
-                    Float valor = Float.parseFloat(datos[3].trim());
-                    registraMedicion(fechaYHora, valor, codEstacion, codSensor);
-                }catch(MeteorologiaException exc){
-                    throw new MeteorologiaException("Linea "+cantidad+" del archivo mediciones.txt: "+exc.getMessage()+" No se cargo ningun dato");
-                }catch(Exception exc){
-                    throw new MeteorologiaException("Linea "+cantidad+"del archivo mediciones.txt: formato invalido. No se cargo ningun dato");
+                cantidad = 1;
+                for (String co : c) {
+                    try {
+                        // En este caso repetimos el proceso de arriba solo que con mas parametros para la creacion del objeto mediante su respectivo metodo
+                        String[] datos = co.split(";");
+                        int codigo = Integer.parseInt(datos[1].trim()); // corregimos el tema de que el indice 0 correspondia al nombre de la region y el indice 1 al nombre de la comuna
+                        int codigoRegion = Integer.parseInt(datos[0].trim());
+                        String nombre = datos[2];
+                        creaComuna(codigo, nombre, codigoRegion);
+                    } catch (MeteorologiaException exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo comunas.txt: " + exc.getMessage() + " No se cargo ningun dato");
+                    } catch (Exception exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo comunas.txt: formato invalido. No se cargo ningun archivo");
+                    }
+                    cantidad++;
                 }
-                cantidad++;
-            }
-            for(int i = 0; i<copia.size();i+=2){
-                String codSen = copia.get(i);
-                String codEst = copia.get(i+1);
-                cambiaEstadoSensor(codEst, codSen, Estado.ACTIVO);
+                cantidad = 1;
+                for (String est : e) {
+                    try {
+                        String[] datos = est.split(";");
+                        String codigo = datos[0];
+                        String nombre = datos[1];
+                        float lon = Float.parseFloat(datos[2].trim());
+                        float lat = Float.parseFloat(datos[3].trim());
+                        float alt = Float.parseFloat(datos[4].trim());
+                        int codRegion = Integer.parseInt(datos[5].trim());
+                        int codComuna = Integer.parseInt(datos[6].trim());
+                        creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
+                    } catch (MeteorologiaException exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo estaciones.txt: " + exc.getMessage() + " No se cargo ningun dato");
+                    } catch (Exception exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo estaciones.txt: formato invalido. No se cargo ningun dato");
+                    }
+                    cantidad++;
+                }
+                ArrayList<String> copia = new ArrayList<>();
+                cantidad = 1;
+                for (String sen : s) {
+                    try {
+                        String[] datos = sen.split(PersistenciaTexto.SEPARADOR);
+                        String codigoEstacion = datos[0].trim();
+                        String codigo = datos[1].trim();
+                        TipoSensor nuevoSensor = TipoSensor.valueOf(datos[2].trim().toUpperCase()); // Extraemos el texto, con trim eliminamos espacios a los costados, con valueOf si tienes TEMPERATURA, buscara en el enum la coincidencia y te devolvera TEMPERATURA
+                        String marca = datos[3].trim();
+                        String modelo = datos[4].trim();
+                        Estado estado = Estado.valueOf(datos[5].trim().toUpperCase());// el to upper case se asegura de que el String este en mayusculas para que coincida con los enums en mayusculas.
+                        instalaSensor(codigo, marca, modelo, nuevoSensor, codigoEstacion);
+                        cambiaEstadoSensor(codigoEstacion, codigo, Estado.INACTIVO);
+                        if (estado == Estado.ACTIVO) {
+                            copia.add(codigo);
+                            copia.add(codigoEstacion);
+                        }
+                    } catch (MeteorologiaException exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo sensores.txt: " + exc.getMessage() + " No se cargo ningun dato");
+                    } catch (Exception exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo sensores.txt: formato invalido. No se cargo ningun dato");
+                    }
+                    cantidad++;
+                }
+                cantidad = 1;
+                for (String med : m) {
+                    try {
+                        String[] datos = med.split(PersistenciaTexto.SEPARADOR);
+                        String codEstacion = datos[0].trim();
+                        String codSensor = datos[1].trim();
+                        LocalDateTime fechaYHora = LocalDateTime.parse(datos[2].trim(), formato); // entregamos la fechayhora en formato dd/MM/yyyy HH:mm
+                        float valor = Float.parseFloat(datos[3].trim());
+
+                        cambiaEstadoSensor(codEstacion, codSensor, Estado.ACTIVO);
+                        registraMedicion(fechaYHora, valor, codEstacion, codSensor);
+                        cambiaEstadoSensor(codEstacion, codSensor, Estado.INACTIVO);
+                    } catch (MeteorologiaException exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + " del archivo mediciones.txt: " + exc.getMessage() + " No se cargo ningun dato");
+                    } catch (Exception exc) {
+                        throw new MeteorologiaException("Linea " + cantidad + "del archivo mediciones.txt: formato invalido. No se cargo ningun dato");
+                    }
+                    cantidad++;
+                }
+                for(int i = 0; i<copia.size(); i+=2){
+                    String codSen = copia.get(i);
+                    String codEst = copia.get(i+1);
+                    cambiaEstadoSensor(codEst, codSen, Estado.ACTIVO); // Aqui cambiamos el estado de los sensores basados en el centinela o copia que teniamos realizado
+                }
+            }catch(MeteorologiaException exc){
+                regiones.clear();
+                estacionesMeteorologicas.clear(); // limpiamos en caso de error
+                throw exc;
             }
         }else{
             throw new MeteorologiaException("La carga de datos solo puede realizarse cuando no existen datos registrados");
@@ -203,6 +213,9 @@ public class InstitutoMeteorologia {
     }
 
     public void guardaDatos() throws MeteorologiaException{
+        if(regiones.isEmpty() && estacionesMeteorologicas.isEmpty()){
+            throw new MeteorologiaException("No existen datos para guardar.");
+        }
         ArrayList<String> regio = new ArrayList<>();
         for(Region r : regiones){
             String l1 = r.getCodigo()+";"+r.getNombre();
