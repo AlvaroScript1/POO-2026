@@ -51,6 +51,8 @@ public class EstacionMeteorologica {
             if(s.getCodigo().equalsIgnoreCase(codigo)){ // Si existe un sensor con igual codigo, entonces lanzamos excepcion
                 throw new MeteorologiaException("La estacion "+this.codigo+" ya tiene un sensor con el código "+codigo);
             }
+        }
+        for(Sensor s : sensores){
             if(s.getEstado() == Estado.ACTIVO && (s.getTipo() == tipo)){ // si existe un sensor activo igual a otro sensor activo, entonces rechazamos el cambio, aprovechando getTipo de Sensor
                 throw new MeteorologiaException("La estacion "+this.codigo+" ya tiene un sensor ACTIVO de tipo "+tipo+" ("+s.getCodigo()+")");
             }

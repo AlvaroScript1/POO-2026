@@ -21,7 +21,7 @@ public class InterfazUsuario {
     }
 
 
-    public void menuPrincipal() throws MeteorologiaException{ // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
+    public void menuPrincipal(){ // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
         int opciones;
         do {
             System.out.println("SISTEMA DE INFORMACIÓN METEOROLÓGICA");
@@ -227,7 +227,7 @@ public class InterfazUsuario {
         System.out.println("> Fin del programa.");
     }
 
-    private void menuListados() throws MeteorologiaException{
+    private void menuListados(){
         int opcion;
         do {
             System.out.println("LISTADOS");
@@ -320,39 +320,47 @@ public class InterfazUsuario {
         }
     }
 
-    private void listarSensores() throws MeteorologiaException{
+    private void listarSensores(){
         String codE = convertidorTexto("Código de estación: ");
-        String[][] m = InstitutoMeteorologia.getInstance().listaSensores(codE); // Usamos listaSensores de InstitutoMeteorologia pero con su instancia
-        System.out.println("SENSORES DE " + codE.toUpperCase());
-        System.out.println("----------------------------------------------------------");
-        if (m.length == 0) {
-            System.out.println("> Estacion inexistente o sin sensores instalados en ella");
-            return;
-        }
-        System.out.println("CODIGO\tTIPO\t\tMARCA\tMODELO\tUNIDAD\tESTADO\tULTIMA MEDICION");
-        for (String[] f : m) {
-            System.out.println(f[0] + "\t" + f[1] + "\t" + f[2] + "\t" + f[3] + "\t" + f[4] + "\t" + f[5] + "\t" + f[6]);
+        try {
+            String[][] m = InstitutoMeteorologia.getInstance().listaSensores(codE); // Usamos listaSensores de InstitutoMeteorologia pero con su instancia
+            System.out.println("SENSORES DE " + codE.toUpperCase());
+            System.out.println("----------------------------------------------------------");
+            if (m.length == 0) {
+                System.out.println("> Estacion inexistente o sin sensores instalados en ella");
+                return;
+            }
+            System.out.println("CODIGO\tTIPO\t\tMARCA\tMODELO\tUNIDAD\tESTADO\tULTIMA MEDICIÓN");
+            for (String[] f : m) {
+                System.out.println(f[0] + "\t" + f[1] + "\t" + f[2] + "\t" + f[3] + "\t" + f[4] + "\t" + f[5] + "\t" + f[6]);
+            }
+        }catch(MeteorologiaException exc){
+            System.out.println("> Error: "+ exc.getMessage());
         }
     }
 
-    private void listarMediciones() throws MeteorologiaException{
+    private void listarMediciones(){
         String codE = convertidorTexto("Código de estación: ");
         String codS = convertidorTexto("Código de sensor: ");
         DateTimeFormatter formateado = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos fecha
         LocalDateTime i = LocalDateTime.parse(convertidorTexto("Inicio [dd/MM/yyyy HH:mm]: "), formateado); // pasamos un string de fecha a un formato y esa nueva fecha formateada la pasamos a tipo LocalDateTime
         LocalDateTime f = LocalDateTime.parse(convertidorTexto("Fin [dd/MM/yyyy HH:mm]: "), formateado);
-        String[][] m = InstitutoMeteorologia.getInstance().listaMediciones(codE, codS, i, f); // Usamos listaMediciones de controlador.InstitutoMeteorologia
+        try {
+            String[][] m = InstitutoMeteorologia.getInstance().listaMediciones(codE, codS, i, f); // Usamos listaMediciones de controlador.InstitutoMeteorologia
 
-        System.out.println("MEDICIONES DEL SENSOR " + codS.toUpperCase());
-        System.out.println("----------------------------------------------------------");
-        if (m.length == 0) {
-            System.out.println("> No hay mediciones existentes para los datos y fecha indicados");
-            return;
-        }
-        System.out.println("Período: " + i.format(formateado) + " a " + f.format(formateado)); // Este es el titulo que se mostrara con las fechas formateadas
-        System.out.println("FECHA\t\tHORA\tVALOR\tUNIDAD");
-        for (String[] a : m) {
-            System.out.println(a[0] + "\t" + a[1] + "\t" + a[2] + "\t" + a[3]);
+            System.out.println("MEDICIONES DEL SENSOR " + codS.toUpperCase());
+            System.out.println("----------------------------------------------------------");
+            if (m.length == 0) {
+                System.out.println("> No hay mediciones existentes para los datos y fecha indicados");
+                return;
+            }
+            System.out.println("Período: " + i.format(formateado) + " a " + f.format(formateado)); // Este es el titulo que se mostrara con las fechas formateadas
+            System.out.println("FECHA\t\tHORA\tVALOR\tUNIDAD");
+            for (String[] a : m) {
+                System.out.println(a[0] + "\t" + a[1] + "\t" + a[2] + "\t" + a[3]);
+            }
+        }catch(MeteorologiaException exc){
+            System.out.println("> Error: "+ exc.getMessage());
         }
     }
 
@@ -394,17 +402,39 @@ public class InterfazUsuario {
      la lectura de este mismo*/
 
     private int convertidorInt(String texto) { // convierte la funcion convertidorTexto a Int
-        return Integer.parseInt(convertidorTexto(texto));
+        while(true){ //Este es un bucle que se repetira hasta que el usuario ingrese un valor valido y funciona para los metodos de abajo tambien
+            System.out.println(texto); // esto es con el fin de que el usuario ingrese caracteres validos y no bote el programa por ingresar caracteres invalidos, espacios, etc.
+            String e = sc.nextLine().trim();
+            try{
+                return Integer.parseInt(e);
+            }catch(NumberFormatException exc){
+                System.out.println("> Error: Debe ingresar un numero entero valido");
+            }
+        }
     }
 
 
     private String convertidorTexto(String texto) { // Imprime el texto y ademas retorna una lectura que elimina los espacios
-        System.out.print(texto); //
-        return sc.nextLine().trim();
+        while(true){
+            System.out.println(texto);
+            String t = sc.nextLine().trim();
+            if(!t.isEmpty()){
+                return t;
+            }
+            System.out.println("> Error: El valor no puede estar vacio");
+        }
     }
 
     private float convertidorFloat(String texto) {
-        return Float.parseFloat(convertidorTexto(texto));
+        while(true){
+            System.out.println(texto);
+            String e = sc.nextLine().trim();
+            try{
+                return Float.parseFloat(e);
+            }catch(NumberFormatException exc){
+                System.out.println("> Error: Debe ingresar un número decimal válido.");
+            }
+        }
     }
     // Lo que hacen estos metodos es leer un String que asumimos que seran datos correctos en su caso, eliminar espacios inadecuados que existan y
     // transformarlos a un tipo de dato correspondiente, en este caso puede ser Float o Int, para el metodo convertidorTexto, muestra un texto correspondiente
