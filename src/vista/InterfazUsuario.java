@@ -153,8 +153,7 @@ public class InterfazUsuario {
             InstitutoMeteorologia.getInstance().instalaSensor(codigoSen, marca, modelo, tipoSensor, codigoEstacion);
             System.out.println("> Sensor de " + tipoSensor.name().toLowerCase() + " instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "modelo.Sensor de humedad"
         } catch (MeteorologiaException e) {
-            System.out.println(e);
-            System.out.println("> No se ha instalado el sensor, debido a que no existe la estacion, no esta activa o ya existe un sensor con mismo codigo o activo del mismo tipo");
+            System.out.println("> Error: "+ e.getMessage());
         }
     }
 
@@ -171,8 +170,7 @@ public class InterfazUsuario {
             InstitutoMeteorologia.getInstance().registraMedicion(fechaYHora, val, codEstacion, codSensor);
             System.out.println("> Medición registrada correctamente.");
         } catch (MeteorologiaException e) {
-            System.out.println("> No se ha podido registrar la medicion, la estacion o el sensor no existen o se encuentran inactivos, " +
-                    "el valor no es apto o ya existe una medicion en esa fecha y hora " + e);
+            System.out.println("> Error: "+ e.getMessage());
         }
     }
 
@@ -318,7 +316,7 @@ public class InterfazUsuario {
                 System.out.println(f[0] + "\t\t" + f[1] + "\t\t" + f[2] + "\t" + f[3] + "\t" + f[4]);
             }
         } catch (MeteorologiaException e) {
-            System.out.println("No se pudo listar las estaciones, es probable que los codigos especificados no sean válidos: " + e);
+            System.out.println("> Error: "+ e.getMessage());
         }
     }
 
