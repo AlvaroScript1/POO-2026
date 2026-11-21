@@ -38,7 +38,7 @@ public class InterfazUsuario {
             System.out.println(" 9. Guardar datos");
             System.out.println("10. Salir");
             System.out.print("Opcion: ");
-            opciones = Integer.parseInt(sc.nextLine().trim()); // Leemos un numero en formato String, eliminamos espacios y transformamos el String a int
+            opciones = convertidorInt("Opcion: "); // Leemos un numero en formato String, eliminamos espacios y transformamos el String a int
             switch (opciones) {
                 case 1:
                     crearRegion();
@@ -68,7 +68,9 @@ public class InterfazUsuario {
                     guardaDatos();
                     break;
                 case 10:
-                    salir(); // Aqui se añadieron nuevos cases junto a llamadas a metodos en cada case ya que esta propuesto en el UML
+                    if(salir() == false){
+                        opciones = 0;// Aqui se añadieron nuevos cases junto a llamadas a metodos en cada case ya que esta propuesto en el UML
+                    }
                     break;
                 default:
                     System.out.println("Ingrese una opcion valida");
