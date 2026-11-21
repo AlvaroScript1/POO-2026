@@ -379,7 +379,7 @@ public class InstitutoMeteorologia {
             // Corregimos un detalle y es que la fecha y hora no se mostraba en su formato, si no que se mostraba como LocalDateTime
         }
         DateTimeFormatter ff = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        DateTimeFormatter hh = DateTimeFormatter.ofPattern("HH/mm");
+        DateTimeFormatter hh = DateTimeFormatter.ofPattern("HH:mm");
 
         EstacionMeteorologica est = estacion.get();
         AlertaMeteorologica[] objAlertas = est.getAlertasBetween(inicio, fin);
@@ -388,11 +388,11 @@ public class InstitutoMeteorologia {
             AlertaMeteorologica ale = objAlertas[i];
             alertas[i][0] = ale.getFechaHora().format(ff); // de aqui con el format sacamos la fecha y hora pero almacenandolas en 2 indices distintos
             alertas[i][1] = ale.getFechaHora().format(hh);
-            alertas[i][1] = ale.getSensor().getCodigo();
-            alertas[i][2] = ale.getFenomeno();
-            alertas[i][3] = String.format("%.1f", ale.getValor()); // obtenemos el valor y lo dejamos a 1 decimal
-            alertas[i][4] = ale.getSensor().getUnidad();
-            alertas[i][5] = String.valueOf(ale.getNivel());
+            alertas[i][2] = ale.getSensor().getCodigo();
+            alertas[i][3] = ale.getFenomeno();
+            alertas[i][4] = String.format("%.1f", ale.getValor()); // obtenemos el valor y lo dejamos a 1 decimal
+            alertas[i][5] = ale.getSensor().getUnidad();
+            alertas[i][6] = String.valueOf(ale.getNivel());
         }
         return alertas;
     }

@@ -3,6 +3,7 @@ import controlador.*; //importes de los packages
 import modelo.*;
 
 import java.sql.SQLOutput;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -162,9 +163,8 @@ public class InterfazUsuario {
         System.out.println("----------------------------------------------------------");
         String codEstacion = convertidorTexto("Código de estación: ");
         String codSensor = convertidorTexto("Código de sensor: ");
-        String fecha = convertidorTexto("Fecha y hora [dd/MM/yyyy HH:mm]: ");
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos la fecha
-        LocalDateTime fechaYHora = LocalDateTime.parse(fecha, formato); // pasamos la fecha al formato indicado y lo pasamos a LocalDateTime
+        LocalDateTime fechaYHora = convertidorFechaHora("Fecha y hora [dd/MM/yyyy HH:mm]: ",formato); // pasamos la fecha al formato indicado y lo pasamos a LocalDateTime
         float val = convertidorFloat("Valor: ");
         try {  // Este try-catch es solicitado para que no hayan errores
             InstitutoMeteorologia.getInstance().registraMedicion(fechaYHora, val, codEstacion, codSensor);
@@ -209,22 +209,34 @@ public class InterfazUsuario {
         }
     }
 
-    private void guardaDatos(){
+    private boolean guardaDatos(){ // Se complementa con salir()
         System.out.println("GUARDAR DATOS");
         System.out.println("----------------------------------------------------------");
         try{
             InstitutoMeteorologia.getInstance().guardaDatos(); // Guardamos los datos y nuevamente un try-catch
             System.out.println("> Datos guardados correctamente.");
+            return true;
         }catch(MeteorologiaException exc){
             System.out.println("> Error: "+ exc.getMessage());
+            return false;
         }
     }
-    private void salir(){
-        String sino = convertidorTexto("¿Desea guardar los datos antes de salir? [S/N]: "); // Solicitamos un guardado de datos y guardaDatos se encarga de procesar correctamente la solicitud, si sucede un error entonces no se guardan los datos
-        if(sino.equalsIgnoreCase("S")){
-            guardaDatos();
+    private boolean salir(){
+        while(true) {
+            String sino = convertidorTexto("¿Desea guardar los datos antes de salir? [S/N]: "); // Solicitamos un guardado de datos y guardaDatos se encarga de procesar correctamente la solicitud, si sucede un error entonces no se guardan los datos
+            if (sino.equalsIgnoreCase("S")) {
+                if(guardaDatos() == true){
+                    System.out.println("> Fin del programa.");
+                    return true;
+                }
+                return false;
+            }else if(sino.equalsIgnoreCase("N")){
+                System.out.println("> Fin del programa.");
+                return true;
+            }else{
+                System.out.println("> Error: Debe responder S o N");
+            }
         }
-        System.out.println("> Fin del programa.");
     }
 
     private void menuListados(){
@@ -343,8 +355,8 @@ public class InterfazUsuario {
         String codE = convertidorTexto("Código de estación: ");
         String codS = convertidorTexto("Código de sensor: ");
         DateTimeFormatter formateado = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"); // formateamos fecha
-        LocalDateTime i = LocalDateTime.parse(convertidorTexto("Inicio [dd/MM/yyyy HH:mm]: "), formateado); // pasamos un string de fecha a un formato y esa nueva fecha formateada la pasamos a tipo LocalDateTime
-        LocalDateTime f = LocalDateTime.parse(convertidorTexto("Fin [dd/MM/yyyy HH:mm]: "), formateado);
+        LocalDateTime i = convertidorFechaHora("Inicio [dd/MM/yyyy HH:mm]: ", formateado); // pasamos un string de fecha a un formato y esa nueva fecha formateada la pasamos a tipo LocalDateTime
+        LocalDateTime f = convertidorFechaHora("Fin [dd/MM/yyyy HH:mm]: ", formateado);
         try {
             String[][] m = InstitutoMeteorologia.getInstance().listaMediciones(codE, codS, i, f); // Usamos listaMediciones de controlador.InstitutoMeteorologia
 
@@ -369,8 +381,8 @@ public class InterfazUsuario {
         String codSen = convertidorTexto("Código de sensor: ");
 
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        LocalDateTime i = LocalDateTime.parse(convertidorTexto("Inicio [dd/MM/yyyy HH:mm]: "), formato);
-        LocalDateTime f = LocalDateTime.parse(convertidorTexto("Fin [dd/MM/yyyy HH:mm]: "), formato);
+        LocalDateTime i = convertidorFechaHora("Inicio [dd/MM/yyyy HH:mm]: ", formato);
+        LocalDateTime f = convertidorFechaHora("Fin [dd/MM/yyyy HH:mm]: ", formato);
 
         try{
             String[] resumen = InstitutoMeteorologia.getInstance().listaResumenMediciones(codEst, codSen, i, f);
@@ -393,7 +405,28 @@ public class InterfazUsuario {
     }
 
     private void listarAlertas(){
+        String codEst = convertidorTexto("Código de estación: ");
 
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        LocalDateTime i = convertidorFechaHora("Inicio [dd/MM/yyyy HH:mm]: ", formato);
+        LocalDateTime f = convertidorFechaHora("Fin [dd/MM/yyyy HH:mm]: ", formato);
+
+        try{
+            String [][] aler = InstitutoMeteorologia.getInstance().listaAlertas(codEst, i, f);
+            System.out.println("ALERTAS DE LA ESTACION "+ codEst.toUpperCase());
+            System.out.println("----------------------------------------------------------");
+            if(aler.length == 0){
+                System.out.println("> No hay alertas en el período indicado.");
+                return;
+            }
+            System.out.println("Período: "+ i.format(formato) +" a "+f.format(formato));
+            System.out.println("FECHA\t\tHORA\tSENSOR\tFENÓMENO\t\tVALOR\tUNIDAD\tNIVEL");
+            for(String[] fila : aler){
+                System.out.println(fila[0]+"\t"+fila[1]+"\t"+fila[2]+"\t"+fila[3]+"\t\t"+fila[4]+"\t"+fila[5]+"\t"+fila[6]);
+            }
+        }catch(MeteorologiaException exc){
+            System.out.println("> Error: "+exc.getMessage());
+        }
     }
 
 
@@ -433,6 +466,17 @@ public class InterfazUsuario {
                 return Float.parseFloat(e);
             }catch(NumberFormatException exc){
                 System.out.println("> Error: Debe ingresar un número decimal válido.");
+            }
+        }
+    }
+
+    private LocalDateTime convertidorFechaHora(String texto, DateTimeFormatter formato){ // Se tiene que ingresar una fecha valida si no, se repite el ciclo
+        while(true){
+            String e = convertidorTexto(texto);
+            try{
+                return LocalDateTime.parse(e,formato);
+            }catch(DateTimeParseException exc){
+                System.out.println("> Error: Formato de fecha y hora inválidos. Utilice dd/MM/yyyy HH:mm");
             }
         }
     }
