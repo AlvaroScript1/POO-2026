@@ -6,7 +6,7 @@ import java.io.*;
 
 public class PersistenciaTexto {
     private static PersistenciaTexto instance = null;
-    private static final String SEPARADOR = ";"; // Aqui usamos el separador como constante final para que no se pueda modificar
+    public static final String SEPARADOR = ";"; // Aqui usamos el separador como constante final para que no se pueda modificar
 
     private PersistenciaTexto(){}
 
@@ -29,7 +29,7 @@ public class PersistenciaTexto {
         }catch(FileNotFoundException exc){
             throw new MeteorologiaException("El archivo no existe o no puede leerse"); // Lanzamos la excepcion personalizada si hay un FileNotFoundException
         }catch(IOException exc){
-            throw new MeteorologiaException("No fue posible leer el archivo <"+nombreArchivo+">");
+            throw new MeteorologiaException("No fue posible leer el archivo "+nombreArchivo);
         }
         return registros.toArray(new String[0]);
     }
@@ -45,7 +45,7 @@ public class PersistenciaTexto {
               redacter.println(l); // Esto escribe el contenido del arreglo l dentro del archivo de destino que en este caso es arch y esta conectado con redacter
             }
         }catch(IOException exc){ // lanzamos la excepcion si no podemos escribir dentro del archivo
-            throw new MeteorologiaException("No fue posible escribir el archivo <"+nombreArchivo+">");
+            throw new MeteorologiaException("No fue posible escribir el archivo "+nombreArchivo);
         }
     }
 }

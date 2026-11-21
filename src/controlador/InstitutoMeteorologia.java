@@ -327,7 +327,7 @@ public class InstitutoMeteorologia {
             throw new MeteorologiaException("No existe el sensor "+codSensor+" en la estación "+codEstacion);
         }
         if(fin.isBefore(inicio)){
-            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm");
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             throw new MeteorologiaException("La fecha y hora de término ("+fin.format(formato)+") es anterior a la de inicio ("+inicio.format(formato)+")");
             // Ajustamos el como se muestran las fechas de manera correcta
         }
