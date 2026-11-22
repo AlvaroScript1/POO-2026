@@ -1,9 +1,12 @@
 package modelo;
 import controlador.MeteorologiaException;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class Region {
+public class Region implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int codigo;
     private String nombre;
 

@@ -1,7 +1,9 @@
 package modelo;
+import java.io.Serializable;
 import java.util.*;
 
-public class Comuna {
+public class Comuna implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int codigo;
     private String nombre;
     private Region region;

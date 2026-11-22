@@ -1,12 +1,14 @@
 package modelo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.time.*;
 import controlador.MeteorologiaException;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-public abstract class Sensor {
+public abstract class Sensor implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String codigo;
     private String marca;
     private String modelo;

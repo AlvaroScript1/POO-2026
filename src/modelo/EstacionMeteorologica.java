@@ -2,11 +2,13 @@ package modelo;
 
 import controlador.MeteorologiaException;
 
+import java.io.Serializable;
 import java.sql.Array;
 import java.time.*;
 import java.util.*;
 import java.time.format.DateTimeFormatter;
-public class EstacionMeteorologica {
+public class EstacionMeteorologica implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String codigo, nombre;
     private float longitud, latitud, altitud;
     private Estado estado;
