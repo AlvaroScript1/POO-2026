@@ -25,12 +25,8 @@ public class Comuna implements Serializable {
         estacionesPorComuna.add(estacion);
     }
     public Optional<EstacionMeteorologica> findEstacionById(String codigo){
-        for(EstacionMeteorologica e : estacionesPorComuna){
-            if(e.getCodigo().equalsIgnoreCase(codigo)){
-                return Optional.of(e); // en este caso retornamos el optional con la estacion meteorologica que tiene el codigo indicado
-            }
-        }
-        return Optional.empty(); // Si no encontramos la region entonces retornamos un Optional vacio
+        return estacionesPorComuna.stream().filter(e-> e.getCodigo().equalsIgnoreCase(codigo))
+                .findFirst();
     }
     public Region getRegion(){
         return this.region;

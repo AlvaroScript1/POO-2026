@@ -1,6 +1,7 @@
 package modelo;
 
-import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.*;
 
 public class ResumenMediciones {
     private final int cantidad;
@@ -14,31 +15,23 @@ public class ResumenMediciones {
         }
 
         this.cantidad = mediciones.length;
-        Medicion min = mediciones[0];
-        Medicion max = mediciones[0];
+        Comparator<Medicion> min = Comparator.comparing(Medicion::getValor) // Ordena en valor ascendente priorizando hora y fecha mas antiguas
+                .thenComparing(Medicion::getFechaHora);
+        Comparator<Medicion> max = Comparator.comparing(Medicion::getValor) // Ordena en valor ascendente, si hay empate invierte el orden
+                .thenComparing(Comparator.comparing(Medicion::getFechaHora).reversed());
 
-        float suma = 0f;
+        this.minimo = Arrays.stream(mediciones)
+                .min(min)
+                .orElseThrow();
 
-        for (Medicion m : mediciones) {
+        this.maximo = Arrays.stream(mediciones)
+                .max(max)
+                .orElseThrow();
 
-            float valor = m.getValor();
-            suma += valor;
-
-            // Buscar la medición mínima
-            if (valor < min.getValor() || valor == min.getValor() && m.getFechaHora().isBefore(min.getFechaHora())){
-                min = m;
-            }
-
-            // Buscar la medición máxima
-            if (valor > max.getValor() ||
-                    (valor == max.getValor() && m.getFechaHora().isBefore(max.getFechaHora()))) {
-                max = m;
-            }
-        }
-
-        this.minimo = min;
-        this.maximo = max;
-        this.promedio = suma / cantidad;
+        this.promedio = (float) Arrays.stream(mediciones)
+                .mapToDouble(Medicion::getValor)
+                .average() // Average es el promedio solo que en ingles ja ja ja y saca el promedio
+                .orElse(0.0);
     }
     public int getCantidad() {return cantidad;}
     public float getPromedio() {return promedio;}

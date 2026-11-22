@@ -49,15 +49,14 @@ public class EstacionMeteorologica implements Serializable {
         if(this.estado != Estado.ACTIVO){ // si no esta activo lanzamos excepcion
             throw new MeteorologiaException("La estacion "+this.codigo+" no esta activa");
         }
-        for(Sensor s : sensores){
-            if(s.getCodigo().equalsIgnoreCase(codigo)){ // Si existe un sensor con igual codigo, entonces lanzamos excepcion
-                throw new MeteorologiaException("La estacion "+this.codigo+" ya tiene un sensor con el código "+codigo);
-            }
+        if(sensores.stream().anyMatch(s -> s.getCodigo().equalsIgnoreCase(codigo))) {
+            throw new MeteorologiaException("La estacion " + this.codigo + " ya tiene un sensor con el código " + codigo);
         }
-        for(Sensor s : sensores){
-            if(s.getEstado() == Estado.ACTIVO && (s.getTipo() == tipo)){ // si existe un sensor activo igual a otro sensor activo, entonces rechazamos el cambio, aprovechando getTipo de Sensor
-                throw new MeteorologiaException("La estacion "+this.codigo+" ya tiene un sensor ACTIVO de tipo "+tipo+" ("+s.getCodigo()+")");
-            }
+        Optional<Sensor> activo = sensores.stream()
+                .filter(s-> s.getEstado() == Estado.ACTIVO && s.getTipo() == tipo)
+                .findFirst();
+        if(activo.isPresent()){
+            throw new MeteorologiaException("La estacion "+this.codigo+" ya tiene un sensor ACTIVO de tipo "+tipo+" ("+activo.get().getCodigo()+")");
         }
         Sensor nuevoSensor = switch(tipo){ // si se cumple lo requerido, creamos un nuevo sensor y lo agregamos a la lista de sensores
             case HUMEDAD -> new SensorHumedad(codigo, marca, modelo, this);
@@ -77,11 +76,14 @@ public class EstacionMeteorologica implements Serializable {
         if(sensor.getEstado() == estado){ // si el estado de sensor es igual al estado del parametro indicado, entonces no hay nada que cambiar y lanzamos excepcion
             throw new MeteorologiaException("El sensor "+codigoSensor+" ya se encuentra en estado "+estado);
         }
-        if(estado == Estado.ACTIVO) { // verificamos que este el estado sea activo en base al enunciado
-            for (Sensor s : sensores) { // recorremos la lista de sensores
-                if (!s.getCodigo().equalsIgnoreCase(codigoSensor) && (s.getTipo() == sensor.getTipo()) && (s.getEstado() == Estado.ACTIVO)) { // esto es medio confuso, pero en una sola "condicion" o if, nos aseguramos de que se pase por ese if cuando el codigo no es igual a si mismo y
-                    throw new MeteorologiaException("No es posible activar el sensor " + codigoSensor + ": la estación ya tiene activo el sensor " + s.getCodigo() + " de tipo " + s.getTipo()); // los tipos sean iguales y el sensor este activo, finalmente arrojando una excepcion
-                }
+        if(estado == Estado.ACTIVO){
+            Optional<Sensor> activar = sensores.stream()
+                    .filter(s->!s.getCodigo().equalsIgnoreCase(codigoSensor)
+                    && s.getTipo() == sensor.getTipo()
+                    && s.getEstado() == Estado.ACTIVO)
+                    .findFirst();
+            if(activar.isPresent()){
+                throw new MeteorologiaException("No es posible activar el sensor " + codigoSensor + ": la estación ya tiene activo el sensor " + activar.get().getCodigo() + " de tipo " + activar.get().getTipo());
             }
         }
         sensor.setEstado(estado); // luego de pasar todas las verificaciones, hacemos un set estado al objeto de tipo Sensor sensor, el cual esta vinculado al sensor guardado en la lista
@@ -152,23 +154,16 @@ public class EstacionMeteorologica implements Serializable {
         return new String[0][4]; // retornamos una matriz vacia si el sensor no existe en la estacion dada
     }
     public AlertaMeteorologica[] getAlertasBetween(LocalDateTime inicio, LocalDateTime fin){
-        ArrayList<AlertaMeteorologica> aler = new ArrayList<>();
-        for(AlertaMeteorologica a : alertas){
-            if(!a.getFechaHora().isBefore(inicio) && !a.getFechaHora().isAfter(fin)){
-                aler.add(a);
-            }
-        }
-        aler.sort(Comparator.comparing(AlertaMeteorologica::getFechaHora)); // Incluimos una funcion lambda de tipo sort para ordenar fecha y hora de mas antigua a mas reciente
-        return aler.toArray(new AlertaMeteorologica[0]);
+        return alertas.stream()
+                .filter(a -> !a.getFechaHora().isBefore(inicio) && !a.getFechaHora().isAfter(fin))
+                .sorted(Comparator.comparing(AlertaMeteorologica::getFechaHora))
+                .toArray(AlertaMeteorologica[]::new);
     }
 
-    public Optional<Sensor> findSensorById(String codigo){ // recorremos con un for-each la lista de sensores y buscamos una coincidencia mediante el codigo de sensor, si es asi retornamos un Optional del objeto
-        for(Sensor s : sensores){
-            if(s.getCodigo().equalsIgnoreCase(codigo)){
-                return Optional.of(s);
-            }
-        }
-        return Optional.empty(); // si no hay coincidencias entonces retornamos un optional vacio
+    public Optional<Sensor> findSensorById(String codigo){
+        return sensores.stream()
+                .filter(s -> s.getCodigo().equalsIgnoreCase(codigo))
+                .findFirst();
     }
 
     @Override
