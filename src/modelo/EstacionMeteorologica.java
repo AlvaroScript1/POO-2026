@@ -3,7 +3,6 @@ package modelo;
 import controlador.MeteorologiaException;
 
 import java.io.Serializable;
-import java.sql.Array;
 import java.time.*;
 import java.util.*;
 import java.time.format.DateTimeFormatter;

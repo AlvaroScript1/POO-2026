@@ -1,12 +1,11 @@
 package controlador;
 
 import modelo.*;
-
-import java.lang.reflect.Array;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.*;
-    
+import java.util.stream.Collectors;
+
 public class InstitutoMeteorologia {
     private static InstitutoMeteorologia instance = null;
     private ArrayList<EstacionMeteorologica> estacionesMeteorologicas;
@@ -35,7 +34,7 @@ public class InstitutoMeteorologia {
             }
         }
         if(regiones.stream().anyMatch(r->r.getNombre().equalsIgnoreCase(nombre))){
-            throw new MeteorologiaException("Ya existe una región con el nombre"+nombre);
+            throw new MeteorologiaException("Ya existe una región con el nombre "+nombre);
         }
 
         Region r1 = new Region(codigo, nombre);
@@ -94,7 +93,7 @@ public class InstitutoMeteorologia {
         }
         throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion);
     }
-    public void cargaDatos() throws MeteorologiaException{
+    public void importaDatosTexto() throws MeteorologiaException{
         if(regiones.isEmpty() && estacionesMeteorologicas.isEmpty()){
             DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             try {
@@ -211,58 +210,59 @@ public class InstitutoMeteorologia {
     }
 
     public void guardaDatos() throws MeteorologiaException{
-        if(regiones.isEmpty() && estacionesMeteorologicas.isEmpty()){
+
+        if(existenDatos() == false){
             throw new MeteorologiaException("No existen datos para guardar.");
         }
-        ArrayList<String> regio = new ArrayList<>();
-        for(Region r : regiones){
-            String l1 = r.getCodigo()+";"+r.getNombre();
-            regio.add(l1); // Este parece el proceso inverso de cargaDatos, jaja una funcion inversa que loco, simplemente vamos escribiendo en 1 linea todo un indice de un arreglo
-        }
-        String[] re = regio.toArray(new String[0]);
-        PersistenciaTexto.escribeRegistros("regiones.txt", re);
+        PersistenciaObjetos.escribeObjeto( "meteorologia.dat", regiones); //se borro todo el codigo que se encontraba debajo ya que con serialzacion se guarda todo como objeto
+    }
 
-        ArrayList<String> lisComunas = new ArrayList<>();
-        for(Region r : regiones){
-            for(Comuna c : r.getComunas()){
-                String l1 = r.getCodigo()+";"+c.getCodigo()+";"+c.getNombre();
-                lisComunas.add(l1);
+    public void cargaDatos()throws MeteorologiaException{
+        if(existenDatos() == true){ // verificamos mediante el metodo existen datos si es que efectivamente existen datos, sino arrojamos excepcion
+            throw new MeteorologiaException("La carga de datos solo puede realizarse cuando no existen datos registrados.");
+        }
+        try {
+            Object objeto = PersistenciaObjetos.leeObjeto("meteorologia.dat");
+            if(objeto instanceof List<?>){ // verificamos si el objeto referenciado al metodo leeObjeto de persistenciaobjetos es de tipo List, sino se arroja excepcion
+                this.regiones = (ArrayList<Region>) objeto; // pasamos el objeto a ArrayList de tipo Region
+                this.estacionesMeteorologicas = regiones.stream().flatMap(r -> Arrays.stream(r.getComunas()))
+                        .flatMap(c -> Arrays.stream(c.getEstaciones()))
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }else{
+                throw new MeteorologiaException("El archivo meteorologia.dat no contiene datos válidos del sistema.");
             }
+        }catch(MeteorologiaException exc){ // En caso de error limpiamos los arrays de regiones y estaciones
+            regiones.clear();
+            estacionesMeteorologicas.clear();
+            throw exc;
         }
-        String[] co = lisComunas.toArray(new String[0]);
-        PersistenciaTexto.escribeRegistros("comunas.txt", co);
+    }
 
-        ArrayList<String> lisEstaciones = new ArrayList<>(); // POR QUE ES TAN LARGO ESTE CODIGOOOOOOOOOOOOOO Y SOLO VOY EN ESTACION TODAVIA ME QUEDAN MAS
-        for(EstacionMeteorologica est : estacionesMeteorologicas){
-            String l1 = est.getCodigo()+";"+est.getNombre()+";"+est.getPosicion()+";"+est.getComuna().getRegion().getCodigo()+";"+est.getComuna().getCodigo();
-            lisEstaciones.add(l1);
+    public boolean existenDatos(){ // con este metodo verificamos la existencia de datos en el array de regiones
+        if(regiones.isEmpty()){
+            return false;
         }
-        String[] estac = lisEstaciones.toArray(new String[0]);
-        PersistenciaTexto.escribeRegistros("estaciones.txt", estac);
+        return true;
+    }
+    public String[] getCodigosEstaciones(){
+        return estacionesMeteorologicas.stream()
+                .map(EstacionMeteorologica::getCodigo) // Obtenemos los codigos de las estaciones y los ordenamos, luego los pasamos a un array
+                .sorted()
+                .toArray(String[]::new);
+    }
 
-        ArrayList<String> lisSensores = new ArrayList<>();
-        for(EstacionMeteorologica est : estacionesMeteorologicas){ // Pero mira esta aberrasidad, recorrer las estaciones, luego los sensores y por ultimo las mediciones y de ahi extraer todo T-T
-            for(Sensor s : est.getSensores()){ // Ayudante te pido ayuda
-                String l1 = est.getCodigo()+";"+s.getCodigo()+";"+s.getTipo()+";"+s.getMarca()+";"+s.getModelo()+";"+s.getEstado();
-                lisSensores.add(l1);
-            }
-        }
-        String[] sens = lisSensores.toArray(new String[0]);
-        PersistenciaTexto.escribeRegistros("sensores.txt", sens);
+    public String[] getCodigosSensores(String codEst) throws MeteorologiaException{
+        EstacionMeteorologica est = findEstacion(codEst).orElseThrow(() -> new MeteorologiaException("No existe una estación con el código " + codEst));
 
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        ArrayList<String> lisMediciones = new ArrayList<>();
-        for(EstacionMeteorologica e : estacionesMeteorologicas){
-            for(Sensor s : e.getSensores()){
-                for(Medicion m : s.getMediciones()){ // QUEDA TIEMPO, PUEDO USAR EL FORMATEADOR? SI ALCANZO, SI
-                    String fechaFormat = m.getFechaHora().format(format);
-                    String l1 = e.getCodigo()+";"+s.getCodigo()+";"+fechaFormat+";"+m.getValor();
-                    lisMediciones.add(l1);
-                }
-            }
-        }
-        String[] medicion = lisMediciones.toArray(new String[0]);
-        PersistenciaTexto.escribeRegistros("mediciones.txt", medicion); // SIIIIIIII ME DIO EL TIEMPO A BUSCAR COMO SE HACIA EL FORMAT Y HACERLO, se me olvida por ratos como se hace, pero bueno
+        return Arrays.stream(est.getSensores()) // Obtienes los sensores de la estacion y luego obtienes sus codigos, posteriormente se agrupan en un array
+                .map(Sensor::getCodigo)
+                .toArray(String[]::new);
+    }
+
+    public String[] getDatosSensor(String codEstac, String codSen) throws MeteorologiaException{
+        Sensor sen = findSensor(codEstac, codSen).orElseThrow(() -> new MeteorologiaException("No existe el sensor " + codSen + " en la estación " + codEstac));
+
+        return new String[]{sen.getTipo().toString(), sen.getUnidad(), sen.getEstado().toString()}; // retornamos el arreglo con los datos del sensor ordenados
     }
 
     public String[][] listaRegiones(){
@@ -307,8 +307,11 @@ public class InstitutoMeteorologia {
         DateTimeFormatter hh = DateTimeFormatter.ofPattern("HH:mm");
 
         return Arrays.stream(sensor.getMedicionesBetween(inicio, fin))
-                .map(med -> new String[])
-        return est.getMedicionesSensorBetween(codSensor, inicio, fin);
+                .map(med -> new String[]{med.getFechaHora().format(ff),
+                        med.getFechaHora().format(hh),
+                        String.format("%.1f", med.getValor()),
+                        sensor.getUnidad()})
+                .toArray(String[][]::new);
     }
     public String[] listaResumenMediciones(String codigoEstacion, String codigoSensor, LocalDateTime inicio, LocalDateTime fin) throws MeteorologiaException{
         Optional<EstacionMeteorologica> est = findEstacion(codigoEstacion);

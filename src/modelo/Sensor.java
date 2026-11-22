@@ -6,7 +6,6 @@ import java.time.*;
 import controlador.MeteorologiaException;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Optional;
 
 public abstract class Sensor implements Serializable {
