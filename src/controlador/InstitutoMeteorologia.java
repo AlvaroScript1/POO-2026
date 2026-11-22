@@ -266,82 +266,48 @@ public class InstitutoMeteorologia {
     }
 
     public String[][] listaRegiones(){
-        String[][] listaRegiones = new String[regiones.size()][4];
-        for(int i = 0; i < regiones.size(); i++){
-            Region re = regiones.get(i); // Guardamos en la variable re de tipo modelo.Region, regiones.get(i)
-            listaRegiones[i][0] = String.valueOf(re.getCodigo()); // Convierte valor numerico a String debido a que el arreglo es de String
-            listaRegiones[i][1] = re.getNombre();
-            listaRegiones[i][2] = String.valueOf(re.getComunas().length);
-            listaRegiones[i][3] = String.valueOf(re.getCantidadEstaciones());
-        }
-        return listaRegiones;
+        return regiones.stream()
+                .map(r-> new String[]{ String.valueOf(r.getCodigo()), r.getNombre(), String.valueOf(r.getComunas().length), String.valueOf(r.getCantidadEstaciones())})
+                                .toArray(String[][]::new);// Un array con el codigo
+        // de la region, su nombre, numero comunas y cantidad de estaciones
     }
     public String[][] listaComunas(){
-        int cantidadComunas = 0;
-        for(Region r : regiones){
-            cantidadComunas += r.getComunas().length;
-        }
-
-        String[][]listaComunas = new String[cantidadComunas][5];
-        int nFila = 0;
-        //en este apartado se recorre las comunas de cada region y se arma una fila por comuna
-        for(Region r : regiones){
-            Comuna[] comunasPorRegion = r.getComunas();
-            for(Comuna c : comunasPorRegion){
-                listaComunas[nFila][0] = String.valueOf(c.getCodigo());
-                listaComunas[nFila][1] = c.getNombre();
-                listaComunas[nFila][2] = r.getNombre();
-                listaComunas[nFila][3] = String.valueOf(c.getEstaciones().length);
-                listaComunas[nFila][4] = String.valueOf(c.getCantidadEstacionesActivas());
-                nFila++;
-            }
-
-        }
-        return listaComunas;
+        return regiones.stream().flatMap(r->Arrays.stream(r.getComunas()))
+                .map(c-> new String[]{String.valueOf(c.getCodigo()), c.getNombre(), c.getRegion().getNombre(),
+                        String.valueOf(c.getEstaciones().length), String.valueOf(c.getCantidadEstacionesActivas())})
+                .toArray(String[][]::new);
     }
 
     public String[][] listaEstaciones(int codigoRegion, int codigoComuna) throws MeteorologiaException{
-        for(Region re : regiones){
-            if(codigoRegion == re.getCodigo()){
-                Optional<Comuna> comuna = re.findComunaById(codigoComuna);
-                if(comuna.isEmpty()){
-                    throw new MeteorologiaException("No existe una comuna con el código "+codigoComuna+" en la región "+re.getNombre());
-                }
-                Comuna c = comuna.get();
-                String[][] listaEstaciones = new String[c.getEstaciones().length][]; // Luego de la verificacion creamos la matriz
-                for(int i = 0; i<c.getEstaciones().length;i++){
-                    listaEstaciones[i] = c.getEstaciones()[i].toString().split("; "); // Gracias al metodo getEstaciones de comuna podemos iterar directamente desde el metodo y por cada iteracion hacer un toString.split(" )
-                }
-                return listaEstaciones;
-            }
-        }
-        throw new MeteorologiaException("No existe una región con el código "+codigoRegion);// Retornamos una matriz vacia como se nos indica si es que la region no existe
+        Region re = findRegion(codigoRegion).orElseThrow(() -> new MeteorologiaException("No existe una región con el código "+codigoRegion)); // busca la region y si no la encuentra entonces arroja la excepcion
+        Comuna co = findComuna(codigoRegion, codigoComuna).orElseThrow(() -> new MeteorologiaException("No existe una comuna con el código "+codigoComuna+" en la región "+re.getNombre()));
+
+        return Arrays.stream(co.getEstaciones())
+                .map(e->e.toString().split("; "))
+                .toArray(String[][]::new);
     }
 
     public String[][] listaSensores(String codigoEstacion) throws MeteorologiaException{
-        Optional<EstacionMeteorologica> estacion = findEstacion(codigoEstacion); // aprovechamos findEstacion para ver si existe la estacion o no
-        if(estacion.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion); // Lanzamos inmediatamente la excepcion si no existe una estacion con el codigo indicado
-        }
-        EstacionMeteorologica est = estacion.get();
-        return est.getResumenSensores();
+        EstacionMeteorologica estacion = findEstacion(codigoEstacion).orElseThrow(() -> new MeteorologiaException("No existe una estación con el código "+codigoEstacion));
+
+        return Arrays.stream(estacion.getSensores())
+                .map(s-> s.toString().split("; "))
+                .toArray(String[][]::new);
     }
 
     public String[][] listaMediciones(String codEstacion, String codSensor, LocalDateTime inicio, LocalDateTime fin)throws MeteorologiaException{
-        Optional<EstacionMeteorologica> estacion = findEstacion(codEstacion);
-        if(estacion.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código "+codEstacion);
-        }
-        EstacionMeteorologica est = estacion.get();
-        Optional<Sensor> sensor = findSensor(codEstacion, codSensor);
-        if(sensor.isEmpty()){
-            throw new MeteorologiaException("No existe el sensor "+codSensor+" en la estación "+codEstacion);
-        }
+        EstacionMeteorologica estacion = findEstacion(codEstacion).orElseThrow(()-> new MeteorologiaException("No existe una estación con el código "+codEstacion));
+        Sensor sensor = findSensor(codEstacion, codSensor).orElseThrow(() -> new MeteorologiaException("No existe el sensor "+codSensor+" en la estación "+codEstacion));
         if(fin.isBefore(inicio)){
             DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             throw new MeteorologiaException("La fecha y hora de término ("+fin.format(formato)+") es anterior a la de inicio ("+inicio.format(formato)+")");
             // Ajustamos el como se muestran las fechas de manera correcta
         }
+        DateTimeFormatter ff = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter hh = DateTimeFormatter.ofPattern("HH:mm");
+
+        return Arrays.stream(sensor.getMedicionesBetween(inicio, fin))
+                .map(med -> new String[])
         return est.getMedicionesSensorBetween(codSensor, inicio, fin);
     }
     public String[] listaResumenMediciones(String codigoEstacion, String codigoSensor, LocalDateTime inicio, LocalDateTime fin) throws MeteorologiaException{
@@ -380,10 +346,8 @@ public class InstitutoMeteorologia {
         return resumen;
     }
     public String[][] listaAlertas(String codigoEstacion, LocalDateTime inicio, LocalDateTime fin)throws MeteorologiaException{
-        Optional<EstacionMeteorologica> estacion = findEstacion(codigoEstacion);
-        if(estacion.isEmpty()){
-            throw new MeteorologiaException("No existe una estación con el código "+codigoEstacion);
-        }
+
+        EstacionMeteorologica estacion = findEstacion(codigoEstacion).orElseThrow(() -> new MeteorologiaException("No existe una estación con el código "+codigoEstacion));
         if(fin.isBefore(inicio)){
             DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
             throw new MeteorologiaException("La fecha y hora de termino ("+fin.format(formato)+") es anterior a la de inicio ("+inicio.format(formato)+")");
@@ -392,20 +356,10 @@ public class InstitutoMeteorologia {
         DateTimeFormatter ff = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter hh = DateTimeFormatter.ofPattern("HH:mm");
 
-        EstacionMeteorologica est = estacion.get();
-        AlertaMeteorologica[] objAlertas = est.getAlertasBetween(inicio, fin);
-        String[][] alertas = new String[objAlertas.length][7];
-        for(int i = 0; i< objAlertas.length;i++){
-            AlertaMeteorologica ale = objAlertas[i];
-            alertas[i][0] = ale.getFechaHora().format(ff); // de aqui con el format sacamos la fecha y hora pero almacenandolas en 2 indices distintos
-            alertas[i][1] = ale.getFechaHora().format(hh);
-            alertas[i][2] = ale.getSensor().getCodigo();
-            alertas[i][3] = ale.getFenomeno();
-            alertas[i][4] = String.format("%.1f", ale.getValor()); // obtenemos el valor y lo dejamos a 1 decimal
-            alertas[i][5] = ale.getSensor().getUnidad();
-            alertas[i][6] = String.valueOf(ale.getNivel());
-        }
-        return alertas;
+        return Arrays.stream(estacion.getAlertasBetween(inicio, fin))
+                .map(a->new String[]{a.getFechaHora().format(ff), a.getFechaHora().format(hh), a.getSensor().getCodigo(), a.getFenomeno(), String.format("%.1f", a.getValor()),
+                        a.getSensor().getUnidad(), String.valueOf(a.getNivel())})
+                .toArray(String[][]::new);
     }
 
     private Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
