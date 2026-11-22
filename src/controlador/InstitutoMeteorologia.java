@@ -34,10 +34,8 @@ public class InstitutoMeteorologia {
                 throw new MeteorologiaException("Ya existe una región con el código "+codigo); // lanzamos una excepcion con el mensaje dentro si existe una region con igual codigo
             }
         }
-        for(Region r : regiones){ // Hacemos este for por si existe una region que no tiene mismo codigo que otra, pero si mismo nombre
-            if(r.getNombre().equalsIgnoreCase(nombre)){
-                throw new MeteorologiaException("Ya existe una región con el nombre "+nombre);
-            }
+        if(regiones.stream().anyMatch(r->r.getNombre().equalsIgnoreCase(nombre))){
+            throw new MeteorologiaException("Ya existe una región con el nombre"+nombre);
         }
 
         Region r1 = new Region(codigo, nombre);
@@ -411,38 +409,24 @@ public class InstitutoMeteorologia {
     }
 
     private Optional<Region> findRegion(int codigo){ // La verdad no entiendo mucho la logica del Optional asi que me fui a la diapo como ejemplo y vi que se estaba usando casi lo mismo que pide el enunciado
-        for(Region r : regiones){
-            if(codigo == r.getCodigo()){
-                return Optional.of(r);
-            }
-        }
-        return Optional.empty();
+        return   regiones.stream()
+                .filter(r-> r.getCodigo() == codigo)
+                .findFirst();
     }
 
     private Optional<Comuna> findComuna(int codRegion, int codComuna){
-        for(Region r : regiones){
-            if(codRegion == r.getCodigo()){
-                return r.findComunaById(codComuna); // JODER QUE COSTO ESTA PARTE SOLO PQ PENSE QUE TIRABA ERROR ESTABA MALO Y ES PQ EL METODO NO EST ACTUALIZADO EN REGION
-            } // nooooooo esto puede retornar null... tocara volver a ver como se retorna para que no de null o algo parecido
-        }
-        return Optional.empty();
+        return findRegion(codRegion)
+                .flatMap(r->r.findComunaById(codComuna));
     }
 
     private Optional<EstacionMeteorologica> findEstacion(String codigo){
-        for(EstacionMeteorologica e : estacionesMeteorologicas){
-            if(e.getCodigo().equalsIgnoreCase(codigo)){
-                return Optional.of(e);
-            }
-        }
-        return Optional.empty();
+        return estacionesMeteorologicas.stream()
+                .filter(e->e.getCodigo().equalsIgnoreCase(codigo))
+                .findFirst();
     }
 
     private Optional<Sensor> findSensor(String codEstacion, String codSensor){
-        for(EstacionMeteorologica e : estacionesMeteorologicas){
-            if(e.getCodigo().equalsIgnoreCase(codEstacion)){
-                return e.findSensorById(codSensor); // Por el momento lanza error imagino pq no existe ese metodo en la estacion
-            }
-        }
-        return Optional.empty();
+        return findEstacion(codEstacion)
+                .flatMap(e->e.findSensorById(codSensor));
     }
 }
