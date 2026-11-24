@@ -21,63 +21,6 @@ public class InterfazUsuario {
         return instance;
     }
 
-
-    public void menuPrincipal(){ // Menu desplegable junto a un switch que se encarga de dirigir al usuario para que opcion tomar
-        int opciones;
-        do {
-            System.out.println("SISTEMA DE INFORMACIÓN METEOROLÓGICA");
-            System.out.println("----------------------------------------------------------");
-            System.out.println(" 1. Crear región");
-            System.out.println(" 2. Crear comuna");
-            System.out.println(" 3. Crear estación meteorológica");
-            System.out.println(" 4. Instalar sensor");
-            System.out.println(" 5. Registrar medición");
-            System.out.println(" 6. Cambiar estado de sensor");
-            System.out.println(" 7. Generar listados");
-            System.out.println(" 8. Cargar datos");
-            System.out.println(" 9. Guardar datos");
-            System.out.println("10. Salir");
-            System.out.print("Opcion: ");
-            opciones = convertidorInt("Opcion: "); // Leemos un numero en formato String, eliminamos espacios y transformamos el String a int
-            switch (opciones) {
-                case 1:
-                    crearRegion();
-                    break;
-                case 2:
-                    crearComuna();
-                    break;
-                case 3:
-                    crearEstacionMeteorologica();
-                    break;
-                case 4:
-                    instalarSensor();
-                    break;
-                case 5:
-                    registrarMedicion();
-                    break;
-                case 6:
-                    cambiarEstadoSensor();
-                    break;
-                case 7:
-                    menuListados();
-                    break;
-                case 8:
-                    cargaDatos();
-                    break;
-                case 9:
-                    guardaDatos();
-                    break;
-                case 10:
-                    if(salir() == false){
-                        opciones = 0;// Aqui se añadieron nuevos cases junto a llamadas a metodos en cada case ya que esta propuesto en el UML
-                    }
-                    break;
-                default:
-                    System.out.println("Ingrese una opcion valida");
-            }
-        } while (opciones != 10);
-    }
-
     private void crearRegion() {
         System.out.println("CREAR REGIÓN");
         System.out.println("----------------------------------------------------------");
@@ -120,43 +63,6 @@ public class InterfazUsuario {
             System.out.println("Estacion creada con éxito");
         } catch (MeteorologiaException e) {
             System.out.println("Error: " + e);
-        }
-    }
-
-    private void instalarSensor() {
-        System.out.println("INSTALAR SENSOR");
-        System.out.println("----------------------------------------------------------");
-        String codigoEstacion = convertidorTexto("Código de estación: ");
-        int opcion = convertidorInt("Tipo [1 Temp.  2 Hum.  3 Presión  4 Viento  5 Precip.]: ");
-        TipoSensor tipoSensor;
-        switch (opcion) {
-            case 1:
-                tipoSensor = TipoSensor.TEMPERATURA;
-                break;
-            case 2:
-                tipoSensor = TipoSensor.HUMEDAD;
-                break;
-            case 3:
-                tipoSensor = TipoSensor.PRESION;
-                break;
-            case 4:
-                tipoSensor = TipoSensor.VIENTO;
-                break;
-            case 5:
-                tipoSensor = TipoSensor.PRECIPITACION;
-                break;
-            default:
-                System.out.println("> Sensor invalido");
-                return;
-        }
-        String codigoSen = convertidorTexto("Código de sensor: ");
-        String marca = convertidorTexto("Marca: ");
-        String modelo = convertidorTexto("Modelo: ");
-        try { // try-catch para que no se caiga el programa y se valide correctamente
-            InstitutoMeteorologia.getInstance().instalaSensor(codigoSen, marca, modelo, tipoSensor, codigoEstacion);
-            System.out.println("> Sensor de " + tipoSensor.name().toLowerCase() + " instalado correctamente"); // lo que esta entre medio es el tipo de sensor formateado a lowerCase para que entre algo tipo "modelo.Sensor de humedad"
-        } catch (MeteorologiaException e) {
-            System.out.println("> Error: "+ e.getMessage());
         }
     }
 
