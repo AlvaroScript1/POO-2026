@@ -2,6 +2,8 @@ package vista;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import controlador.InstitutoMeteorologia;
+import controlador.MeteorologiaException;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -43,6 +45,39 @@ public class VentanaPrincipal extends JFrame {
         pack();
 
         setLocationRelativeTo(null);
+        salirButton.addActionListener(e -> dispose());
+        crearRegionButton.addActionListener(e -> crearRegion());
+        crearComunaButton.addActionListener(e -> crearComuna());
+    }
+    private void crearRegion(){
+        String codigoTexto = JOptionPane.showInputDialog(this, "Ingrese el codigo de la region");
+        if(codigoTexto == null){
+            return;
+        }
+        String nombreRegion = JOptionPane.showInputDialog(this, "Ingrese el nombre de la region");
+        if(nombreRegion == null) {
+            return;
+        }
+        try{
+            InstitutoMeteorologia.getInstance().creaRegion(Integer.parseInt(codigoTexto), nombreRegion);
+            JOptionPane.showMessageDialog(this, "Region creada con exito", "Operacion Exitosa",JOptionPane.INFORMATION_MESSAGE);
+        } catch (MeteorologiaException e) {
+            JOptionPane.showMessageDialog(this, "No se pudo crear la region, es posible que los datos no sean válidos o esté repetida", "Operacion fallida",JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private void crearComuna(){
+        String codigoString = JOptionPane.showInputDialog(this, "Ingrese el codigo de la comuna");
+        String nombreComuna = JOptionPane.showInputDialog(this, "Ingrese el nombre de la comuna");
+        String codigoRegionString = JOptionPane.showInputDialog(this, "Ingrese el codigo de la region");
+        if(codigoString == null || nombreComuna == null || codigoRegionString == null){
+            return;
+        }
+        try{
+            InstitutoMeteorologia.getInstance().creaComuna(Integer.parseInt(codigoString), nombreComuna, Integer.parseInt(codigoRegionString));
+            JOptionPane.showMessageDialog(this, "Comuna creada con éxito", "Operacion éxitosa", JOptionPane.INFORMATION_MESSAGE);
+        }catch(MeteorologiaException e) {
+            JOptionPane.showMessageDialog(this, "No se pudo crear la comuna", e.getMessage(), JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     {
