@@ -48,6 +48,7 @@ public class VentanaPrincipal extends JFrame {
         salirButton.addActionListener(e -> dispose());
         crearRegionButton.addActionListener(e -> crearRegion());
         crearComunaButton.addActionListener(e -> crearComuna());
+        crearEstacionMeteorologicaButton.addActionListener(e -> crearEstacionMeteorologica());
     }
     private void crearRegion(){
         String codigoTexto = JOptionPane.showInputDialog(this, "Ingrese el codigo de la region");
@@ -67,9 +68,15 @@ public class VentanaPrincipal extends JFrame {
     }
     private void crearComuna(){
         String codigoString = JOptionPane.showInputDialog(this, "Ingrese el codigo de la comuna");
+        if(codigoString == null){
+            return;
+        }
         String nombreComuna = JOptionPane.showInputDialog(this, "Ingrese el nombre de la comuna");
+        if(nombreComuna == null){
+            return;
+        }
         String codigoRegionString = JOptionPane.showInputDialog(this, "Ingrese el codigo de la region");
-        if(codigoString == null || nombreComuna == null || codigoRegionString == null){
+        if(codigoRegionString == null){
             return;
         }
         try{
@@ -77,6 +84,75 @@ public class VentanaPrincipal extends JFrame {
             JOptionPane.showMessageDialog(this, "Comuna creada con éxito", "Operacion éxitosa", JOptionPane.INFORMATION_MESSAGE);
         }catch(MeteorologiaException e) {
             JOptionPane.showMessageDialog(this, "No se pudo crear la comuna", e.getMessage(), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void crearEstacionMeteorologica(){
+        String cod = JOptionPane.showInputDialog(this, "Ingrese el codigo de la estación");
+        if(cod == null){
+            return;
+        }
+        String nombre = JOptionPane.showInputDialog(this, "Ingrese el nombre de la estación");
+        if(nombre == null){
+            return;
+        }
+        Float lon = solicitarFloatValido("Ingrese la longitud");
+        if(lon == null){
+            return;
+        }
+        Float lat = solicitarFloatValido("Ingrese la latitud");
+        if(lat == null){
+            return;
+        }
+        Float alt = solicitarFloatValido("Ingrese la altitud");
+        if(alt == null){
+            return;
+        }
+        Integer codRegion = solicitarEnteroValido("Ingrese el codigo de la region");
+        if(codRegion == null){
+            return;
+        }
+        Integer codComuna = solicitarEnteroValido("Ingrese el codigo de la comuna");
+        if(codComuna == null){
+            return;
+        }
+        try{
+            InstitutoMeteorologia.getInstance().creaEstacion(cod, nombre, lon, lat, alt, codRegion, codComuna);
+            JOptionPane.showMessageDialog(this, "Estación creada con éxito", "Operación exitosa", JOptionPane.INFORMATION_MESSAGE);
+        } catch (MeteorologiaException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+    private Float solicitarFloatValido(String mensaje){//Metodo auxiliar para crearEstacion Meteorologica ya que se solicitan float con los JOpane que leen String.
+        while(true){
+            String texto = JOptionPane.showInputDialog(this, mensaje);
+            if(texto == null){
+                return null; //El usuario puso cancelar, por ende salimos con null
+            }
+            try{
+                float numeroValido = Float.parseFloat(texto.trim().replace(',','.'));//el replace no me lo sabia asi que le pregunte a chatgpt
+                if(!Float.isFinite(numeroValido)){
+                    throw new NumberFormatException();
+                }
+                return numeroValido;
+            }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(this, "Ingrese un numero valido","Datos no válidos", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    private Integer solicitarEnteroValido(String mensaje){ //meotodo auxiliar lo mismo pero ahora con int
+        while(true) {
+            String texto = JOptionPane.showInputDialog(this, mensaje);
+            if (texto == null){
+                return null;
+            }
+            try {
+                int numero = Integer.parseInt(texto.trim());
+                return numero;
+            }catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this,"Debe ingresar un número entero válido.","Datos incorrectos", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
