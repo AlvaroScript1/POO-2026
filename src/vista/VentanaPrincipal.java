@@ -49,6 +49,9 @@ public class VentanaPrincipal extends JFrame {
         crearRegionButton.addActionListener(e -> crearRegion());
         crearComunaButton.addActionListener(e -> crearComuna());
         crearEstacionMeteorologicaButton.addActionListener(e -> crearEstacionMeteorologica());
+        cargarDatosButton.addActionListener(e -> gestionarDatos("CARGAR"));
+        importarDatosDeTextoButton.addActionListener(e -> gestionarDatos("IMPORTAR"));
+        guardarDatosButton.addActionListener(e -> gestionarDatos("GUARDAR"));
     }
     private void crearRegion(){
         String codigoTexto = JOptionPane.showInputDialog(this, "Ingrese el codigo de la region");
@@ -63,7 +66,7 @@ public class VentanaPrincipal extends JFrame {
             InstitutoMeteorologia.getInstance().creaRegion(Integer.parseInt(codigoTexto), nombreRegion);
             JOptionPane.showMessageDialog(this, "Region creada con exito", "Operacion Exitosa",JOptionPane.INFORMATION_MESSAGE);
         } catch (MeteorologiaException e) {
-            JOptionPane.showMessageDialog(this, "No se pudo crear la region, es posible que los datos no sean válidos o esté repetida", "Operacion fallida",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Operacion fallida",JOptionPane.ERROR_MESSAGE);
         }
     }
     private void crearComuna(){
@@ -83,7 +86,7 @@ public class VentanaPrincipal extends JFrame {
             InstitutoMeteorologia.getInstance().creaComuna(Integer.parseInt(codigoString), nombreComuna, Integer.parseInt(codigoRegionString));
             JOptionPane.showMessageDialog(this, "Comuna creada con éxito", "Operacion éxitosa", JOptionPane.INFORMATION_MESSAGE);
         }catch(MeteorologiaException e) {
-            JOptionPane.showMessageDialog(this, "No se pudo crear la comuna", e.getMessage(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -122,8 +125,25 @@ public class VentanaPrincipal extends JFrame {
         } catch (MeteorologiaException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
         }
-
     }
+
+    private void gestionarDatos(String tipoOperacion){//hice un switch para simplificar todo lo de los datos en una funcion
+        try{
+            switch(tipoOperacion){
+                case "CARGAR" -> {InstitutoMeteorologia.getInstance().cargaDatos();
+                JOptionPane.showMessageDialog(this, "Datos cargados correctamente", "Operacion éxitosa", JOptionPane.INFORMATION_MESSAGE);}
+
+                case "GUARDAR" -> {InstitutoMeteorologia.getInstance().guardaDatos();
+                JOptionPane.showMessageDialog(this, "Datos guardados correctamente", "Operacion éxitosa", JOptionPane.INFORMATION_MESSAGE);}
+
+                case "IMPORTAR" -> {InstitutoMeteorologia.getInstance().importaDatosTexto();
+                JOptionPane.showMessageDialog(this, "Datos de texto importados correctamente", "Operacion éxitosa", JOptionPane.INFORMATION_MESSAGE);}
+            }
+        }catch (MeteorologiaException e){
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private Float solicitarFloatValido(String mensaje){//Metodo auxiliar para crearEstacion Meteorologica ya que se solicitan float con los JOpane que leen String.
         while(true){
             String texto = JOptionPane.showInputDialog(this, mensaje);
