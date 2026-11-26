@@ -28,7 +28,7 @@ public class VentanaPrincipal extends JFrame {
     private JButton registrarMedicionButton;
     private JButton cambiarEstadoDeSensorButton;
     private JPanel panelListados;
-    private JComboBox comboBox1;
+    private JComboBox cmbListados;
     private JButton generarListadoButton;
     private JPanel panelRegistro;
     private JPanel panelDatos;
@@ -59,150 +59,128 @@ public class VentanaPrincipal extends JFrame {
         importarDatosDeTextoButton.addActionListener(e -> gestionarDatos("IMPORTAR"));
         guardarDatosButton.addActionListener(e -> gestionarDatos("GUARDAR"));
     }
-    private void confirmarSalida(){
+
+    private void confirmarSalida() {
         InstitutoMeteorologia instituto = InstitutoMeteorologia.getInstance();
-        if(!instituto.existenDatos()){
+        if (!instituto.existenDatos()) {
             dispose();
             return;
         }
-        int respuesta = JOptionPane.showConfirmDialog(this, "Desea guardar antes de salir","Confirmar salida",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE);
-        switch(respuesta){
+        int respuesta = JOptionPane.showConfirmDialog(this, "Desea guardar antes de salir", "Confirmar salida", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        switch (respuesta) {
             case JOptionPane.YES_OPTION -> {
                 if (gestionarDatos("GUARDAR")) {
                     dispose();
                     return;
-                }}
-            case JOptionPane.NO_OPTION -> {dispose();
-            return;}
-            case JOptionPane.CANCEL_OPTION -> {return;}
-            default -> {return;}
-        }
-    }
-    private void crearRegion(){
-        String codigoTexto = JOptionPane.showInputDialog(this, "Ingrese el codigo de la region");
-        if(codigoTexto == null){
-            return;
-        }
-        String nombreRegion = JOptionPane.showInputDialog(this, "Ingrese el nombre de la region");
-        if(nombreRegion == null) {
-            return;
-        }
-        try{
-            InstitutoMeteorologia.getInstance().creaRegion(Integer.parseInt(codigoTexto), nombreRegion);
-            JOptionPane.showMessageDialog(this, "Region creada con exito", "Operacion Exitosa",JOptionPane.INFORMATION_MESSAGE);
-        } catch (MeteorologiaException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Operacion fallida",JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    private void crearComuna(){
-        String codigoString = JOptionPane.showInputDialog(this, "Ingrese el codigo de la comuna");
-        if(codigoString == null){
-            return;
-        }
-        String nombreComuna = JOptionPane.showInputDialog(this, "Ingrese el nombre de la comuna");
-        if(nombreComuna == null){
-            return;
-        }
-        String codigoRegionString = JOptionPane.showInputDialog(this, "Ingrese el codigo de la region");
-        if(codigoRegionString == null){
-            return;
-        }
-        try{
-            InstitutoMeteorologia.getInstance().creaComuna(Integer.parseInt(codigoString), nombreComuna, Integer.parseInt(codigoRegionString));
-            JOptionPane.showMessageDialog(this, "Comuna creada con éxito", "Operacion éxitosa", JOptionPane.INFORMATION_MESSAGE);
-        }catch(MeteorologiaException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            case JOptionPane.NO_OPTION -> {
+                dispose();
+                return;
+            }
+            case JOptionPane.CANCEL_OPTION -> {
+                return;
+            }
+            default -> {
+                return;
+            }
         }
     }
 
-    private void crearEstacionMeteorologica(){
-        String cod = JOptionPane.showInputDialog(this, "Ingrese el codigo de la estación");
-        if(cod == null){
-            return;
-        }
-        String nombre = JOptionPane.showInputDialog(this, "Ingrese el nombre de la estación");
-        if(nombre == null){
-            return;
-        }
-        Float lon = solicitarFloatValido("Ingrese la longitud");
-        if(lon == null){
-            return;
-        }
-        Float lat = solicitarFloatValido("Ingrese la latitud");
-        if(lat == null){
-            return;
-        }
-        Float alt = solicitarFloatValido("Ingrese la altitud");
-        if(alt == null){
-            return;
-        }
-        Integer codRegion = solicitarEnteroValido("Ingrese el codigo de la region");
-        if(codRegion == null){
-            return;
-        }
-        Integer codComuna = solicitarEnteroValido("Ingrese el codigo de la comuna");
-        if(codComuna == null){
-            return;
-        }
+    private void crearRegion() {
+        setVisible(false);
         try{
-            InstitutoMeteorologia.getInstance().creaEstacion(cod, nombre, lon, lat, alt, codRegion, codComuna);
-            JOptionPane.showMessageDialog(this, "Estación creada con éxito", "Operación exitosa", JOptionPane.INFORMATION_MESSAGE);
-        } catch (MeteorologiaException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
+            InterfazUsuario.getInstance().crearRegion();
+        }finally{
+            setVisible(true);
         }
     }
 
-    private boolean gestionarDatos(String tipoOperacion){//hice un switch para simplificar todo lo de los datos en una funcion booleana para manejar excepcionaes
+    private void crearComuna() {
+        setVisible(false);
+        try{
+            InterfazUsuario.getInstance().crearComuna();
+        }finally {
+            setVisible(true);
+        }
+    }
+
+    private void crearEstacionMeteorologica() {
+        setVisible(false);
+        try{
+            InterfazUsuario.getInstance().crearEstacionMeteorologica();
+        }finally {
+            setVisible(true);
+        }
+    }
+
+    private boolean gestionarDatos(String tipoOperacion) {//hice un switch para simplificar todo lo de los datos en una funcion booleana para manejar excepcionaes
         String mensaje;
-        try{
-            switch(tipoOperacion){
-                case "CARGAR" -> {InstitutoMeteorologia.getInstance().cargaDatos();
-                mensaje = "Datos cargados correctamente en el archivo datos/metereologia.txt";}
+        try {
+            switch (tipoOperacion) {
+                case "CARGAR" -> {
+                    InstitutoMeteorologia.getInstance().cargaDatos();
+                    mensaje = "Datos cargados correctamente en el archivo datos/metereologia.txt";
+                }
 
-                case "GUARDAR" -> {InstitutoMeteorologia.getInstance().guardaDatos();
-                mensaje = "Datos guardados correctamente en el archivo datos/metereologia.txt";}
+                case "GUARDAR" -> {
+                    InstitutoMeteorologia.getInstance().guardaDatos();
+                    mensaje = "Datos guardados correctamente en el archivo datos/metereologia.dat";
+                }
 
-                case "IMPORTAR" -> {InstitutoMeteorologia.getInstance().importaDatosTexto();
-                mensaje = "Datos de texto importados correctamente ";}
+                case "IMPORTAR" -> {
+                    InstitutoMeteorologia.getInstance().importaDatosTexto();
+                    mensaje = "Datos de texto importados correctamente ";
+                }
 
-                default -> {return false;}
+                default -> {
+                    return false;
+                }
             }
             JOptionPane.showMessageDialog(this, mensaje, "Operación éxitosa", JOptionPane.INFORMATION_MESSAGE);
             return true;
-        }catch (MeteorologiaException e){
+        } catch (MeteorologiaException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
-//metodos auxiliares
-    private Float solicitarFloatValido(String mensaje){//Metodo auxiliar para crearEstacion Meteorologica ya que se solicitan float con los JOpane que leen String.
-        while(true){
+    private void seleccionarListado(){
+        if(cmbListados.getSelectedIndex() == 0){
+            JOptionPane.showMessageDialog(this,"Debes seleccionar una opción","Advertencia",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+    }
+
+    //metodos auxiliares
+    private Float solicitarFloatValido(String mensaje) {//Metodo auxiliar para crearEstacion Meteorologica ya que se solicitan float con los JOpane que leen String.
+        while (true) {
             String texto = JOptionPane.showInputDialog(this, mensaje);
-            if(texto == null){
+            if (texto == null) {
                 return null; //El usuario puso cancelar, por ende salimos con null
             }
-            try{
-                float numeroValido = Float.parseFloat(texto.trim().replace(',','.'));//el replace no me lo sabia asi que le pregunte a chatgpt
-                if(!Float.isFinite(numeroValido)){
+            try {
+                float numeroValido = Float.parseFloat(texto.trim().replace(',', '.'));//el replace no me lo sabia asi que le pregunte a chatgpt
+                if (!Float.isFinite(numeroValido)) {
                     throw new NumberFormatException();
                 }
                 return numeroValido;
-            }catch(NumberFormatException e){
-                JOptionPane.showMessageDialog(this, "Ingrese un numero valido","Datos no válidos", JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Ingrese un numero valido", "Datos no válidos", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-    private Integer solicitarEnteroValido(String mensaje){ //meotodo auxiliar lo mismo pero ahora con int
-        while(true) {
+
+    private Integer solicitarEnteroValido(String mensaje) { //meotodo auxiliar lo mismo pero ahora con int
+        while (true) {
             String texto = JOptionPane.showInputDialog(this, mensaje);
-            if (texto == null){
+            if (texto == null) {
                 return null;
             }
             try {
                 int numero = Integer.parseInt(texto.trim());
                 return numero;
-            }catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this,"Debe ingresar un número entero válido.","Datos incorrectos", JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Debe ingresar un número entero válido.", "Datos incorrectos", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -222,7 +200,7 @@ public class VentanaPrincipal extends JFrame {
      *
      * @noinspection ALL
      */
-    private void $$$setupUI$$$() { //ignorar este metodo ya que lo creó el plugin de las interfaz para las propiedades de los objetos creados de esta misma. (NO BORRAR NI MODIFICAR) en mi intellij me lo marca en rojo pero según la ia es un error de lectura ya que todo compila de manera correcta
+    private void $$$setupUI$$$() {
         panelPrincipal = new JPanel();
         panelPrincipal.setLayout(new GridLayoutManager(6, 2, new Insets(5, 5, 5, 5), -1, -1, true, false));
         panelTitulo = new JPanel();
@@ -288,10 +266,19 @@ public class VentanaPrincipal extends JFrame {
         final JLabel label2 = new JLabel();
         label2.setText("Seleccione el listado:");
         panelListados.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        comboBox1 = new JComboBox();
+        cmbListados = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
-        comboBox1.setModel(defaultComboBoxModel1);
-        panelListados.add(comboBox1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        defaultComboBoxModel1.addElement("Seleccionar:");
+        defaultComboBoxModel1.addElement("Regiones");
+        defaultComboBoxModel1.addElement("Comunas");
+        defaultComboBoxModel1.addElement("Estaciones de una comuna");
+        defaultComboBoxModel1.addElement("Sensores de una estación");
+        defaultComboBoxModel1.addElement("Mediciones de un sensor");
+        defaultComboBoxModel1.addElement("Resumen estadístico de un sensor");
+        defaultComboBoxModel1.addElement("Alertas de una estación");
+        cmbListados.setModel(defaultComboBoxModel1);
+        cmbListados.setToolTipText("seleccionar:");
+        panelListados.add(cmbListados, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         generarListadoButton = new JButton();
         generarListadoButton.setText("Generar listado");
         panelListados.add(generarListadoButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -300,7 +287,7 @@ public class VentanaPrincipal extends JFrame {
     /**
      * @noinspection ALL
      */
-    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {//metodo de la interfaz
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
         if (currentFont == null) return null;
         String resultName;
         if (fontName == null) {
@@ -322,7 +309,7 @@ public class VentanaPrincipal extends JFrame {
     /**
      * @noinspection ALL
      */
-    public JComponent $$$getRootComponent$$$() {//metodo de la interfaz
+    public JComponent $$$getRootComponent$$$() {
         return panelPrincipal;
     }
 

@@ -78,7 +78,7 @@ public class InterfazUsuario {
         } while (opciones != 10);
     }
 
-    private void crearRegion() {
+    public void crearRegion() {//avance 3 es publico
         System.out.println("CREAR REGIÓN");
         System.out.println("----------------------------------------------------------");
         int codigo = convertidorInt("Código de región: "); // Leemos el codigo como String, borramos los espacios y transformamos el String(numero) a Int.
@@ -91,7 +91,7 @@ public class InterfazUsuario {
         }
     }
 
-    private void crearComuna() {
+    public void crearComuna() {//publico por avance 3
         System.out.println("CREAR COMUNA");
         System.out.println("----------------------------------------------------------");
         int codigoRegion = convertidorInt("Código de región: ");
@@ -105,7 +105,7 @@ public class InterfazUsuario {
         }
     }
 
-    private void crearEstacionMeteorologica() {
+    public void crearEstacionMeteorologica() {//publico en avance 3
         System.out.println("CREAR ESTACIÓN METEOROLÓGICA");
         System.out.println("----------------------------------------------------------");
         String codigo = convertidorTexto("Código de estación: ");

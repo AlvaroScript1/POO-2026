@@ -172,12 +172,22 @@
               <text value="Seleccione el listado:"/>
             </properties>
           </component>
-          <component id="6cc8d" class="javax.swing.JComboBox" binding="comboBox1" default-binding="true">
+          <component id="6cc8d" class="javax.swing.JComboBox" binding="cmbListados">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <model/>
+              <model>
+                <item value="Seleccionar:"/>
+                <item value="Regiones"/>
+                <item value="Comunas"/>
+                <item value="Estaciones de una comuna"/>
+                <item value="Sensores de una estación"/>
+                <item value="Mediciones de un sensor"/>
+                <item value="Resumen estadístico de un sensor"/>
+                <item value="Alertas de una estación"/>
+              </model>
+              <toolTipText value="seleccionar:"/>
             </properties>
           </component>
           <component id="35e50" class="javax.swing.JButton" binding="generarListadoButton" default-binding="true">
