@@ -55,6 +55,7 @@ public class VentanaPrincipal extends JFrame {
         crearRegionButton.addActionListener(e -> crearRegion());
         crearComunaButton.addActionListener(e -> crearComuna());
         crearEstacionMeteorologicaButton.addActionListener(e -> crearEstacionMeteorologica());
+        instalarSensorButton.addActionListener(e-> new VentanaInstalarSensor(this).setVisible(true));
         cargarDatosButton.addActionListener(e -> gestionarDatos("CARGAR"));
         importarDatosDeTextoButton.addActionListener(e -> gestionarDatos("IMPORTAR"));
         guardarDatosButton.addActionListener(e -> gestionarDatos("GUARDAR"));

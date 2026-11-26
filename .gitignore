@@ -26,3 +26,5 @@ replay_pid*
 #configuración local de intellij IDEA
 .idea/
 *.iml
+!lib/forms_rt.jar
+!POO-2026.iml
