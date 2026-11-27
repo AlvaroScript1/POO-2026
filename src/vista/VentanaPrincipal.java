@@ -59,6 +59,9 @@ public class VentanaPrincipal extends JFrame {
         importarDatosDeTextoButton.addActionListener(e -> gestionarDatos("IMPORTAR"));
         guardarDatosButton.addActionListener(e -> gestionarDatos("GUARDAR"));
         generarListadoButton.addActionListener(e -> seleccionarListado());
+        instalarSensorButton.addActionListener(e-> instalarSensor());
+        registrarMedicionButton.addActionListener(e-> registrarMedicion());
+        cambiarEstadoDeSensorButton.addActionListener(e-> cambiarEstadoSensor());
     }
 
     private void confirmarSalida() {
@@ -121,7 +124,7 @@ public class VentanaPrincipal extends JFrame {
             switch (tipoOperacion) {
                 case "CARGAR" -> {
                     InstitutoMeteorologia.getInstance().cargaDatos();
-                    mensaje = "Datos cargados correctamente en el archivo datos/metereologia.txt";
+                    mensaje = "Datos cargados correctamente en el archivo datos/meteorologia.dat";
                 }
 
                 case "GUARDAR" -> {
@@ -175,6 +178,28 @@ public class VentanaPrincipal extends JFrame {
         }finally {
             setVisible(true);
         }
+    }
+    private void instalarSensor() {
+        if (InstitutoMeteorologia.getInstance().getCodigosEstaciones().length == 0) {
+            JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Información", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        new VentanaInstalarSensor(this).setVisible(true);
+    }
+
+    private void registrarMedicion() {
+        if (InstitutoMeteorologia.getInstance().getCodigosEstaciones().length == 0) {
+            JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Información", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        new VentanaRegistrarMedicion(this).setVisible(true);
+    }
+    private void cambiarEstadoSensor() {
+        if (InstitutoMeteorologia.getInstance().getCodigosEstaciones().length == 0) {
+            JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Información", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        new VentanaCambiarEstadoSensor(this).setVisible(true);
     }
 
     //metodos auxiliares

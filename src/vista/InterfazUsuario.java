@@ -44,7 +44,7 @@ public class InterfazUsuario {
             InstitutoMeteorologia.getInstance().creaComuna(codigo, nombre, codigoRegion);
             System.out.println("Comuna creada con éxito.");
         } catch (MeteorologiaException e) {
-            System.out.println("Error: " + e);
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -62,7 +62,7 @@ public class InterfazUsuario {
             InstitutoMeteorologia.getInstance().creaEstacion(codigo, nombre, lon, lat, alt, codRegion, codComuna);
             System.out.println("Estacion creada con éxito");
         } catch (MeteorologiaException e) {
-            System.out.println("Error: " + e);
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
