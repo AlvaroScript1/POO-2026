@@ -59,6 +59,7 @@ public class VentanaPrincipal extends JFrame {
         cargarDatosButton.addActionListener(e -> gestionarDatos("CARGAR"));
         importarDatosDeTextoButton.addActionListener(e -> gestionarDatos("IMPORTAR"));
         guardarDatosButton.addActionListener(e -> gestionarDatos("GUARDAR"));
+        generarListadoButton.addActionListener(e -> seleccionarListado());
     }
 
     private void confirmarSalida() {
@@ -90,27 +91,27 @@ public class VentanaPrincipal extends JFrame {
 
     private void crearRegion() {
         setVisible(false);
-        try{
+        try {
             InterfazUsuario.getInstance().crearRegion();
-        }finally{
+        } finally {
             setVisible(true);
         }
     }
 
     private void crearComuna() {
         setVisible(false);
-        try{
+        try {
             InterfazUsuario.getInstance().crearComuna();
-        }finally {
+        } finally {
             setVisible(true);
         }
     }
 
     private void crearEstacionMeteorologica() {
         setVisible(false);
-        try{
+        try {
             InterfazUsuario.getInstance().crearEstacionMeteorologica();
-        }finally {
+        } finally {
             setVisible(true);
         }
     }
@@ -145,10 +146,35 @@ public class VentanaPrincipal extends JFrame {
             return false;
         }
     }
-    private void seleccionarListado(){
-        if(cmbListados.getSelectedIndex() == 0){
-            JOptionPane.showMessageDialog(this,"Debes seleccionar una opción","Advertencia",JOptionPane.WARNING_MESSAGE);
+
+    private void seleccionarListado() {
+        int listadoSeleccionado = cmbListados.getSelectedIndex();
+        InterfazUsuario interfaz = InterfazUsuario.getInstance();
+        if (listadoSeleccionado == 0) {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar una opción", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return;
+        }
+        if(listadoSeleccionado == 7){
+            if (InstitutoMeteorologia.getInstance().getCodigosEstaciones().length == 0) {JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            AlertasDeUnaEstacion ventana = new AlertasDeUnaEstacion(this);
+            ventana.setVisible(true);
+            return;
+        }
+        try {
+            setVisible(false);
+            switch (listadoSeleccionado) {
+                case 1 -> interfaz.listarRegiones();
+                case 2 -> interfaz.listarComunas();
+                case 3 -> InterfazUsuario.getInstance().listarEstaciones();
+                case 4 -> InterfazUsuario.getInstance().listarSensores();
+                case 5 -> InterfazUsuario.getInstance().listarMediciones();
+                case 6 -> InterfazUsuario.getInstance().listarResumenMediciones();
+                default -> JOptionPane.showMessageDialog(this, "Seleccione una opción válida", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            }
+        }finally {
+            setVisible(true);
         }
     }
 
