@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 
-public class AlertasDeUnaEstacion extends JDialog {
+public class VentanaListadoAlertas extends JDialog {
     private JPanel panelPrincipal;
     private JButton btnCerrar;
     private JComboBox cmbEstaciones;
@@ -27,7 +27,7 @@ public class AlertasDeUnaEstacion extends JDialog {
     private DefaultTableModel modelo;
     private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm").withResolverStyle(ResolverStyle.STRICT); //asumo que tuve que buscar como hacer bien el formato ya que no sabía implementarlo acá
 
-    public AlertasDeUnaEstacion(JFrame owner) {
+    public VentanaListadoAlertas(JFrame owner) {
         super(owner, "Listado de alertas meteorológicas", true);
         setContentPane(panelPrincipal);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
