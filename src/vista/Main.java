@@ -1,8 +1,12 @@
 package vista;
 
+import controlador.MeteorologiaException;
+
+import javax.swing.*;
+
 public class Main {
-    static void main(String[] args) {
-        System.out.println("Hello World");
+    public static void main(String[] args){
+        SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true)); //Metofo lambda que llama a swingUtilities y que cuando el main se ejecute aparece lamda() y lambda NO recibe parametros creando un nuevo objeto ventana con visibilidad de tipo true para que aparezca.
     }
     //RAMA MAIN Y DEVELOP SON OBLIGATORIAS EN EL GITHUB (PUBLICAS) SIEMPRE HAY QUE HACER MERGE
     //EL PROPOSITO DEL MAIN ES PARA LA ENTREGA FORMAL DE LA EVALUACION

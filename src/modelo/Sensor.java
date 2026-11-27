@@ -1,24 +1,25 @@
 package modelo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.time.*;
 import controlador.MeteorologiaException;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Optional;
 
-public abstract class Sensor {
+public abstract class Sensor implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String codigo;
     private String marca;
     private String modelo;
     private Estado estado;
     private ArrayList<Medicion> mediciones;
-    private EstacionMeteorologica estacion;
 
     protected Sensor(String codigo, String marca, String modelo, EstacionMeteorologica estacion) {
         this.codigo = codigo;
         this.marca = marca;
         this.modelo = modelo;
-        this.estacion = estacion;
         this.estado = Estado.ACTIVO;
         this.mediciones = new ArrayList<>();
     }
@@ -49,17 +50,15 @@ public abstract class Sensor {
         }
 
         // Como la lista ya está ordenada, la posición es la cantidad de mediciones anteriores.
-        int posicion = 0;
-        for (Medicion m : mediciones) {
-            if (m.getFechaHora().equals(fechaHora)) {
-                throw new MeteorologiaException("El sensor " + codigo + " ya registra una medición el "
-                        + fechaHora.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " a las "
-                        + fechaHora.format(DateTimeFormatter.ofPattern("HH:mm")) + ".");
-            }
-            if (m.getFechaHora().isBefore(fechaHora)) {
-                posicion++;
-            }
+        if(mediciones.stream().anyMatch(m-> m.getFechaHora().equals(fechaHora))){
+            throw new MeteorologiaException("El sensor "+codigo+" ya registra una medicion el " +
+                    fechaHora.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))+" a las "+
+                    fechaHora.format(DateTimeFormatter.ofPattern("HH:mm")));
         }
+        int posicion = (int) mediciones.stream()
+                .filter(m->m.getFechaHora().isBefore(fechaHora))
+                .count();
+
         mediciones.add(posicion, new Medicion(fechaHora, valor));
     }
 
@@ -67,36 +66,11 @@ public abstract class Sensor {
         return mediciones.toArray(new Medicion[0]);
     }
 
-    public Medicion getLastMedicion(){
-        if(mediciones.isEmpty()){
-            return null;
-        }
-        Medicion actualCronologicamente = mediciones.get(0);
-        for(Medicion m : mediciones){
-            if(m.getFechaHora().isAfter(actualCronologicamente.getFechaHora())){
-                actualCronologicamente = m;
-            }
-        }
-        return actualCronologicamente;
-    }
-
     public Medicion[] getMedicionesBetween(LocalDateTime inicio, LocalDateTime fin){
-        int contador = 0;
-        for(Medicion m : mediciones){
-            if(!m.getFechaHora().isBefore(inicio) && !m.getFechaHora().isAfter(fin)){// Use los metodos Before y After negados para hacerlos inclusivos
-                contador++;
-            }
-        }
-        int i = 0;
-        Medicion[] medicionesAptas = new Medicion[contador];
-        for(Medicion m : mediciones){
-            if(!m.getFechaHora().isBefore(inicio) && !m.getFechaHora().isAfter(fin)) { //Usamos mismo código de arriba para verificar las mediciones
-                medicionesAptas[i] = m;
-                i++; // De esta forma hacemos un for-each que recorra las mediciones y además por cada vuelta válida del if, se suma una i, que sirve como contador
-                // Este contador es para que se simule un for normal
-            }
-        }
-        return medicionesAptas;
+        return mediciones.stream()
+                .filter(m -> !m.getFechaHora().isBefore(inicio) && !m.getFechaHora().isAfter(fin))
+                .sorted(Comparator.comparing(Medicion::getFechaHora))
+                .toArray(Medicion[]::new);
     }
 
     public Optional<ResumenMediciones> getResumenBetween(LocalDateTime inicio, LocalDateTime fin) {

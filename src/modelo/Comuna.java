@@ -1,7 +1,9 @@
 package modelo;
+import java.io.Serializable;
 import java.util.*;
 
-public class Comuna {
+public class Comuna implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int codigo;
     private String nombre;
     private Region region;
@@ -23,12 +25,8 @@ public class Comuna {
         estacionesPorComuna.add(estacion);
     }
     public Optional<EstacionMeteorologica> findEstacionById(String codigo){
-        for(EstacionMeteorologica e : estacionesPorComuna){
-            if(e.getCodigo().equalsIgnoreCase(codigo)){
-                return Optional.of(e); // en este caso retornamos el optional con la estacion meteorologica que tiene el codigo indicado
-            }
-        }
-        return Optional.empty(); // Si no encontramos la region entonces retornamos un Optional vacio
+        return estacionesPorComuna.stream().filter(e-> e.getCodigo().equalsIgnoreCase(codigo))
+                .findFirst();
     }
     public Region getRegion(){
         return this.region;
@@ -38,12 +36,6 @@ public class Comuna {
         return estacionesPorComuna.toArray(new EstacionMeteorologica[0]); // retornamos un arrayList que es convertido a arreglo de tipo EstacionMeteorologica
     }
     public int getCantidadEstacionesActivas(){
-        int i = 0;
-        for(EstacionMeteorologica e : estacionesPorComuna){
-            if(e.getEstado() == Estado.ACTIVO){
-                i++;
-            }
-        }
-        return i;
+        return (int) estacionesPorComuna.stream().filter(e-> e.getEstado() == Estado.ACTIVO).count();
     }
 }
