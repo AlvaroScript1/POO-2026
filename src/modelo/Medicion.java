@@ -1,8 +1,10 @@
 package modelo;
 
+import java.io.Serializable;
 import java.time.*; // esto para usar el LocalDateTime
 import java.time.format.DateTimeFormatter; // esto para usar el formatter
-public final class Medicion { // Hacemos inmutable la clase
+public final class Medicion implements Serializable { // Hacemos inmutable la clase
+    private static final long serialVersionUID = 1L;
     private final LocalDateTime fechaHora; // Hacemos inmutable el atributo fechahora
     private final float valor; // Hacemos inmutable el atributo valor
 
