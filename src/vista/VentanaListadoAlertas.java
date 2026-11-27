@@ -28,7 +28,7 @@ public class VentanaListadoAlertas extends JDialog {
     private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm").withResolverStyle(ResolverStyle.STRICT); //asumo que tuve que buscar como hacer bien el formato ya que no sabía implementarlo acá
 
     public VentanaListadoAlertas(JFrame owner) {
-        super(owner, "Listado de alertas meteorológicas", true);
+        super(owner, "Alertas de una estación", true);
         setContentPane(panelPrincipal);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         configurarTabla();
@@ -63,7 +63,7 @@ public class VentanaListadoAlertas extends JDialog {
         String codigoEstacion = (String) cmbEstaciones.getSelectedItem();
         String textoInicio = txtInicio.getText().trim();
         String textoFin = txtFin.getText().trim();
-        if (codigoEstacion == null) { //validamos la estación
+        if (codigoEstacion == null || codigoEstacion.isEmpty()) { //validamos la estación
             JOptionPane.showMessageDialog(this, "Debe seleccionar una estación.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }

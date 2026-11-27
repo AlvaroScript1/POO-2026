@@ -1,18 +1,136 @@
 package vista;
 
+import controlador.InstitutoMeteorologia;
+import controlador.MeteorologiaException;
+import modelo.*;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.util.Enumeration;
 
-public class VentanaCambiarEstadoSensor {
+
+public class VentanaCambiarEstadoSensor extends JDialog {
     private JPanel panelPrincipal;
     private JComboBox comboEstaciones;
-    private JComboBox comboBox2;
+    private JComboBox comboSensores;
     private JLabel etiquetaEstadoActual;
     private JPanel panelEstados;
     private JButton botonCancelar;
     private JButton botonCambiarEstado;
+    private ButtonGroup estados;
 
+    public VentanaCambiarEstadoSensor(JFrame owner) {
+        super(owner, "Cambiar estado de sensor", true);
+        setContentPane(panelPrincipal);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        estadoRadiosInicializar();
+        cargarEstaciones();
+
+        comboEstaciones.addActionListener(e -> cargarSensores());
+        comboSensores.addActionListener(e -> estadoActual());
+        botonCambiarEstado.addActionListener(e -> cambiarEstado());
+        botonCancelar.addActionListener(e -> dispose());
+        pack();
+        setMinimumSize(new Dimension(410, 210));
+        setLocationRelativeTo(owner);
+    }
+
+    private void cargarEstaciones() {
+        comboEstaciones.removeAllItems();
+        for (String est : InstitutoMeteorologia.getInstance().getCodigosEstaciones()) {
+            comboEstaciones.addItem(est);
+        }
+        cargarSensores();
+    }
+
+    private void estadoRadiosInicializar() {
+        panelEstados.removeAll();
+        panelEstados.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        estados = new ButtonGroup();
+
+        boolean centinela = true;
+        for (Estado e : Estado.values()) {
+            JRadioButton r = new JRadioButton(e.name());
+            r.setActionCommand(e.name());
+            if (centinela == true) {
+                r.setSelected(true);
+                centinela = false;
+            }
+            estados.add(r);
+            panelEstados.add(r);
+        }
+        panelEstados.revalidate();
+        panelEstados.repaint();
+    }
+
+    private void cargarSensores() {
+        comboSensores.removeAllItems();
+        String codEst = (String) comboEstaciones.getSelectedItem();
+        if (codEst == null || codEst.isEmpty()) {
+            etiquetaEstadoActual.setText("-");
+            return;
+        }
+        try {
+            for (String sen : InstitutoMeteorologia.getInstance().getCodigosSensores(codEst)) {
+                comboSensores.addItem(sen);
+            }
+        } catch (MeteorologiaException exc) {
+            JOptionPane.showMessageDialog(this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        estadoActual();
+    }
+
+    private void estadoActual() {
+        String codEst = (String) comboEstaciones.getSelectedItem();
+        String codSen = (String) comboSensores.getSelectedItem();
+        if (codEst == null || codSen == null) {
+            etiquetaEstadoActual.setText("-");
+            return;
+        }
+        try {
+            String[] d = InstitutoMeteorologia.getInstance().getDatosSensor(codEst, codSen);
+            etiquetaEstadoActual.setText(d[2]);
+            radioEstado(d[2]);
+        } catch (MeteorologiaException exc) {
+            etiquetaEstadoActual.setText("-");
+            JOptionPane.showMessageDialog(this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void radioEstado(String estadoActual) {
+        Enumeration<AbstractButton> botones = estados.getElements();
+        while (botones.hasMoreElements()) {
+            AbstractButton boton = botones.nextElement();
+            if (boton.getActionCommand().equalsIgnoreCase(estadoActual)) {
+                boton.setSelected(true);
+                return;
+            }
+        }
+    }
+
+
+    private void cambiarEstado() {
+        String codEst = (String) comboEstaciones.getSelectedItem();
+        String codSen = (String) comboSensores.getSelectedItem();
+        if (codEst == null || codSen == null) {
+            JOptionPane.showMessageDialog(this, "La estación seleccionada no tiene sensores instalados.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        ButtonModel s = estados.getSelection();
+        if (s == null) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un nuevo estado", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        Estado est = Estado.valueOf(s.getActionCommand());
+        try {
+            InstitutoMeteorologia.getInstance().cambiaEstadoSensor(codEst, codSen, est);
+            estadoActual();
+            JOptionPane.showMessageDialog(this, "Estado del sensor " + codSen + " actualizado a " + est + ".", "Cambiar estado de sensor", JOptionPane.INFORMATION_MESSAGE);
+        } catch (MeteorologiaException exc) {
+            JOptionPane.showMessageDialog(this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
 // >>> IMPORTANT!! <<<
@@ -65,14 +183,14 @@ public class VentanaCambiarEstadoSensor {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panel1.add(comboEstaciones, gbc);
-        comboBox2 = new JComboBox();
+        comboSensores = new JComboBox();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel1.add(comboBox2, gbc);
+        panel1.add(comboSensores, gbc);
         final JLabel label4 = new JLabel();
         label4.setText("Sensor:");
         gbc = new GridBagConstraints();
