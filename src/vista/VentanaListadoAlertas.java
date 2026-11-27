@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
-
+// un leve cambio
 public class VentanaListadoAlertas extends JDialog {
     private JPanel panelPrincipal;
     private JButton btnCerrar;
