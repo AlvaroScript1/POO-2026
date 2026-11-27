@@ -15,6 +15,8 @@ import java.awt.event.WindowEvent;
 import java.util.Locale;
 
 public class VentanaPrincipal extends JFrame {
+    private InstitutoMeteorologia instituto;
+    private InterfazUsuario interfaz;
     private JPanel panelPrincipal;
     private JButton salirButton;
     private JPanel panelSalir;
@@ -36,29 +38,52 @@ public class VentanaPrincipal extends JFrame {
     private JLabel lblEstado;
     private JPanel panelTitulo;
 
-    public VentanaPrincipal() {
+    private static final String[] LISTADOS = {
+            "Alertas de una estación",
+            "Regiones",
+            "Comunas",
+            "Estaciones de una comuna",
+            "Sensores de una estación",
+            "Mediciones de un sensor",
+            "Resumen estadístico de un sensor"
+    };
+
+    public VentanaPrincipal(){
+        instituto = InstitutoMeteorologia.getInstance();
+        interfaz = InterfazUsuario.getInstance();
 
         setTitle("Sistema de Información Meteorológica");
         setContentPane(panelPrincipal);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        pack();
 
+        actualizarEstado();
+        pack();
         setLocationRelativeTo(null);
-        salirButton.addActionListener(e -> confirmarSalida());
 
         addWindowListener(new WindowAdapter() { //este addWindowListener es para que se pueda cerrar con x y en vez de que se cierre invoque el metodo de confirmarSalida.            @Override
             public void windowClosing(WindowEvent e) {
-                super.windowClosing(e);
                 confirmarSalida();
             }
         });
+        salirButton.addActionListener(e -> confirmarSalida());
         crearRegionButton.addActionListener(e -> crearRegion());
         crearComunaButton.addActionListener(e -> crearComuna());
         crearEstacionMeteorologicaButton.addActionListener(e -> crearEstacionMeteorologica());
-        instalarSensorButton.addActionListener(e-> new VentanaInstalarSensor(this).setVisible(true));
+        instalarSensorButton.addActionListener(e-> abrirVentanaInstalarSensor());
+        registrarMedicionButton.addActionListener(e-> abrirVentanaRegistrarMedicion());
+        cambiarEstadoDeSensorButton.addActionListener(e-> abrirVentanaCambiarEstadoSensor());
         cargarDatosButton.addActionListener(e -> gestionarDatos("CARGAR"));
         importarDatosDeTextoButton.addActionListener(e -> gestionarDatos("IMPORTAR"));
         guardarDatosButton.addActionListener(e -> gestionarDatos("GUARDAR"));
+        generarListadoButton.addActionListener(e-> seleccionarListado());
+    }
+
+    private void actualizarEstado(){
+        if(instituto.existenDatos() == true){
+            lblEstado.setText("Estado: el sistema tiene datos registrados.");
+        }else{
+            lblEstado.setText("Estado: el sistema no tiene datos registrados.");
+        }
     }
 
     private void confirmarSalida() {
@@ -72,18 +97,14 @@ public class VentanaPrincipal extends JFrame {
             case JOptionPane.YES_OPTION -> {
                 if (gestionarDatos("GUARDAR")) {
                     dispose();
-                    return;
                 }
             }
             case JOptionPane.NO_OPTION -> {
                 dispose();
-                return;
             }
             case JOptionPane.CANCEL_OPTION -> {
-                return;
             }
             default -> {
-                return;
             }
         }
     }
@@ -91,46 +112,79 @@ public class VentanaPrincipal extends JFrame {
     private void crearRegion() {
         setVisible(false);
         try{
-            InterfazUsuario.getInstance().crearRegion();
+            interfaz.crearRegion();
         }finally{
             setVisible(true);
+            actualizarEstado();
         }
     }
 
     private void crearComuna() {
         setVisible(false);
         try{
-            InterfazUsuario.getInstance().crearComuna();
+            interfaz.crearComuna();
         }finally {
             setVisible(true);
+            actualizarEstado();
         }
     }
 
     private void crearEstacionMeteorologica() {
         setVisible(false);
         try{
-            InterfazUsuario.getInstance().crearEstacionMeteorologica();
+            interfaz.crearEstacionMeteorologica();
         }finally {
             setVisible(true);
+            actualizarEstado();
         }
+    }
+    private void abrirVentanaInstalarSensor(){
+        if(instituto.getCodigosEstaciones().length == 0){
+            JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        new VentanaInstalarSensor(this).setVisible(true);
+        actualizarEstado();
+    }
+
+    private void abrirVentanaRegistrarMedicion(){
+        if(instituto.getCodigosEstaciones().length == 0){
+            JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        new VentanaRegistrarMedicion(this).setVisible(true);
+        actualizarEstado();
+    }
+
+    private void abrirVentanaCambiarEstadoSensor(){
+        if(instituto.getCodigosEstaciones().length == 0){
+            JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        new VentanaCambiarEstadoSensor(this).setVisible(true);
+        actualizarEstado();
     }
 
     private boolean gestionarDatos(String tipoOperacion) {//hice un switch para simplificar todo lo de los datos en una funcion booleana para manejar excepcionaes
+        String titulo;
         String mensaje;
         try {
             switch (tipoOperacion) {
                 case "CARGAR" -> {
-                    InstitutoMeteorologia.getInstance().cargaDatos();
-                    mensaje = "Datos cargados correctamente en el archivo datos/metereologia.txt";
+                    instituto.cargaDatos();
+                    titulo = "Cargar datos";
+                    mensaje = "Datos cargados correctamente en el archivo datos/meteorologia.dat";
                 }
 
                 case "GUARDAR" -> {
-                    InstitutoMeteorologia.getInstance().guardaDatos();
-                    mensaje = "Datos guardados correctamente en el archivo datos/metereologia.dat";
+                    instituto.guardaDatos();
+                    titulo = "Guardar datos";
+                    mensaje = "Datos guardados correctamente en el archivo datos/meteorologia.dat";
                 }
 
                 case "IMPORTAR" -> {
-                    InstitutoMeteorologia.getInstance().importaDatosTexto();
+                    instituto.importaDatosTexto();
+                    titulo = "Importar datos de texto";
                     mensaje = "Datos de texto importados correctamente ";
                 }
 
@@ -138,17 +192,48 @@ public class VentanaPrincipal extends JFrame {
                     return false;
                 }
             }
-            JOptionPane.showMessageDialog(this, mensaje, "Operación éxitosa", JOptionPane.INFORMATION_MESSAGE);
+            actualizarEstado();
+            JOptionPane.showMessageDialog(this, mensaje, titulo, JOptionPane.INFORMATION_MESSAGE);
             return true;
         } catch (MeteorologiaException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Operación fallida", JOptionPane.ERROR_MESSAGE);
+            actualizarEstado();
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
     private void seleccionarListado(){
-        if(cmbListados.getSelectedIndex() == 0){
+        String opcion = (String) cmbListados.getSelectedItem();
+        if(opcion == null || cmbListados.getSelectedIndex() == 0){
             JOptionPane.showMessageDialog(this,"Debes seleccionar una opción","Advertencia",JOptionPane.WARNING_MESSAGE);
             return;
+        }
+
+        if("Alertas de una estación".equals(opcion)){
+            if(instituto.getCodigosEstaciones().length == 0){
+                JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            new VentanaListadoAlertas(this).setVisible(true);
+            return;
+        }
+
+        setVisible(false);
+
+        try{
+            switch (opcion){
+                case "Regiones"-> interfaz.listarRegiones();
+                case "Comunas"-> interfaz.listarComunas();
+                case "Estaciones de una comuna" -> interfaz.listarEstaciones();
+                case "Sensores de una estación" -> interfaz.listarSensores();
+                case "Mediciones de un sensor" -> interfaz.listarMediciones();
+                case "Resumen estadístico de un sensor" -> interfaz.listarResumenMediciones();
+                default ->{
+
+                }
+            }
+        }finally{
+            setVisible(true);
+            actualizarEstado();
         }
     }
 

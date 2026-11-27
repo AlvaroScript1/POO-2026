@@ -39,17 +39,9 @@ public class Region implements Serializable {
         return comunas.stream().filter(c -> c.getCodigo() == cod).findFirst(); // implementamos lambda
     }
     public Comuna[] getComunas(){
-        Comuna[] arregloComunas = new Comuna[comunas.size()];
-        for(int i = 0; i < comunas.size(); i++){
-            arregloComunas[i] = comunas.get(i);
-        }
-        return arregloComunas;
+        return comunas.toArray(new Comuna[0]);
     }
     public int getCantidadEstaciones(){
-        int cont = 0;
-        for(int i = 0; i < comunas.size(); i++){
-            cont += comunas.get(i).getEstaciones().length;
-        }
-        return cont;
+        return comunas.stream().mapToInt(c -> c.getEstaciones().length).sum();
     }
 }

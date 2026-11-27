@@ -68,12 +68,12 @@ public class VentanaInstalarSensor extends JDialog{
         }
 
         if(cod.isEmpty() || mar.isEmpty() || mod.isEmpty()){ // Si los campos estan vacios entonces se requerira completarlos todos
-            JOptionPane.showMessageDialog(this, "Debe completar todos los campos requeridos", "Advertencia", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Debe completar todos los campos requeridos", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         ButtonModel opcion = tiposS.getSelection(); // obtenemos la seleccion
         if(opcion == null){ // Si la opcion es nula, entonces no elegimos ningun tipo de sensor
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un tipo de sensor", "Advertencia", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un tipo de sensor", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         TipoSensor sensor = TipoSensor.valueOf(opcion.getActionCommand()); // Obtenemos el comando de accion de opcion que seria su valor y eso lo convertimos a tipo sensor guardandolo en sensor
@@ -82,8 +82,10 @@ public class VentanaInstalarSensor extends JDialog{
             InstitutoMeteorologia.getInstance().instalaSensor(cod, mar, mod, sensor, codigos); // mediante la instancia de institutoMeteorologia usamos el metodo instalar
             // sensor que tendra como parametros los asignados con anterioridad
 
-            JOptionPane.showMessageDialog(this, "Sensor instalado correctamente","Exito", JOptionPane.INFORMATION_MESSAGE);
-            dispose();
+            JOptionPane.showMessageDialog(this, "Sensor "+cod +" instalado en la estacion "+ codigos+".","Instalar sensor", JOptionPane.INFORMATION_MESSAGE);
+            codigo.setText("");
+            marca.setText("");
+            modelo.setText("");
         }catch(MeteorologiaException exc){
             JOptionPane.showMessageDialog(this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
