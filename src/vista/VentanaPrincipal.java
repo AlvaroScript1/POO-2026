@@ -157,7 +157,7 @@ public class VentanaPrincipal extends JFrame {
             if (InstitutoMeteorologia.getInstance().getCodigosEstaciones().length == 0) {JOptionPane.showMessageDialog(this, "No existen estaciones registradas.", "Información", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            AlertasDeUnaEstacion ventana = new AlertasDeUnaEstacion(this);
+            VentanaListadoAlertas ventana = new VentanaListadoAlertas(this);
             ventana.setVisible(true);
             return;
         }
