@@ -36,12 +36,6 @@ public class Comuna implements Serializable {
         return estacionesPorComuna.toArray(new EstacionMeteorologica[0]); // retornamos un arrayList que es convertido a arreglo de tipo EstacionMeteorologica
     }
     public int getCantidadEstacionesActivas(){
-        int i = 0;
-        for(EstacionMeteorologica e : estacionesPorComuna){
-            if(e.getEstado() == Estado.ACTIVO){
-                i++;
-            }
-        }
-        return i;
+        return (int) estacionesPorComuna.stream().filter(e-> e.getEstado() == Estado.ACTIVO).count();
     }
 }
