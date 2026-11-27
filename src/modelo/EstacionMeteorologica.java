@@ -15,7 +15,6 @@ public class EstacionMeteorologica implements Serializable {
     private ArrayList<AlertaMeteorologica> alertas = new ArrayList<>();
     //complemento (creamos un array list de los sensores
     private ArrayList<Sensor> sensores;
-    //constructor de modelo.EstacionMeteorologica (Falta las comunas)
     public EstacionMeteorologica(String cod, String nombre,
                                  float lon, float lat, float alt,
                                  Comuna comuna){
@@ -91,20 +90,11 @@ public class EstacionMeteorologica implements Serializable {
         if(estado != Estado.ACTIVO){
             throw new MeteorologiaException("La estacion "+this.codigo+" no está activa");
         }
-        for(Sensor s : sensores){
-            if(s.getCodigo().equalsIgnoreCase(codigoSensor)){ //la condicion que evalua s como obj y compara su codigo con el parametro para buscar el sensor.
-                s.addMedicion(fechaHora, valor); //llamamos el metodo para agregar la medición con los parametros
-                if(s instanceof Alertable alert){ // verificamos si ese sensor es alertable
-                    Optional<NivelAlerta> nivel = alert.evaluaAlerta(valor);
-                    if(nivel.isPresent()){
-                        alertas.add(new AlertaMeteorologica(fechaHora, valor, nivel.get(),
-                                alert.getFenomeno(valor), s));
-                    }
-                }
-                return;
-            }
+        Sensor s = findSensorById(codigoSensor).orElseThrow(()-> new MeteorologiaException("No existe el sensor "+ codigoSensor+ " en la estacion "+ this.codigo));
+        s.addMedicion(fechaHora, valor);
+        if(s instanceof Alertable ale){
+            ale.evaluaAlerta(valor).ifPresent(nivel -> alertas.add(new AlertaMeteorologica(fechaHora, valor, nivel, ale.getFenomeno(valor), s)));
         }
-        throw new MeteorologiaException("No existe el sensor "+codigoSensor+" en la estación "+this.codigo); //no se encontro ningún codigo que coincida
     }
 
     public Sensor[] getSensores(){
@@ -167,12 +157,7 @@ public class EstacionMeteorologica implements Serializable {
 
     @Override
     public String toString() {
-        int senActivo = 0;
-        for(Sensor s : sensores){
-            if(s.getEstado() == Estado.ACTIVO){ // Cuenta solo los sensores activos
-                senActivo++;
-            }
-        }
+        long senActivo = sensores.stream().filter(s->s.getEstado() == Estado.ACTIVO).count();
         return String.format("%s; %s; (%.4f, %.4f, %.0f m); %s; %d",
                 codigo, nombre, latitud, longitud, altitud, estado, senActivo);
     }

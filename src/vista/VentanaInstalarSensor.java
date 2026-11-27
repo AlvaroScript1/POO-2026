@@ -9,8 +9,7 @@ import java.util.Locale;
 import controlador.InstitutoMeteorologia;
 import modelo.TipoSensor;
 import controlador.MeteorologiaException;
-
-public class VentanaInstalarSensor extends JDialog {
+public class VentanaInstalarSensor extends JDialog{
     private JPanel panelPrincipal;
     private JPanel tipos;
     private JButton botonCancelar;
@@ -21,14 +20,14 @@ public class VentanaInstalarSensor extends JDialog {
     private JTextField modelo;
     private ButtonGroup tiposS;
 
-    public VentanaInstalarSensor(JFrame owner) {
+    public VentanaInstalarSensor(JFrame owner){
         super(owner, "Instalar sensor", true);
         setContentPane(panelPrincipal);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         cargarEstaciones();
         cargarTiposSensor();
-        botonInstalar.addActionListener(e -> instalarSensor());
+        botonInstalar.addActionListener(e-> instalarSensor());
         botonCancelar.addActionListener(e -> dispose()); // este es un action que si se ejecuta o mejor dicho aprieta el boton cancelar entonces se accionara disposes cerrando la ventana
         pack();
         setLocationRelativeTo(owner);
@@ -36,21 +35,20 @@ public class VentanaInstalarSensor extends JDialog {
 
     private void cargarEstaciones() {
         comboEstaciones.removeAllItems();
-        String[] codigos = InstitutoMeteorologia.getInstance().getCodigosEstaciones();
-        for (String c : codigos) {
+        String[]codigos = InstitutoMeteorologia.getInstance().getCodigosEstaciones();
+        for(String c : codigos){
             comboEstaciones.addItem(c);
         }
     }
-
-    private void cargarTiposSensor() {
-        tipos.setLayout(new GridLayout(2, 3, 8, 8)); // Es el layout
+    private void cargarTiposSensor(){
+        tipos.setLayout(new GridLayout(2,3,8,8)); // Es el layout
         tiposS = new ButtonGroup(); // Hacemos un nuevo grupo de botones
         tipos.removeAll(); // los removemos todos
 
-        for (TipoSensor t : TipoSensor.values()) {
+        for(TipoSensor t : TipoSensor.values()){
             JRadioButton r = new JRadioButton(t.name());
             r.setActionCommand(t.name());
-            if (t == TipoSensor.TEMPERATURA) { // Esto es para dejar seleccionado temperatura desde el inicio
+            if(t == TipoSensor.TEMPERATURA){ // Esto es para dejar seleccionado temperatura desde el inicio
                 r.setSelected(true);
             }
             tiposS.add(r);
@@ -58,42 +56,43 @@ public class VentanaInstalarSensor extends JDialog {
         }
     }
 
-    private void instalarSensor() {
+    private void instalarSensor(){
         String codigos = (String) comboEstaciones.getSelectedItem(); // De combo estaciones obtenemos la eleccion y pasamos esa eleccion a String guardandolo en una variable
         String cod = codigo.getText().trim();
         String mar = marca.getText().trim();
         String mod = modelo.getText().trim(); // de codigo, marca y modelo obtenemos el texto puesto en los bloques de texto
 
-        if (codigos == null || codigos.isEmpty()) { // Si se encuentra vacio codigos, entonces lanzamos una ventana de error asociado
+        if(codigos == null || codigos.isEmpty()){ // Si se encuentra vacio codigos, entonces lanzamos una ventana de error asociado
             JOptionPane.showMessageDialog(this, "No hay estaciones disponibles", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        if (cod.isEmpty() || mar.isEmpty() || mod.isEmpty()) { // Si los campos estan vacios entonces se requerira completarlos todos
-            JOptionPane.showMessageDialog(this, "Debe completar todos los campos requeridos", "Advertencia", JOptionPane.ERROR_MESSAGE);
+        if(cod.isEmpty() || mar.isEmpty() || mod.isEmpty()){ // Si los campos estan vacios entonces se requerira completarlos todos
+            JOptionPane.showMessageDialog(this, "Debe completar todos los campos requeridos", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         ButtonModel opcion = tiposS.getSelection(); // obtenemos la seleccion
-        if (opcion == null) { // Si la opcion es nula, entonces no elegimos ningun tipo de sensor
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un tipo de sensor", "Advertencia", JOptionPane.ERROR_MESSAGE);
+        if(opcion == null){ // Si la opcion es nula, entonces no elegimos ningun tipo de sensor
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un tipo de sensor", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         TipoSensor sensor = TipoSensor.valueOf(opcion.getActionCommand()); // Obtenemos el comando de accion de opcion que seria su valor y eso lo convertimos a tipo sensor guardandolo en sensor
 
-        try { // Hacemos un try-catch para capturar errores y que no se caiga el sistema
+        try{ // Hacemos un try-catch para capturar errores y que no se caiga el sistema
             InstitutoMeteorologia.getInstance().instalaSensor(cod, mar, mod, sensor, codigos); // mediante la instancia de institutoMeteorologia usamos el metodo instalar
             // sensor que tendra como parametros los asignados con anterioridad
 
-            JOptionPane.showMessageDialog(this, "Sensor instalado correctamente", "Exito", JOptionPane.INFORMATION_MESSAGE);
-            dispose();
-        } catch (MeteorologiaException exc) {
+            JOptionPane.showMessageDialog(this, "Sensor "+cod +" instalado en la estacion "+ codigos+".","Instalar sensor", JOptionPane.INFORMATION_MESSAGE);
+            codigo.setText("");
+            marca.setText("");
+            modelo.setText("");
+        }catch(MeteorologiaException exc){
             JOptionPane.showMessageDialog(this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
 
 
         // Streaming, interfaces graficas, persistencia objetos
     }
-
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
 // >>> IMPORTANT!! <<<
@@ -123,8 +122,6 @@ public class VentanaInstalarSensor extends JDialog {
         gbc.anchor = GridBagConstraints.WEST;
         panel1.add(label1, gbc);
         comboEstaciones = new JComboBox();
-        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
-        comboEstaciones.setModel(defaultComboBoxModel1);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
